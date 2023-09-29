@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Izinkan hanya akses dari localhost:3000
+    origin: process.env.CORS_ORIGINS.split(', '), // Izinkan hanya akses dari CORS_ORIGINS
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Izinkan metode HTTP yang diperlukan
     credentials: true, // Izinkan penggunaan kredensial (mis. cookies)
   })
