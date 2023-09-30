@@ -14,13 +14,13 @@ KarsaBuana-BE is a Node.js backend application built with Express.js for an inte
 
 1. **Clone the repository:**
 
-   ```
+   ```bash
    git clone https://github.com/yourusername/KarsaBuana-BE.git
    ```
 
 2. **Install dependencies:**
 
-   ```
+   ```bash
    cd KarsaBuana-BE
    npm install
    ```
@@ -34,14 +34,19 @@ KarsaBuana-BE is a Node.js backend application built with Express.js for an inte
 
    Create a `.env` file in the root directory of the project and add the following environment variables:
 
-   ```
+   ```env
+   MONGODB_URI=your_mongodb_uri
+   PASSWORD_LENGTH=your_password_length
    SPREADSHEETS_ID=your_spreadsheet_id
    CORS_ORIGINS=your_backend_url
+   ACCESS_TOKEN_SECRET=your_access_token_secret
+   REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   ACCESS_TOKEN_LIFE=your_token_expiration_time
    ```
 
 5. **Start the application:**
 
-   ```
+   ```bash
    npm start
    ```
 
