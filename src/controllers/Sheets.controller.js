@@ -2,50 +2,45 @@ const sheetsServices = require("../services/Sheets.services");
 
 exports.getMeta = async function (req, res) {
   try {
-    const meta = await sheetsServices.getMeta();
-    res.send(meta);
-  } catch (error) {
-    res.send(error);
+    const result = await sheetsServices.getMeta();
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-};
+}
 
 exports.postData = async function (req, res) {
   try {
-    const data = await sheetsServices.postData(req.body);
-    res.send("Succesfully sent! Thank You");
-  } catch (error) {
-    res.send(error);
+    const result = await sheetsServices.postData(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-};
+}
 
 exports.postValuesFromRange = async function (req, res) {
   try {
-    const data = await sheetsServices.postValuesFromRange(req.body);
-    res.send(data.data.values);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching values" });
+    const result = await sheetsServices.postValuesFromRange(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-};
+}
 
 exports.postCopyTemplate = async function (req, res) {
   try {
-    const response = await sheetsServices.postCopyTemplate(req);
-    res.status(200).json({ message: "Sheet copied successfully", response });
-  } catch (error) {
-    res.status(500).json({ message: "Error copying sheet", error: error });
+    const result = await sheetsServices.postCopyTemplate(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-};
+}
 
 exports.postCreateSheets = async function (req, res) {
   try {
-    const response = await sheetsServices.createSheets(req.body);
-    res.status(200).json({ message: "Sheet created successfully", response });
-  } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error creating sheet",
-        error: error.response.data.error,
-      });
+    const result = await sheetsServices.createSheets(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
-};
+}

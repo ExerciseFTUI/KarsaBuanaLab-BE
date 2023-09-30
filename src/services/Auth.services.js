@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.models');
 
-const refreshTokens = [];
+let refreshTokens = [];
 
 function generateAccessToken(user) {
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_LIFE });
@@ -78,7 +78,7 @@ exports.login = async function (body){
 
 exports.logout = async function (body){
     const {refresh_token} = body;
-    if(!refreshTokens.includes(refresh_token)){
+    if(refreshTokens.includes(refresh_token) === false){
         return { message: "No refresh token found" }
     }
     refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
