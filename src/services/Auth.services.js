@@ -78,7 +78,7 @@ exports.login = async function (body){
 
 exports.logout = async function (body){
     const {refresh_token} = body;
-    if(refreshTokens.includes(refresh_token) === false){
+    if(!refreshTokens.includes(refresh_token)){
         return { message: "No refresh token found" }
     }
     refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
