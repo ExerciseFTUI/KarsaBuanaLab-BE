@@ -40,8 +40,9 @@ KarsaBuana-BE is a Node.js backend application built with Express.js for an inte
    SPREADSHEETS_ID=your_spreadsheet_id
    CORS_ORIGINS=your_backend_url
    ACCESS_TOKEN_SECRET=your_access_token_secret
-   REFRESH_TOKEN_SECRET=your_refresh_token_secret
    ACCESS_TOKEN_LIFE=your_token_expiration_time
+   REFRESH_TOKEN_SECRET=your_refresh_token_secret
+   REFRESH_TOKEN_LIMIT=your_refresh_token_limit
    ```
 
 5. **Start the application:**

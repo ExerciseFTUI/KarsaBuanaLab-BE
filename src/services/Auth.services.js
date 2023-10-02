@@ -29,7 +29,8 @@ exports.refreshTokens = async function (body){
 
 exports.getUser = async function (body){
     const {_id} = body;
-    const result = await User.findById(_id);
+    // const result = await User.findById(_id);
+    const result = await User.find();
     if (!result){
         return {message: "User not found"};
     }
@@ -70,8 +71,11 @@ exports.login = async function (body){
     }
 
     const accessToken = generateAccessToken({username: user.username});
-    const refreshToken = jwt.sign(user.username, process.env.REFRESH_TOKEN_SECRET);
+    const refreshToken = jwt.sign({ email: user.email }, process.env.REFRESH_TOKEN_SECRET);
     refreshTokens.push(refreshToken);
+    if(refreshTokens.length > process.env.REFRESH_TOKEN_LIMIT){
+        refreshTokens.shift();
+    }
 
     return{ accessToken: accessToken, refreshToken: refreshToken}
 }
