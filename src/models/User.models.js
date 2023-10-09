@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
       minlength: 8,
       maxlength: 1024,
   },
-  role: { type: String, required: true },
+  role: { type: String, enum: ["ADMIN", "USER"], required: true, default: "USER" },
 });
 
 const User = mongoose.model("User", userSchema);

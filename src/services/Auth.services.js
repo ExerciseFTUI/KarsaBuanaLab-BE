@@ -39,19 +39,16 @@ exports.getUser = async function (body){
 
 
 exports.register = async function (body){
-    const {username, password, email} = body;
-    if (!username || !password || !email){
+    const {...user} = body;
+    if (!user.username || !user.password || !user.email){
         return {message: "Please fill all the fields"};
     }
-    if (password.length < process.env.PASSWORD_LENGTH){
+    if (user.password.length < process.env.PASSWORD_LENGTH){
         return {message: "Password must be at least 8 characters"};
     }
-    const pass = await bcrypt.hash(password, 10);
+    user.password = await bcrypt.hash(user.password, 10);
     const result = new User({
-        username: username,
-        password: pass,
-        email: email,
-        role: 'user'
+        ...user,
     });
     await result.save();
     return result;
@@ -72,10 +69,11 @@ exports.login = async function (body){
 
     const accessToken = generateAccessToken({username: user.username});
     const refreshToken = jwt.sign({ email: user.email }, process.env.REFRESH_TOKEN_SECRET);
-    refreshTokens.push(refreshToken);
+    
     if(refreshTokens.length > process.env.REFRESH_TOKEN_LIMIT){
         refreshTokens.shift();
     }
+    refreshTokens.push(refreshToken);
 
     return{ accessToken: accessToken, refreshToken: refreshToken}
 }

@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require('../models/User.models');
 
 exports.authenticateToken = function (req, res, next) {
     const authHeader = req.headers["authorization"];
@@ -14,14 +15,24 @@ exports.authenticateToken = function (req, res, next) {
 }
 
 exports.authenticateRoles = (permissions) => {
-    return (req, res, next) => {
-        if (!req.body.role) {
-            res.status(403).json({message: "You don't have any role"});
+    return async (req, res, next) => {
+        if (!req.body._id) {
+            res.status(403).json({message: "No user id provided"});
+            return;
         }
-        if (permissions.includes(req.body.role)) {
-            next();
-        } else {
-            res.status(401).json({message: "You don't have permission to access this resource"});
+        try{
+            const user = await User.findById(req.body._id);
+            if (!user) {
+                res.status(404).json({message: "User not found"});
+                return;
+            }
+            if (!permissions.includes(user.role)) {
+                res.status(401).json({message: "You don't have permission to access this resource"});
+            }else{
+                next();
+            }
+        }catch(err){
+            res.status(500).json({message: "Failed to authenticate user"});
         }
     }
 }
