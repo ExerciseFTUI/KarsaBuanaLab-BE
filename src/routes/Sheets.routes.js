@@ -8,5 +8,6 @@ router.get("/meta", sheetsControllers.getMeta);
 router.post("/get-values", sheetsControllers.postValuesFromRange);
 router.post("/copy", sheetsControllers.postCopyTemplate);
 router.get("/create", sheetsControllers.postCreateSheets);
+router.get("/drive", sheetsControllers.getDrive);
 
 module.exports = router;

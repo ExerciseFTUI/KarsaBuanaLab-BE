@@ -180,3 +180,23 @@ function getSpreadsheetIdFromUrl(spreadsheetUrl) {
     return null;
   }
 }
+
+exports.getDrive = async function () {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  const response = await drive.files.list({
+    pageSize: 10,
+    fields: "nextPageToken, files(id, name)",
+  });
+
+  return response;
+}
