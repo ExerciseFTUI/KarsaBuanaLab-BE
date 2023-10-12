@@ -200,3 +200,27 @@ exports.getDrive = async function () {
 
   return response;
 }
+
+exports.renameFile = async function (body) {
+  const { file_id, name } = body;
+
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  const response = await drive.files.update({
+    fileId: file_id,
+    requestBody: {
+      name: name,
+    },
+  });
+
+  return response;
+}
