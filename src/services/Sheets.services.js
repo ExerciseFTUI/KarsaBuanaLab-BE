@@ -224,3 +224,35 @@ exports.renameFile = async function (body) {
 
   return response;
 }
+
+exports.createFolder = async function (body) {
+  const { folderName } = body;
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  const response = await drive.files.create({
+    requestBody: {
+      name: folderName,
+      mimeType: "application/vnd.google-apps.folder",
+    },
+    fields: "id",
+  });
+
+  await drive.permissions.create({
+    fileId: response.data.id,
+    requestBody: {
+      role: "reader",
+      type: "anyone",
+    },
+  });
+
+  return `https://drive.google.com/drive/folders/${response.data.id}`;
+}

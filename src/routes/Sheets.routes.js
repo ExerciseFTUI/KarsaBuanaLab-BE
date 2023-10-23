@@ -10,5 +10,6 @@ router.post("/copy", sheetsControllers.postCopyTemplate);
 router.get("/create", sheetsControllers.postCreateSheets);
 router.get("/drive", sheetsControllers.getDrive);
 router.post("/drive/rename", sheetsControllers.renameFile);
+router.post("/drive/createfolder", sheetsControllers.createFolder);
 
 module.exports = router;
