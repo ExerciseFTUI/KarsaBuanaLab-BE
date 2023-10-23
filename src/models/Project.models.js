@@ -11,15 +11,10 @@ const projectSchema = new mongoose.Schema({
     contact_person: { type: String, required: true },
     status: {type: String, required: true},
     baseurl: {type: String, required: true},
-    password: {
-        type: String,
-        required: true,
-        minlength: 8,
-        maxlength: 20,
-    },
+    password: {type: String, required: true},
     jumlah_revisi: {type: Number, required: true},
     valuasi_proyek: {type: Number, required: true},
-    surat_penawaran: [{type: URL, required: true}], // masih belum tau tipe datanya
-    sampling_list: [{type: URL, required: true}], // masih belum tau tipe datanya
-    file: [{type: URL, required: true}] // masih belum tau tipe datanya
+    // surat_penawaran: [{type: URL, required: true}], // masih belum tau tipe datanya
+    // sampling_list: [{type: URL, required: true}], // masih belum tau tipe datanya
+    // file: [{type: URL, required: true}] // masih belum tau tipe datanya
 })

@@ -226,7 +226,7 @@ exports.renameFile = async function (body) {
 }
 
 exports.createFolder = async function (body) {
-  const { folderName } = body;
+  const { folder_name, route_folder_id } = body;
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
     scopes: [
@@ -238,10 +238,31 @@ exports.createFolder = async function (body) {
   const client = await auth.getClient();
   const drive = google.drive({ version: "v3", auth });
 
+  if (route_folder_id == null){
+    const response = await drive.files.create({
+      requestBody: {
+        name: folder_name,
+        mimeType: "application/vnd.google-apps.folder",
+      },
+      fields: "id",
+    });
+
+    await drive.permissions.create({
+      fileId: response.data.id,
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+
+    return `https://drive.google.com/drive/folders/${response.data.id}`;
+  }
+
   const response = await drive.files.create({
     requestBody: {
-      name: folderName,
+      name: folder_name,
       mimeType: "application/vnd.google-apps.folder",
+      parents: [route_folder_id],
     },
     fields: "id",
   });
