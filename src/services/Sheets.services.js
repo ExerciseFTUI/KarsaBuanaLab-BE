@@ -180,3 +180,100 @@ function getSpreadsheetIdFromUrl(spreadsheetUrl) {
     return null;
   }
 }
+
+exports.getDrive = async function () {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  const response = await drive.files.list({
+    pageSize: 10,
+    fields: "nextPageToken, files(id, name)",
+  });
+
+  return response;
+}
+
+exports.renameFile = async function (body) {
+  const { file_id, name } = body;
+
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  const response = await drive.files.update({
+    fileId: file_id,
+    requestBody: {
+      name: name,
+    },
+  });
+
+  return response;
+}
+
+exports.createFolder = async function (body) {
+  const { folder_name, route_folder_id } = body;
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: [
+      "https://www.googleapis.com/auth/spreadsheets",
+      "https://www.googleapis.com/auth/drive",
+    ],
+  });
+
+  const client = await auth.getClient();
+  const drive = google.drive({ version: "v3", auth });
+
+  if (route_folder_id == null){
+    const response = await drive.files.create({
+      requestBody: {
+        name: folder_name,
+        mimeType: "application/vnd.google-apps.folder",
+      },
+      fields: "id",
+    });
+
+    await drive.permissions.create({
+      fileId: response.data.id,
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+
+    return `https://drive.google.com/drive/folders/${response.data.id}`;
+  }
+
+  const response = await drive.files.create({
+    requestBody: {
+      name: folder_name,
+      mimeType: "application/vnd.google-apps.folder",
+      parents: [route_folder_id],
+    },
+    fields: "id",
+  });
+
+  await drive.permissions.create({
+    fileId: response.data.id,
+    requestBody: {
+      role: "reader",
+      type: "anyone",
+    },
+  });
+
+  return `https://drive.google.com/drive/folders/${response.data.id}`;
+}
