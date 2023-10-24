@@ -4,6 +4,7 @@ const cors = require("cors");
 const db = require("./src/config/db");
 const sheetsRoutes = require("./src/routes/Sheets.routes");
 const authRoutes = require("./src/routes/Auth.routes");
+const projectsRoutes = require("./src/routes/Projects.routes");
 
 const app = express();
 dotenv.config();
@@ -20,9 +21,10 @@ app.use(
 );
 
 // Routes used in the app
-app.use("/sheets", sheetsRoutes);
 app.use("/auth", authRoutes);
+app.use("/sheets", sheetsRoutes);
+app.use("/projects", projectsRoutes)
 
-app.listen(5000, () => {
-  console.log("Server is running on port 5000");
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
