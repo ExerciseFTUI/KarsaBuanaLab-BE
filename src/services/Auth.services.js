@@ -29,12 +29,11 @@ exports.refreshTokens = async function (body){
 
 exports.getUser = async function (body){
     const {_id} = body;
-    // const result = await User.findById(_id);
-    const result = await User.find();
+    const result = await User.findById(_id);
     if (!result){
-        return {message: "User not found"};
+        return {message: "User not found", result: null};
     }
-    return result;
+    return {message: "User found", result};
 }
 
 
@@ -44,15 +43,14 @@ exports.register = async function (body){
         return {message: "Please fill all the fields"};
     }
     if (user.password.length < process.env.PASSWORD_LENGTH){
-        return {message: "Password must be at least 8 characters"};
+        return {message: "Password must be at least 8 characters", result: null};
     }
     user.password = await bcrypt.hash(user.password, 10);
     const result = new User({
         ...user,
     });
     await result.save();
-    return result;
-    
+    return {message: "User created", result};
 }
 
 exports.login = async function (body){

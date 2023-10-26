@@ -1,36 +1,21 @@
 const { google } = require("googleapis");
 const Project = require("../models/Project.models");
 const BaseSample = require("../models/BaseSample.models");
-const sheetsServices = require("../services/Sheets.services");
+const drivesServices = require("../services/Drives.services");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
   const { sample_name, file_id } = body;
-  const baseSample = new BaseSample({
+  const result = new BaseSample({
     sample_name: sample_name,
     file_id: file_id,
   });
-  await baseSample.save();
-  return baseSample;
-}
+  await result.save();
+  return {message: "Base sample created", result};
+};
 
 exports.createProject = async function (files, body) {
-  const {no_penawaran, no_sampling, client_name, project_name, alamat_kantor, alamat_sampling, surel, contact_person, valuasi_proyek, sampling_list} = body;
-  const folder_id = process.env.FOLDER_ID_PROJECT;
-
-  const new_folder_id = await sheetsServices.createFolder({
-    folder_name: project_name,
-    route_folder_id: folder_id,
-  }); 
-
-  const copied_surat_id = await copySuratPenawaran(new_folder_id);
-
-  const sampling_list_id = await copySampleTemplate(new_folder_id, sampling_list);
-
-  const new_files_id = await uploadFilesToDrive(files, new_folder_id);
-  
-  
-  const project = new Project({
+  const {
     no_penawaran,
     no_sampling,
     client_name,
@@ -40,15 +25,47 @@ exports.createProject = async function (files, body) {
     surel,
     contact_person,
     valuasi_proyek,
-    folder_id: new_folder_id,
-    surat_penawaran: copied_surat_id,
-    sampling_list: sampling_list_id,
-    file: new_files_id,
+    sampling_list,
+  } = body;
+  const folder_id = process.env.FOLDER_ID_PROJECT;
+
+  const new_folder_id = await drivesServices.createFolder({
+    folder_name: project_name,
+    root_folder_id: folder_id,
   });
 
-  await project.save();
+  const copied_surat_id = await copySuratPenawaran(new_folder_id);
 
-  return {message: "Successfull", url: "https://drive.google.com/drive/folders/" + new_folder_id};
+  const sampling_list_id = await copySampleTemplate(new_folder_id, sampling_list);
+
+  const new_files_id = await uploadFilesToDrive(files, new_folder_id);
+  try {
+    const project = new Project({
+      no_penawaran,
+      no_sampling,
+      client_name,
+      project_name,
+      alamat_kantor,
+      alamat_sampling,
+      surel,
+      contact_person,
+      valuasi_proyek,
+      folder_id: new_folder_id,
+      surat_penawaran: copied_surat_id,
+      sampling_list: sampling_list_id,
+      file: new_files_id,
+    });
+
+    await project.save();
+  } catch (error) {
+    await drivesServices.deleteFile({file_id: new_folder_id});
+    return { message: "Failed to create project", result: error };
+  }
+  return {
+    message: "Successfull",
+    id: new_folder_id,
+    url: "https://drive.google.com/drive/folders/" + new_folder_id,
+  };
 };
 
 async function copySuratPenawaran(folder_id) {
@@ -56,9 +73,7 @@ async function copySuratPenawaran(folder_id) {
 
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-    ],
+    scopes: ["https://www.googleapis.com/auth/drive"],
   });
 
   const drive = google.drive({ version: "v3", auth });
@@ -91,19 +106,19 @@ async function copySampleTemplate(folder_id, sampling_list) {
     return null;
   }
 
-  const sample_id_list = await Promise.all(sampling_list.map(async (sample) => {
-    const result = await BaseSample.findOne({sample_name: sample});
-    if (!result){
-      return null;
-    }
-    return result.file_id;
-  }))
+  const sample_id_list = await Promise.all(
+    sampling_list.map(async (sample) => {
+      const result = await BaseSample.findOne({ sample_name: sample });
+      if (!result) {
+        return null;
+      }
+      return result.file_id;
+    })
+  );
 
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-    ],
+    scopes: ["https://www.googleapis.com/auth/drive"],
   });
 
   const drive = google.drive({ version: "v3", auth });
@@ -124,7 +139,7 @@ async function copySampleTemplate(folder_id, sampling_list) {
         type: "anyone",
       },
     });
-  })
+  });
 
   return sample_id_list;
 }
@@ -172,7 +187,7 @@ async function uploadFilesToDrive(files, folderId) {
   }
 
   return fileIds;
-};
+}
 
 function getRandomInt(min, max) {
   // The maximum is exclusive and the minimum is inclusive

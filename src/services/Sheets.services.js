@@ -9,16 +9,16 @@ exports.getMeta = async function () {
   const client = await auth.getClient();
   const googleSheets = google.sheets({ version: "v4", auth: client });
 
-  const metaData = await googleSheets.spreadsheets.get({
+  const result = await googleSheets.spreadsheets.get({
     auth,
     spreadsheetId: process.env.SPREADSHEET_ID,
   });
 
-  return metaData;
+  return { message: "Meta data found", result };
 };
 
 exports.postData = async function (data) {
-  const { request, name } = data;
+  const { spreadsheet_id, key, value } = data;
 
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
@@ -33,19 +33,19 @@ exports.postData = async function (data) {
   // Write rows to spreadsheet
   const result = await googleSheets.spreadsheets.values.append({
     auth,
-    spreadsheetId: process.env.SPREADSHEET_ID,
+    spreadsheetId: spreadsheet_id,
     range: "Sheet1!A:B",
     valueInputOption: "USER_ENTERED",
     resource: {
-      values: [[request, name]],
+      values: [[key, value]],
     },
   });
 
-  return result;
+  return { message: "Data posted", result: result.config.data.values };
 };
 
-exports.postValuesFromRange = async function (range) {
-  const { request, name } = range;
+exports.postValuesFromRange = async function (body) {
+  const { spreadsheet_id } = body;
 
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
@@ -60,14 +60,15 @@ exports.postValuesFromRange = async function (range) {
   // Read rows from spreadsheet
   const result = await googleSheets.spreadsheets.values.get({
     auth,
-    spreadsheetId: process.env.SPREADSHEET_ID,
+    spreadsheetId: spreadsheet_id,
     range: "Sheet1!A:A",
   });
 
-  return result;
+  return { message: "Data range posted", result: result.data.values };
 };
 
-exports.postCopyTemplate = async function (req) {
+exports.postCopyTemplate = async function (body) {
+  const { spreadsheet_id } = body;
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
     scopes: [
@@ -78,14 +79,10 @@ exports.postCopyTemplate = async function (req) {
 
   const drive = google.drive({ version: "v3", auth });
 
-  console.log(req.query);
-
-  const spreadsheetId = getSpreadsheetIdFromUrl(req.query.spreadsheetUrl);
-
-  console.log(spreadsheetId);
+  const spreadsheetId = spreadsheet_id;
 
   if (spreadsheetId == null) {
-    return "Error getting spreadsheet id";
+    return {message: "Error getting spreadsheet id"};
   }
 
   const originalFile = await drive.files.get({
@@ -118,11 +115,11 @@ exports.postCopyTemplate = async function (req) {
     },
   });
 
-  return response;
+  return { message: "Template copied", id: copiedFileId, url: response };
 };
 
-exports.createSheets = async function (property) {
-  const { properties } = property;
+exports.createSheets = async function (body) {
+  const { title, root_folder_id, email_to_access } = body;
 
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
@@ -134,37 +131,39 @@ exports.createSheets = async function (property) {
 
   const client = await auth.getClient();
   const googleSheets = google.sheets({ version: "v4", auth: client });
+  const drive = google.drive({ version: "v3", auth });
 
-  let response = null;
-  try {
-    response = await googleSheets.spreadsheets.create({
-      resource: {
-        properties: {
-          title: "Baruuu",
-        },
+  const response = await googleSheets.spreadsheets.create({
+    resource: {
+      properties: {
+        title,
       },
-      auth,
-    });
-  } catch (error) {}
+    },
+    auth,
+  });
 
-  // Set the sharing permissions to "Anyone with the link can view"
-  if (response != null) {
-    const drive = google.drive({ version: "v3", auth });
-    const spreadsheetId = response.data.spreadsheetId;
+  const spreadsheetId = response.data.spreadsheetId;
 
-    await drive.permissions.create({
-      fileId: spreadsheetId,
-      requestBody: {
-        role: "writer", // Change the role as needed (e.g., reader, writer, owner)
-        type: "user",
-        emailAddress: "netlabdte2023@gmail.com", // Replace with the email address of the user
-      },
-    });
-  } else {
-    return "error setting permission";
-  }
+  await drive.permissions.create({
+    fileId: spreadsheetId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
 
-  return response;
+  await drive.files.update({
+    fileId: spreadsheetId,
+    requestBody: {
+      addParents: [root_folder_id],
+    },
+  });
+
+  return {
+    message: "Sheet created",
+    id: spreadsheetId,
+    url: "https://docs.google.com/spreadsheets/d/" + spreadsheetId,
+  };
 };
 
 function getSpreadsheetIdFromUrl(spreadsheetUrl) {
@@ -179,99 +178,4 @@ function getSpreadsheetIdFromUrl(spreadsheetUrl) {
     // Jika URL tidak sesuai, maka mengembalikan null atau pesan kesalahan
     return null;
   }
-}
-
-exports.getDrive = async function () {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/spreadsheets",
-      "https://www.googleapis.com/auth/drive",
-    ],
-  });
-
-  const client = await auth.getClient();
-  const drive = google.drive({ version: "v3", auth });
-
-  const response = await drive.files.list({
-    pageSize: 10,
-    fields: "nextPageToken, files(id, name)",
-  });
-
-  return response;
-}
-
-exports.renameFile = async function (body) {
-  const { file_id, name } = body;
-
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/spreadsheets",
-      "https://www.googleapis.com/auth/drive",
-    ],
-  });
-
-  const client = await auth.getClient();
-  const drive = google.drive({ version: "v3", auth });
-
-  const response = await drive.files.update({
-    fileId: file_id,
-    requestBody: {
-      name: name,
-    },
-  });
-
-  return response;
-}
-
-exports.createFolder = async function (body) {
-  const { folder_name, route_folder_id } = body;
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-    ],
-  });
-
-  const drive = google.drive({ version: "v3", auth });
-
-  if (route_folder_id == null){
-    const response = await drive.files.create({
-      requestBody: {
-        name: folder_name,
-        mimeType: "application/vnd.google-apps.folder",
-      },
-      fields: "id",
-    });
-
-    await drive.permissions.create({
-      fileId: response.data.id,
-      requestBody: {
-        role: "reader",
-        type: "anyone",
-      },
-    });
-
-    return response.data.id;
-  }
-
-  const response = await drive.files.create({
-    requestBody: {
-      name: folder_name,
-      mimeType: "application/vnd.google-apps.folder",
-      parents: [route_folder_id],
-    },
-    fields: "id",
-  });
-
-  await drive.permissions.create({
-    fileId: response.data.id,
-    requestBody: {
-      role: "reader",
-      type: "anyone",
-    },
-  });
-
-  return response.data.id;
 }

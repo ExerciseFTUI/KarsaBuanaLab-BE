@@ -2,8 +2,9 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const db = require("./src/config/db");
-const sheetsRoutes = require("./src/routes/Sheets.routes");
 const authRoutes = require("./src/routes/Auth.routes");
+const sheetsRoutes = require("./src/routes/Sheets.routes");
+const drivesRoutes = require("./src/routes/Drives.routes");
 const projectsRoutes = require("./src/routes/Projects.routes");
 
 const app = express();
@@ -23,7 +24,8 @@ app.use(
 // Routes used in the app
 app.use("/auth", authRoutes);
 app.use("/sheets", sheetsRoutes);
-app.use("/projects", projectsRoutes)
+app.use("/drive", drivesRoutes);
+app.use("/projects", projectsRoutes);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
