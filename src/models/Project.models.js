@@ -19,7 +19,7 @@ const projectSchema = new mongoose.Schema({
   project_name: { type: String, required: true },
   alamat_kantor: { type: String, required: true },
   alamat_sampling: { type: String, required: true },
-  surel: { type: String, required: true, unique: true },
+  surel: { type: String, required: true },
   contact_person: { type: String, required: true },
   status: { type: String, required: false, default: "RUNNING" },
   folder_id: { type: String, required: false },

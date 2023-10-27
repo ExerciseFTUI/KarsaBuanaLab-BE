@@ -29,17 +29,32 @@ exports.createProject = async function (files, body) {
   } = body;
   const folder_id = process.env.FOLDER_ID_PROJECT;
 
-  const new_folder_id = await drivesServices.createFolder({
-    folder_name: project_name,
-    root_folder_id: folder_id,
-  });
+  let new_folder = null;
+  let copied_surat_id = null;
+  let sampling_list_id = null;
+  let new_files_id = null;
+  // const new_folder = await drivesServices.createFolder({
+  //   folder_name: project_name,
+  //   root_folder_id: folder_id,
+  // });
 
-  const copied_surat_id = await copySuratPenawaran(new_folder_id);
+  // const copied_surat_id = await copySuratPenawaran(new_folder.id);
 
-  const sampling_list_id = await copySampleTemplate(new_folder_id, sampling_list);
+  // const sampling_list_id = await copySampleTemplate(new_folder.id, sampling_list);
 
-  const new_files_id = await uploadFilesToDrive(files, new_folder_id);
+  // const new_files_id = await uploadFilesToDrive(files, new_folder.id);
   try {
+    new_folder = await drivesServices.createFolder({
+      folder_name: project_name,
+      root_folder_id: folder_id,
+    });
+  
+    copied_surat_id = await copySuratPenawaran(new_folder.id);
+  
+    sampling_list_id = await copySampleTemplate(new_folder.id, sampling_list);
+  
+    new_files_id = await uploadFilesToDrive(files, new_folder.id);
+
     const project = new Project({
       no_penawaran,
       no_sampling,
@@ -50,7 +65,7 @@ exports.createProject = async function (files, body) {
       surel,
       contact_person,
       valuasi_proyek,
-      folder_id: new_folder_id,
+      folder_id: new_folder.id,
       surat_penawaran: copied_surat_id,
       sampling_list: sampling_list_id,
       file: new_files_id,
@@ -58,13 +73,15 @@ exports.createProject = async function (files, body) {
 
     await project.save();
   } catch (error) {
-    await drivesServices.deleteFile({file_id: new_folder_id});
+    setTimeout(() => {
+      drivesServices.deleteFile({file_id: new_folder.id});
+    }, 5000);
     return { message: "Failed to create project", result: error };
   }
   return {
     message: "Successfull",
-    id: new_folder_id,
-    url: "https://drive.google.com/drive/folders/" + new_folder_id,
+    id: new_folder.id,
+    url: "https://drive.google.com/drive/folders/" + new_folder.id,
   };
 };
 

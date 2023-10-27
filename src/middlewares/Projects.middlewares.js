@@ -9,7 +9,4 @@ const storage = multer.diskStorage({
     },
   });
   
-  const upload = multer({ storage: storage });
-  
-  // Middleware for file upload
-exports.uploadFiles = upload.array('files', 10);
+exports.uploadFiles = multer({ storage: storage }).array('files', 10);
