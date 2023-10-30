@@ -27,8 +27,13 @@ const projectSchema = new mongoose.Schema({
   jumlah_revisi: { type: Number, required: false, default: 0 },
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
-  sampling_list: [{ type: String }],
-  file: [{ type: String }],
+  created_year: {
+    type: String,
+    required: true,
+    default: new Date().getFullYear(),
+  },
+  sampling_list: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sampling" }],
+  file: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
 });
 
 const Project = mongoose.model("Project", projectSchema);

@@ -2,6 +2,7 @@ const { google } = require("googleapis");
 const Project = require("../models/Project.models");
 const BaseSample = require("../models/BaseSample.models");
 const drivesServices = require("../services/Drives.services");
+const sheetsServices = require("../services/Sheets.services");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
@@ -11,9 +12,9 @@ exports.newBaseSample = async function (body) {
     file_id: file_id,
   });
   await result.save();
-  return {message: "Base sample created", result};
+  return { message: "Base sample created", result };
 };
-
+// TODO : Ubah
 exports.createProject = async function (files, body) {
   const {
     no_penawaran,
@@ -29,31 +30,29 @@ exports.createProject = async function (files, body) {
   } = body;
   const folder_id = process.env.FOLDER_ID_PROJECT;
 
-  let new_folder = null;
-  let copied_surat_id = null;
-  let sampling_list_id = null;
-  let new_files_id = null;
-  // const new_folder = await drivesServices.createFolder({
-  //   folder_name: project_name,
-  //   root_folder_id: folder_id,
-  // });
-
-  // const copied_surat_id = await copySuratPenawaran(new_folder.id);
-
-  // const sampling_list_id = await copySampleTemplate(new_folder.id, sampling_list);
-
-  // const new_files_id = await uploadFilesToDrive(files, new_folder.id);
   try {
     new_folder = await drivesServices.createFolder({
       folder_name: project_name,
       root_folder_id: folder_id,
     });
-  
-    copied_surat_id = await copySuratPenawaran(new_folder.id);
-  
-    sampling_list_id = await copySampleTemplate(new_folder.id, sampling_list);
-  
-    new_files_id = await uploadFilesToDrive(files, new_folder.id);
+
+    const copied_surat_id = await copySuratPenawaran(new_folder.id);
+
+    const filled = await sheetsServices.fillSuratPenawaran(
+      copied_surat_id,
+      contact_person,
+      alamat_kantor,
+      surel,
+      project_name,
+      alamat_sampling
+    );
+
+    const sampling_list_id = await copySampleTemplate(
+      new_folder.id,
+      sampling_list
+    );
+
+    const new_files_id = await uploadFilesToDrive(files, new_folder.id);
 
     const project = new Project({
       no_penawaran,
@@ -73,8 +72,10 @@ exports.createProject = async function (files, body) {
 
     await project.save();
   } catch (error) {
+    console.log(error);
+    //TODO : Find better way to error handle
     setTimeout(() => {
-      drivesServices.deleteFile({file_id: new_folder.id});
+      drivesServices.deleteFile({ file_id: new_folder.id });
     }, 5000);
     return { message: "Failed to create project", result: error };
   }
