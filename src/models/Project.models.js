@@ -29,7 +29,7 @@ const projectSchema = new mongoose.Schema({
   surat_penawaran: { type: String, required: false },
   created_year: {
     type: String,
-    required: true,
+    required: false,
     default: new Date().getFullYear(),
   },
   sampling_list: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sampling" }],
