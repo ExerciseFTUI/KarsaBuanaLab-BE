@@ -190,20 +190,25 @@ async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
     const client = await auth.getClient();
     const sheets = google.sheets({ version: "v4", auth: client });
 
-    const valuesToInsert = [values]; // Wrap values in an array (2D array)
-
-    for (const cellAddress of cellAddresses) {
+    for (let i = 0; i < cellAddresses.length; i++) {
+      const cellAddress = cellAddresses[i];
       const range = `${sheetName}!${cellAddress}`;
 
-      // Write the value into the specified cell
       const result = await sheets.spreadsheets.values.update({
+        auth,
         spreadsheetId: fileId,
         range: range,
         valueInputOption: "USER_ENTERED",
         resource: {
-          values: valuesToInsert,
+          values: [[values[i]]], // Use values[i] to update the cell
         },
+      }).then((response) => {
+        return response;
+      }).catch((error) => {
+        console.error("Error:", error);
+        throw error;
       });
+
     }
 
     return { message: "Data inserted into cells" };
@@ -213,6 +218,7 @@ async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
 }
 
 exports.fillSuratPenawaran = async function (
+  no_penawaran,
   fileId,
   cp,
   alamat,
@@ -221,10 +227,9 @@ exports.fillSuratPenawaran = async function (
   alamatProyek
 ) {
   const sheetName = "RAB";
-  const cellAddresses = ["G4", "G7", "G8", "G11", "G12", "G15"];
-  console.log(fileId);
+  const cellAddresses = ["G2","G4", "G7", "G8", "G11", "G12", "G15"];
 
-  const data = [new Date(), namaProyek, alamatProyek, cp, surel, alamat];
+  const data = [no_penawaran,new Date(), namaProyek, alamatProyek, cp, surel, alamat];
 
   const result = await insertValuesIntoCells(
     fileId,
@@ -235,3 +240,31 @@ exports.fillSuratPenawaran = async function (
 
   return result;
 };
+
+
+exports.fillValue = async function (body) {
+  const { fileId,
+    cp,
+    alamat,
+    surel,
+    namaProyek,
+    alamatProyek } = body;
+  
+    const sheetName = "RAB";
+  const cellAddresses = ["G4", "G7", "G8", "G11", "G12", "G15"];
+
+  const data = [new Date(), namaProyek, alamatProyek, cp, surel, alamat];
+
+  console.log("masuk sini");
+  const result = await insertValuesIntoCells(
+    fileId,
+    data,
+    sheetName,
+    cellAddresses
+  );
+    
+
+    return result;
+
+};
+
