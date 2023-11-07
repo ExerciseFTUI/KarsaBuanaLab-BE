@@ -13,7 +13,7 @@ exports.getDrive = async function () {
     fields: "nextPageToken, files(id, name)",
   });
 
-  return {message: "Drive found", result};
+  return { message: "Drive found", result };
 };
 
 exports.renameFile = async function (body) {
@@ -33,7 +33,7 @@ exports.renameFile = async function (body) {
     },
   });
 
-  return {message: "File renamed", result};
+  return { message: "File renamed", result };
 };
 
 exports.createFolder = async function (body) {
@@ -63,7 +63,11 @@ exports.createFolder = async function (body) {
     },
   });
 
-  return {message: "Folder created", id: result.data.id, url: "https://drive.google.com/drive/folders/" + result.data.id};
+  return {
+    message: "Folder created",
+    id: result.data.id,
+    url: "https://drive.google.com/drive/folders/" + result.data.id,
+  };
 };
 
 exports.deleteFile = async function (body) {
@@ -80,5 +84,5 @@ exports.deleteFile = async function (body) {
     fileId: file_id,
   });
 
-  return {message: "File deleted", result};
+  return { message: "File deleted", result };
 };

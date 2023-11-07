@@ -82,7 +82,7 @@ exports.postCopyTemplate = async function (body) {
   const spreadsheetId = spreadsheet_id;
 
   if (spreadsheetId == null) {
-    return {message: "Error getting spreadsheet id"};
+    return { message: "Error getting spreadsheet id" };
   }
 
   const originalFile = await drive.files.get({
@@ -179,3 +179,59 @@ function getSpreadsheetIdFromUrl(spreadsheetUrl) {
     return null;
   }
 }
+
+async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
+  try {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: "credentials.json",
+      scopes: "https://www.googleapis.com/auth/spreadsheets",
+    });
+
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth: client });
+
+    const valuesToInsert = [values]; // Wrap values in an array (2D array)
+
+    for (const cellAddress of cellAddresses) {
+      const range = `${sheetName}!${cellAddress}`;
+
+      // Write the value into the specified cell
+      const result = await sheets.spreadsheets.values.update({
+        spreadsheetId: fileId,
+        range: range,
+        valueInputOption: "USER_ENTERED",
+        resource: {
+          values: valuesToInsert,
+        },
+      });
+    }
+
+    return { message: "Data inserted into cells" };
+  } catch (error) {
+    return { message: "Error inserting data into cells", error: error.message };
+  }
+}
+
+exports.fillSuratPenawaran = async function (
+  fileId,
+  cp,
+  alamat,
+  surel,
+  namaProyek,
+  alamatProyek
+) {
+  const sheetName = "RAB";
+  const cellAddresses = ["G4", "G7", "G8", "G11", "G12", "G15"];
+  console.log(fileId);
+
+  const data = [new Date(), namaProyek, alamatProyek, cp, surel, alamat];
+
+  const result = await insertValuesIntoCells(
+    fileId,
+    data,
+    sheetName,
+    cellAddresses
+  );
+
+  return result;
+};
