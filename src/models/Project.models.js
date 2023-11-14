@@ -34,6 +34,11 @@ const projectSchema = new mongoose.Schema({
   },
   sampling_list: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sampling" }],
   file: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+  created_at: {
+    type: String,
+    required: false,
+    default: new Date().getFullYear()
+  }
 });
 
 const Project = mongoose.model("Project", projectSchema);

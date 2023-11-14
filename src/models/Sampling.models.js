@@ -27,6 +27,19 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  assigned: {
+    type: mongoose.Schema.Types.ObjectId, ref: "User",required : false
+  },
+  status: {
+    type: String, 
+    required:false,
+    default: "NOT ASSIGNED"
+  },
+  jadwal: {
+    type: Date, 
+    required:false
+  },
+
 });
 
 const Sampling = mongoose.model("Sampling", samplingSchema);
