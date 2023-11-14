@@ -41,7 +41,11 @@ exports.createProject = async function (files, body) {
 
     const copied_surat_id = await copySuratPenawaran(new_folder.id);
 
+    let no_penawaran = await generateProjectID(await generateSamplingID());
+    let no_sampling = await generateSamplingID(); 
+
     const filled = await sheetsServices.fillSuratPenawaran(
+      no_penawaran,
       copied_surat_id,
       contact_person,
       alamat_kantor,
@@ -229,3 +233,41 @@ async function uploadFilesToDrive(files, folderId) {
 
   return fileObj;
 }
+
+async function generateSamplingID() {
+  // Get the current year
+  const currentYear = new Date().getFullYear();
+
+  // Find the last project in the current year
+  const lastProjectInYear = await Project.findOne({
+    createdYear: currentYear,
+  }).sort({ nomorProject: -1 });
+
+  let nomorProject;
+  if (lastProjectInYear) {
+    // Increment the project number from the last project in the current year
+    nomorProject = lastProjectInYear.nomorProject + 1;
+  } else {
+    // If no project exists in the current year, start from 1
+    nomorProject = 1;
+  }
+
+  return nomorProject;
+
+}
+
+async function generateProjectID(nomorProject) {
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  const monthRomanNumeral = romanNumerals[currentMonth - 1];
+
+  // Create the project ID in the desired format
+  const projectID = `${nomorProject}/Dirut/LabKBL/${monthRomanNumeral}/${currentYear}`;
+
+  return projectID;
+}
+
+
+
+

@@ -7,5 +7,6 @@ router.post("/post-values", sheetsControllers.postData);
 router.post("/get-values", sheetsControllers.postValuesFromRange);
 router.post("/copy", sheetsControllers.postCopyTemplate);
 router.post("/create", sheetsControllers.postCreateSheets);
+router.post("/update",sheetsControllers.fillValue)
 
 module.exports = router;
