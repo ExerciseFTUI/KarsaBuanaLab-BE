@@ -1,8 +1,8 @@
 const { google } = require("googleapis");
-const Project = require("../models/Project.models");
-const BaseSample = require("../models/BaseSample.models");
-const File = require("../models/File.models");
-const Sampling = require("../models/Sampling.models");
+const {Project} = require("../models/Project.models");
+const {BaseSample} = require("../models/BaseSample.models");
+const {File} = require("../models/File.models");
+const {Sampling} = require("../models/Sampling.models");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
 const fs = require("fs");

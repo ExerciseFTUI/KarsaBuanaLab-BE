@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { userSchema } = require("./User.models");
 
 const samplingSchema = new mongoose.Schema({
   sample_name: {
@@ -27,9 +28,7 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  assigned: {
-    type: mongoose.Schema.Types.ObjectId, ref: "User",required : false
-  },
+  assigned: userSchema,
   status: {
     type: String, 
     required:false,
@@ -44,4 +43,7 @@ const samplingSchema = new mongoose.Schema({
 
 const Sampling = mongoose.model("Sampling", samplingSchema);
 
-module.exports = Sampling;
+module.exports = {
+  samplingSchema,
+  Sampling,
+};

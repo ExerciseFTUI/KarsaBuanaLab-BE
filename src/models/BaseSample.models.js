@@ -9,4 +9,7 @@ const baseSampleSchema = new mongoose.Schema({
 
 const BaseSample = mongoose.model("BaseSample", baseSampleSchema);
 
-module.exports = BaseSample;
+module.exports = {
+    baseSampleSchema,
+    BaseSample
+}

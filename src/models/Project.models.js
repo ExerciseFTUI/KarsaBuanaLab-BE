@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const { samplingSchema } = require("./Sampling.models");
+const { fileSchema } = require("./File.models");
 
 function generatePass() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -32,8 +34,8 @@ const projectSchema = new mongoose.Schema({
     required: false,
     default: new Date().getFullYear(),
   },
-  sampling_list: [{ type: mongoose.Schema.Types.ObjectId, ref: "Sampling" }],
-  file: [{ type: mongoose.Schema.Types.ObjectId, ref: "File" }],
+  sampling_list: [samplingSchema],
+  file: [fileSchema],
   created_at: {
     type: String,
     required: false,
@@ -43,4 +45,7 @@ const projectSchema = new mongoose.Schema({
 
 const Project = mongoose.model("Project", projectSchema);
 
-module.exports = Project;
+module.exports = {
+  projectSchema,
+  Project,
+};
