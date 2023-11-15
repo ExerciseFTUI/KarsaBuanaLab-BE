@@ -1,10 +1,11 @@
 const { google } = require("googleapis");
-const {Project} = require("../models/Project.models");
-const {BaseSample} = require("../models/BaseSample.models");
-const {File} = require("../models/File.models");
-const {Sampling} = require("../models/Sampling.models");
+const { Project } = require("../models/Project.models");
+const { BaseSample } = require("../models/BaseSample.models");
+const { File } = require("../models/File.models");
+const { Sampling } = require("../models/Sampling.models");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
+const getGoogleAuth = require("../config/driveAuth");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
@@ -32,7 +33,7 @@ exports.createProject = async function (files, body) {
   } = body;
 
   let new_folder;
-  let project = null
+  let project = null;
   try {
     new_folder = await drivesServices.createFolder({
       folder_name: project_name,
@@ -42,7 +43,7 @@ exports.createProject = async function (files, body) {
     const copied_surat_id = await copySuratPenawaran(new_folder.id);
 
     let no_penawaran = await generateProjectID(await generateSamplingID());
-    let no_sampling = await generateSamplingID(); 
+    let no_sampling = await generateSamplingID();
 
     const filled = await sheetsServices.fillSuratPenawaran(
       no_penawaran,
@@ -82,10 +83,10 @@ exports.createProject = async function (files, body) {
   } catch (error) {
     console.log(error);
     //TODO : Find better way to error handle
-    if(new_folder){
+    if (new_folder) {
       try {
         await drivesServices.deleteFile(new_folder.id);
-      } catch (error){
+      } catch (error) {
         console.log(error);
       }
     }
@@ -154,8 +155,8 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
-        param: null,
-        regulation: null,
+        param: result.param,
+        regulation: result.regulation,
       });
       return samplingObj;
     })
@@ -170,7 +171,7 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
     const copiedFile = await drive.files.copy({
       fileId: sample.fileId,
       requestBody: {
-        name: `Sampel_${sample.sample_name}_${project_name}_${index+1}`,
+        name: `Sampel_${sample.sample_name}_${project_name}_${index + 1}`,
         parents: [new_folder.id],
       },
     });
@@ -253,13 +254,25 @@ async function generateSamplingID() {
   }
 
   return nomorProject;
-
 }
 
 async function generateProjectID(nomorProject) {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
-  const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  const romanNumerals = [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
+    "X",
+    "XI",
+    "XII",
+  ];
   const monthRomanNumeral = romanNumerals[currentMonth - 1];
 
   // Create the project ID in the desired format
@@ -267,7 +280,3 @@ async function generateProjectID(nomorProject) {
 
   return projectID;
 }
-
-
-
-
