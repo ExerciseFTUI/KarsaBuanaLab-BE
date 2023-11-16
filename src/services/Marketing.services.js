@@ -43,7 +43,6 @@ exports.getProjectByStatusAndYear = async function (params) {
 exports.getProjectByID = async function (params) {
     const result = await Project.findById(params.ProjectID).exec();
     return { message: "Success", result };
-
 }
 
 async function getApprovedOffer(){
