@@ -14,6 +14,7 @@ exports.dashboard = async function (req, res) {
         approvedOffer: approvedOffer,
         totalProject: totalProject,
         totalClient: totalClient,
+        // selama setahun balikin per bulan
         projectCancelled: projectCancelled,
         projectRunning: projectRunning,
         projectFinished: projectFinished,
@@ -71,31 +72,59 @@ async function getTotalClientPerYear(){
 async function projectCancelledPerMonth(){
     const result = await Project.find({status: "CANCELLED"}).exec();
     const projectList = result.map(project => project.project_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    const projectPerMonth = {};
+    projectList.forEach(project => {
+        const month = new Date(project.created_at).getMonth();
+        if (projectPerMonth[month] === undefined) {
+            projectPerMonth[month] = 1;
+        } else {
+            projectPerMonth[month] += 1;
+        }
+    });
+    return projectPerMonth;
 }
 
 async function projectRunningPerMonth(){
     const result = await Project.find({status: "RUNNING"}).exec();
     const projectList = result.map(project => project.project_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    const projectPerMonth = {};
+    projectList.forEach(project => {
+        const month = new Date(project.created_at).getMonth();
+        if (projectPerMonth[month] === undefined) {
+            projectPerMonth[month] = 1;
+        } else {
+            projectPerMonth[month] += 1;
+        }
+    });
+    return projectPerMonth;
 }
 
 async function projectFinishedPerMonth(){
     const result = await Project.find({status: "FINISHED"}).exec();
     const projectList = result.map(project => project.project_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    const projectPerMonth = {};
+    projectList.forEach(project => {
+        const month = new Date(project.created_at).getMonth();
+        if (projectPerMonth[month] === undefined) {
+            projectPerMonth[month] = 1;
+        } else {
+            projectPerMonth[month] += 1;
+        }
+    });
+    return projectPerMonth;
 }
 
 async function getOfferPerMonth(){
     const result = await Project.find({status: "RUNNING"} || {status: "FINISHED"}).exec();
     const projectList = result.map(project => project.project_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    const projectPerMonth = {};
+    projectList.forEach(project => {
+        const month = new Date(project.created_at).getMonth();
+        if (projectPerMonth[month] === undefined) {
+            projectPerMonth[month] = 1;
+        } else {
+            projectPerMonth[month] += 1;
+        }
+    });
+    return projectPerMonth;
 }
