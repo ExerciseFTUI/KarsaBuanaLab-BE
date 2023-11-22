@@ -40,9 +40,21 @@ exports.getUser = async function (body) {
 
 exports.register = async function (body) {
   const { ...user } = body;
-  if (!user.username || !user.password || !user.email) {
-    return { message: "Please fill all the fields" };
+  if (!user.username) {
+    return { message: "Please fill username", result: null };
+  } else if (!user.password) {
+    return { message: "Please fill password", result: null };
+  } else if (!user.email) {
+    return { message: "Please fill email!", result: null};
+  } else if (!user.role) {
+    return { message: "Choose your role", result: null};
   }
+
+  const checkUser = await User.findOne({ email });
+  if (!checkUser) {
+    return { message: "email has already in database, please change your email" };
+  }
+
   if (user.password.length < process.env.PASSWORD_LENGTH) {
     return { message: "Password must be at least 8 characters", result: null };
   }
@@ -88,3 +100,11 @@ exports.logout = async function (body) {
   refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
   return { message: "Logout successful" };
 };
+
+exports.findUserByUsername = async function (username) {
+  return await User.findOne({ username });
+}
+
+exports.findUserByEmail = async function (email) {
+  return await User.findOne({ email });
+}
