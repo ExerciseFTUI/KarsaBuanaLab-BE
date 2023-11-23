@@ -14,7 +14,6 @@ exports.dashboard = async function (req, res) {
         approvedOffer: approvedOffer,
         totalProject: totalProject,
         totalClient: totalClient,
-        // selama setahun balikin per bulan
         projectCancelled: projectCancelled,
         projectRunning: projectRunning,
         projectFinished: projectFinished,
@@ -25,7 +24,6 @@ exports.dashboard = async function (req, res) {
 }
 
 exports.getSample = async function (req, res) {
-    // get all BaseSample
     const result = await BaseSample.find().exec();
     return { message: "Success", result };
 
@@ -73,7 +71,9 @@ async function projectCancelledPerMonth(){
     const result = await Project.find({status: "CANCELLED"}).exec();
     const projectList = result.map(project => project.project_name);
     const projectPerMonth = {};
+    const currentYear = new Date().getFullYear();
     projectList.forEach(project => {
+        if (new Date(project.created_at).getFullYear() !== currentYear) return;
         const month = new Date(project.created_at).getMonth();
         if (projectPerMonth[month] === undefined) {
             projectPerMonth[month] = 1;
@@ -88,7 +88,9 @@ async function projectRunningPerMonth(){
     const result = await Project.find({status: "RUNNING"}).exec();
     const projectList = result.map(project => project.project_name);
     const projectPerMonth = {};
+    const currentYear = new Date().getFullYear();
     projectList.forEach(project => {
+        if (new Date(project.created_at).getFullYear() !== currentYear) return;
         const month = new Date(project.created_at).getMonth();
         if (projectPerMonth[month] === undefined) {
             projectPerMonth[month] = 1;
@@ -103,7 +105,9 @@ async function projectFinishedPerMonth(){
     const result = await Project.find({status: "FINISHED"}).exec();
     const projectList = result.map(project => project.project_name);
     const projectPerMonth = {};
+    const currentYear = new Date().getFullYear();
     projectList.forEach(project => {
+        if (new Date(project.created_at).getFullYear() !== currentYear) return;
         const month = new Date(project.created_at).getMonth();
         if (projectPerMonth[month] === undefined) {
             projectPerMonth[month] = 1;
@@ -118,7 +122,9 @@ async function getOfferPerMonth(){
     const result = await Project.find({status: "RUNNING"} || {status: "FINISHED"}).exec();
     const projectList = result.map(project => project.project_name);
     const projectPerMonth = {};
+    const currentYear = new Date().getFullYear();
     projectList.forEach(project => {
+        if (new Date(project.created_at).getFullYear() !== currentYear) return;
         const month = new Date(project.created_at).getMonth();
         if (projectPerMonth[month] === undefined) {
             projectPerMonth[month] = 1;
