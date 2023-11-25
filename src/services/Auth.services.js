@@ -50,11 +50,6 @@ exports.register = async function (body) {
     return { message: "Choose your role", result: null};
   }
 
-  const checkUser = await User.findOne({ email });
-  if (!checkUser) {
-    return { message: "email has already in database, please change your email" };
-  }
-
   if (user.password.length < process.env.PASSWORD_LENGTH) {
     return { message: "Password must be at least 8 characters", result: null };
   }

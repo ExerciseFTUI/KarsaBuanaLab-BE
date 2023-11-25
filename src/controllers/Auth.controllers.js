@@ -42,10 +42,11 @@ exports.login = async function login(req, res) {
         const result = await authServices.login(req.body);
         res.status(200).json(result);
     } catch (err) {
+        console.log(err.message)
         res.status(400).json({ message: err.message });
     }
 }
-  
+
 exports.logout = async function (req, res) {
     try {
         const result = await authServices.logout(req.body);
