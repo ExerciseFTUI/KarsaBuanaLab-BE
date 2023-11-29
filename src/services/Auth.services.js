@@ -77,7 +77,7 @@ exports.login = async function (body) {
   }
   refreshTokens.push(refreshToken);
 
-  return { accessToken: accessToken, refreshToken: refreshToken };
+  return { message: "Login Successful!", result: user.role };
 };
 
 exports.logout = async function (body) {
