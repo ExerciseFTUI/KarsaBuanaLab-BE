@@ -5,6 +5,7 @@ const { File } = require("../models/File.models");
 const { Sampling } = require("../models/Sampling.models");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
+const getGoogleAuth = require("../config/driveAuth");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
@@ -91,7 +92,7 @@ exports.createProject = async function (files, body) {
   } = body;
 
   let new_folder;
-  let project = null
+  let project = null;
   try {
     new_folder = await drivesServices.createFolder({
       folder_name: project_name,
@@ -213,8 +214,8 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
-        param: null,
-        regulation: null,
+        param: result.param,
+        regulation: result.regulation,
       });
       return samplingObj;
     })
