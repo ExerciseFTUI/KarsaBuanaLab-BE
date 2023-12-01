@@ -5,7 +5,7 @@ const { File } = require("../models/File.models");
 const { Sampling } = require("../models/Sampling.models");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
-const getGoogleAuth = require("../config/driveAuth");
+const { getAuth } = require("../config/driveAuth");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
@@ -104,10 +104,7 @@ exports.createProject = async function (files, body) {
 async function copySuratPenawaran(folder_id) {
   const surat_penawaran_id = process.env.SPREADSHEET_SURAT_PENAWARAN;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -135,10 +132,7 @@ async function copySuratPenawaran(folder_id) {
 }
 
 async function copySampleTemplate(folder_id, sampling_list, project_name) {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -188,13 +182,10 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
 }
 
 async function uploadFilesToDrive(files, folderId) {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/drive.file",
-    ],
-  });
+  const auth = getAuth([
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.file",
+  ]);
 
   const drive = google.drive({ version: "v3", auth });
 
