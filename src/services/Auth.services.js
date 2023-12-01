@@ -63,7 +63,8 @@ exports.login = async function (body) {
 
   const passwordCheck = await bcrypt.compare(password, user.password);
   if (!passwordCheck) {
-    return { message: "Password is not correct" };
+    // return { message: "Password is not correct" };
+    throw new Error("Password is not correct");
   }
 
   const accessToken = generateAccessToken({ username: user.username });
