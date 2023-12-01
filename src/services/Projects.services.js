@@ -17,6 +17,65 @@ exports.newBaseSample = async function (body) {
   await result.save();
   return { message: "Base sample created", result };
 };
+
+/* TODO: 
+      - Rename gdrive folder if project name is changed
+      - Remove duplicate folder sample
+*/
+exports.editProject = async function (files, body) {
+  const { ...project } = body;
+  let sampling_list = [];
+
+  if (!project._id || project._id == null) {
+    return { message: "Please specify the project _id", result: null };
+  }
+  if (Object.keys(project).length == 1 && !files.length) {
+    return { message: "Only project _id is being passed", result: null };
+  }
+  if (project.files) {
+    delete project.files;
+  }
+  if (project.sampling_list) {
+    sampling_list = project.sampling_list;
+    console.log(sampling_list);
+    delete project.sampling_list;
+  }
+  let result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { ...project },
+    { new: true }
+  );
+  if (!result) {
+    return { message: "Project not found", result: null };
+  }
+  if (sampling_list.length) {
+    const sampling_object_list = await copySampleTemplate(
+      result.folder_id,
+      sampling_list,
+      result.project_name
+    );
+    result = await Project.findOneAndUpdate(
+      { _id: project._id },
+      { $push: { sampling_list: { $each: sampling_object_list } } },
+      { new: true }
+    );
+  }
+  if (!files.length) {
+    return { message: "Successfully edited", result };
+  }
+  const new_files_obj = await uploadFilesToDrive(files, result.folder_id);
+
+  result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { $push: { file: { $each: new_files_obj } } },
+    { new: true }
+  );
+  return {
+    message: "Successfully added files and the project has been edited",
+    result,
+  };
+};
+
 // TODO : Ubah
 exports.createProject = async function (files, body) {
   const {
