@@ -28,7 +28,7 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  assigned: userSchema,
+  assigned_to: [userSchema],
   status: {
     type: String, 
     required:false,
