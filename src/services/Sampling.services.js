@@ -16,12 +16,7 @@ exports.sampleAssignment = async function (params, body) {
         throw new Error("No user found");
     }
 
-    const sample = await getSample(params);
-    if (sample == null) {
-        throw new Error("No sample found");
-    }
-
-    const projectList = await Project.find({ created_year: params.tahun }, { "sampling_list": sample }).exec();
+    const projectList = await Project.find({ created_year: params.tahun }, { "sampling_list._id": params.no_sampling }).exec();
     if (projectList == null) {
         throw new Error("No project found");
     }
@@ -35,7 +30,7 @@ exports.sampleAssignment = async function (params, body) {
         });
         await project.save();
     });
-    return { message: "success", }
+    return { message: "success", data: user}
 }
 
 exports.getSampleByAcc = async function (tahun, body) {
