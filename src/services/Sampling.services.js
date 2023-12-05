@@ -21,13 +21,18 @@ exports.sampleAssignment = async function (params, body) {
         throw new Error("No project found");
     }
 
-    // TODO: salah di assignmentnya, typecast error untuk regulation 
     projectList.forEach(async (project) => {
         const sampleList = project.sampling_list;
         sampleList.forEach(async (sample) => {
             if (sample._id == params.no_sampling) {
+                //TODO : check if user already assigned to this sample
+                const userSample = sample.assigned_to;
+                userSample.forEach(async (acc) => {
+                    if(acc == user){
+                        throw new Error("User already assigned to this sample");
+                    }
+                })
                 sample.assigned_to.push(user)
-                console.log(sample.assigned_to);
             }
         });
 
