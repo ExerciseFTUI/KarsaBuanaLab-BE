@@ -57,8 +57,10 @@ exports.createFolder = async function (body) {
 
   return {
     message: "Folder created",
-    id: result.data.id,
-    url: "https://drive.google.com/drive/folders/" + result.data.id,
+    result: {
+        id: result.data.id,
+        url: "https://drive.google.com/drive/folders/" + result.data.id,
+    },
   };
 };
 
