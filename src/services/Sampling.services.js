@@ -13,28 +13,34 @@ exports.getSampling = async function (params) {
 exports.sampleAssignment = async function (params, body) {
     const user = await User.findById(body.accountId).exec();
     if (user == null) {
-        throw new Error("No user found");
+        throw new Error(body.accountId);
     }
 
-    const projectList = await Project.find({ created_year: params.tahun }, { "sampling_list._id": params.no_sampling }).exec();
+    const projectList = await Project.find({ created_year: params.tahun }).exec();
     if (projectList == null) {
         throw new Error("No project found");
     }
 
+    // TODO: salah di assignmentnya, typecast error untuk regulation 
     projectList.forEach(async (project) => {
         const sampleList = project.sampling_list;
         sampleList.forEach(async (sample) => {
             if (sample._id == params.no_sampling) {
-                sample.assigned_to = user;
+                sample.assigned_to.push(user)
+                console.log(sample.assigned_to);
             }
         });
+
         await project.save();
     });
-    return { message: "success", data: user}
+
+    const sample = await getSample(params);
+    
+    return { message: "success", data: sample}
 }
 
-exports.getSampleByAcc = async function (tahun, body) {
-    const projectList = await Project.find({ created_year: tahun });
+exports.getSampleByAcc = async function (params, body) {
+    const projectList = await Project.find({ created_year: params.tahun });
     if (projectList == null) {
         throw new Error("No project found");
     }
@@ -43,14 +49,31 @@ exports.getSampleByAcc = async function (tahun, body) {
     projectList.forEach(async (project) => {
         const sampleList = project.sampling_list;
         sampleList.forEach(async (sample) => {
-            if (sample.assigned_to._id == body.accountId) {
-                projectRes.push(project);
-            }
+            const user = sample.assigned_to;
+            user.forEach(async (acc) => {
+                if (acc._id == body.accountId) {
+                    projectRes.push(project);
+
+                    if (projectRes.length > 1) {
+                        projectRes.forEach(async (project) => {
+                            const duplicateProject = projectRes.filter((p) => p._id == project._id);
+                            if (duplicateProject.length > 1) {
+                                projectRes.splice(projectRes.indexOf(project), 1);
+                            }
+                        });
+                    }
+                }
+            });
         });
     });
 
-    if (projectRes.length == 0) {
-        throw new Error("No sample found");
+    const user = await User.findById(body.accountId).exec();
+    if (user == null) {
+        throw new Error("No user found");
+    }
+
+    if (projectRes == null) {
+        throw new Error("No project found");
     }
     return { message: "success", data: projectRes };
 }
