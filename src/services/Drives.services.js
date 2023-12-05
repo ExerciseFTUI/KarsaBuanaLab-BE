@@ -1,10 +1,8 @@
 const { google } = require("googleapis");
+const { getAuth } = require("../config/driveAuth");
 
 exports.getDrive = async function () {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -19,10 +17,7 @@ exports.getDrive = async function () {
 exports.renameFile = async function (body) {
   const { file_id, name } = body;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -39,10 +34,7 @@ exports.renameFile = async function (body) {
 exports.createFolder = async function (body) {
   const { folder_name, root_folder_id } = body;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -73,10 +65,7 @@ exports.createFolder = async function (body) {
 exports.deleteFile = async function (body) {
   const { file_id } = body;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 

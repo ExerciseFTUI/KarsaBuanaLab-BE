@@ -1,10 +1,11 @@
 const { google } = require("googleapis");
-const {Project} = require("../models/Project.models");
-const {BaseSample} = require("../models/BaseSample.models");
-const {File} = require("../models/File.models");
-const {Sampling} = require("../models/Sampling.models");
+const { Project } = require("../models/Project.models");
+const { BaseSample } = require("../models/BaseSample.models");
+const { File } = require("../models/File.models");
+const { Sampling } = require("../models/Sampling.models");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
+const { getAuth } = require("../config/driveAuth");
 const fs = require("fs");
 
 exports.newBaseSample = async function (body) {
@@ -16,6 +17,65 @@ exports.newBaseSample = async function (body) {
   await result.save();
   return { message: "Base sample created", result };
 };
+
+/* TODO: 
+      - Rename gdrive folder if project name is changed
+      - Remove duplicate folder sample
+*/
+exports.editProject = async function (files, body) {
+  const { ...project } = body;
+  let sampling_list = [];
+
+  if (!project._id || project._id == null) {
+    return { message: "Please specify the project _id", result: null };
+  }
+  if (Object.keys(project).length == 1 && !files.length) {
+    return { message: "Only project _id is being passed", result: null };
+  }
+  if (project.files) {
+    delete project.files;
+  }
+  if (project.sampling_list) {
+    sampling_list = project.sampling_list;
+    console.log(sampling_list);
+    delete project.sampling_list;
+  }
+  let result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { ...project },
+    { new: true }
+  );
+  if (!result) {
+    return { message: "Project not found", result: null };
+  }
+  if (sampling_list.length) {
+    const sampling_object_list = await copySampleTemplate(
+      result.folder_id,
+      sampling_list,
+      result.project_name
+    );
+    result = await Project.findOneAndUpdate(
+      { _id: project._id },
+      { $push: { sampling_list: { $each: sampling_object_list } } },
+      { new: true }
+    );
+  }
+  if (!files.length) {
+    return { message: "Successfully edited", result };
+  }
+  const new_files_obj = await uploadFilesToDrive(files, result.folder_id);
+
+  result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { $push: { file: { $each: new_files_obj } } },
+    { new: true }
+  );
+  return {
+    message: "Successfully added files and the project has been edited",
+    result,
+  };
+};
+
 // TODO : Ubah
 exports.createProject = async function (files, body) {
   const {
@@ -32,7 +92,7 @@ exports.createProject = async function (files, body) {
   } = body;
 
   let new_folder;
-  let project = null
+  let project = null;
   try {
     new_folder = await drivesServices.createFolder({
       folder_name: project_name,
@@ -42,7 +102,7 @@ exports.createProject = async function (files, body) {
     const copied_surat_id = await copySuratPenawaran(new_folder.id);
 
     let no_penawaran = await generateProjectID(await generateSamplingID());
-    let no_sampling = await generateSamplingID(); 
+    let no_sampling = await generateSamplingID();
 
     const filled = await sheetsServices.fillSuratPenawaran(
       no_penawaran,
@@ -82,10 +142,10 @@ exports.createProject = async function (files, body) {
   } catch (error) {
     console.log(error);
     //TODO : Find better way to error handle
-    if(new_folder){
+    if (new_folder) {
       try {
         await drivesServices.deleteFile(new_folder.id);
-      } catch (error){
+      } catch (error) {
         console.log(error);
       }
     }
@@ -103,10 +163,7 @@ exports.createProject = async function (files, body) {
 async function copySuratPenawaran(folder_id) {
   const surat_penawaran_id = process.env.SPREADSHEET_SURAT_PENAWARAN;
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -134,10 +191,7 @@ async function copySuratPenawaran(folder_id) {
 }
 
 async function copySampleTemplate(folder_id, sampling_list, project_name) {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: ["https://www.googleapis.com/auth/drive"],
-  });
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -154,8 +208,8 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
-        param: null,
-        regulation: null,
+        param: result.param,
+        regulation: result.regulation,
       });
       return samplingObj;
     })
@@ -170,7 +224,7 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
     const copiedFile = await drive.files.copy({
       fileId: sample.fileId,
       requestBody: {
-        name: `Sampel_${sample.sample_name}_${project_name}_${index+1}`,
+        name: `Sampel_${sample.sample_name}_${project_name}_${index + 1}`,
         parents: [new_folder.id],
       },
     });
@@ -187,13 +241,10 @@ async function copySampleTemplate(folder_id, sampling_list, project_name) {
 }
 
 async function uploadFilesToDrive(files, folderId) {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: [
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/drive.file",
-    ],
-  });
+  const auth = getAuth([
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.file",
+  ]);
 
   const drive = google.drive({ version: "v3", auth });
 
@@ -253,13 +304,25 @@ async function generateSamplingID() {
   }
 
   return nomorProject;
-
 }
 
 async function generateProjectID(nomorProject) {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
-  const romanNumerals = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  const romanNumerals = [
+    "I",
+    "II",
+    "III",
+    "IV",
+    "V",
+    "VI",
+    "VII",
+    "VIII",
+    "IX",
+    "X",
+    "XI",
+    "XII",
+  ];
   const monthRomanNumeral = romanNumerals[currentMonth - 1];
 
   // Create the project ID in the desired format
@@ -267,7 +330,3 @@ async function generateProjectID(nomorProject) {
 
   return projectID;
 }
-
-
-
-

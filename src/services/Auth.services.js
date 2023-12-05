@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const {User} = require("../models/User.models");
 
+
 let refreshTokens = [];
 
 function generateAccessToken(user) {
@@ -63,7 +64,8 @@ exports.login = async function (body) {
 
   const passwordCheck = await bcrypt.compare(password, user.password);
   if (!passwordCheck) {
-    return { message: "Password is not correct" };
+    // return { message: "Password is not correct" };
+    throw new Error("Password is not correct");
   }
 
   const accessToken = generateAccessToken({ username: user.username });
@@ -77,7 +79,7 @@ exports.login = async function (body) {
   }
   refreshTokens.push(refreshToken);
 
-  return { accessToken: accessToken, refreshToken: refreshToken };
+  return { message: "Login Successful!", result: user.role };
 };
 
 exports.logout = async function (body) {
