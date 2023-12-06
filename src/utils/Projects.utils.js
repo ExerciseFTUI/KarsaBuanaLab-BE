@@ -159,13 +159,13 @@ exports.generateSamplingID = async function () {
 
 	// Find the last project in the current year
 	const lastProjectInYear = await Project.findOne({
-		createdYear: currentYear,
-	}).sort({ nomorProject: -1 });
+		created_year: currentYear,
+	}).sort({ no_sampling: -1 });
 
 	let nomorProject;
 	if (lastProjectInYear) {
 		// Increment the project number from the last project in the current year
-		nomorProject = lastProjectInYear.nomorProject + 1;
+		nomorProject = lastProjectInYear.no_sampling + 1;
 	} else {
 		// If no project exists in the current year, start from 1
 		nomorProject = 1;

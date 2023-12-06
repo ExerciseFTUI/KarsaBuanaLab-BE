@@ -25,10 +25,9 @@ exports.sampleAssignment = async function (params, body) {
         const sampleList = project.sampling_list;
         sampleList.forEach(async (sample) => {
             if (sample._id == params.no_sampling) {
-                //TODO : check if user already assigned to this sample
                 const userSample = sample.assigned_to;
                 userSample.forEach(async (acc) => {
-                    if(acc == user){
+                    if(acc._id == body.accountId){
                         throw new Error("User already assigned to this sample");
                     }
                 })
