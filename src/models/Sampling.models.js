@@ -21,23 +21,25 @@ const samplingSchema = new mongoose.Schema({
       required: true,
     },
   ],
-  regulation: regulationSchema,
+  regulation_name: {
+    type: String,
+    required: false,
+  },
   location: {
     type: String,
     required: false,
   },
   assigned_to: [userSchema],
   status: {
-    type: String, 
+    type: String,
     enum: ["ASSIGNED", "NOT ASSIGNED", "FINISHED"],
     required: false,
-    default: "NOT ASSIGNED"
+    default: "NOT ASSIGNED",
   },
   jadwal: {
-    type: Date, 
-    required:false
+    type: Date,
+    required: false,
   },
-
 });
 
 const Sampling = mongoose.model("Sampling", samplingSchema);
