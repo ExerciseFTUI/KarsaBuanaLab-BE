@@ -198,3 +198,36 @@ exports.generateProjectID = async function (nomorProject) {
 
 	return projectID;
 };
+
+exports.copyFPPFile = async function(folder_id){
+	const fpp_id = process.env.FPP_ID;
+
+	const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+	const drive = google.drive({ version: "v3", auth });
+
+	// Create a copy of the file on Google Drive
+	const copiedFile = await drive.files.copy({
+		fileId: fpp_id,
+		requestBody: {
+			name: "FPP",
+			parents: [folder_id],
+		},
+	});
+
+	// Construct the shareable URL for the copied file
+	const copiedFileId = copiedFile.data.id;
+	const editor = process.env.SERVICE_ACCOUNT;
+
+	await drive.permissions.create({
+		fileId: copiedFileId,
+		requestBody: {
+			role: "writer",
+			type: "user",
+			emailAddress: editor,
+		},
+	});
+	return {fileId: copiedFileId, fileName: "FPP"};
+};
+
+// masukan ke file_list, id dan nama di project

@@ -32,7 +32,7 @@ const samplingSchema = new mongoose.Schema({
   assigned_to: [userSchema],
   status: {
     type: String,
-    enum: ["ASSIGNED", "NOT ASSIGNED", "FINISHED"],
+    enum: ["ASSIGNED", "NOT ASSIGNED", "VERIFYING", "FINISHED"],
     required: false,
     default: "NOT ASSIGNED",
   },
