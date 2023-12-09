@@ -44,8 +44,6 @@ exports.copySampleTemplate = async function copySampleTemplate(
 	folder_id,
 	sampling_list,
 	project_name,
-    assigned_to,
-    regulation_name
 ) {
 	const auth = getAuth("https://www.googleapis.com/auth/drive");
 
@@ -58,24 +56,13 @@ exports.copySampleTemplate = async function copySampleTemplate(
 	const sample_object_list = await Promise.all(
 		sampling_list.map(async (sample) => {
 			const result = await BaseSample.findOne({ sample_name: sample });
-			const user = await User.findOne({ username: assigned_to });
-            const regulation = await Regulation.findOne({ regulation_name: regulation_name });
 			if (!result) {
 				throw new Error("Error while copying sample template: Base sample not found");
 			}
-            if (!user) {
-				throw new Error("Error while copying sample template: User in field assigned_to not found");
-			}
-            if (!regulation) {
-                throw new Error("Error while copying sample template: Regulation in field regulation not found");
-            }
 			const samplingObj = new Sampling({
 				fileId: result.file_id,
 				sample_name: result.sample_name,
 				param: result.param,
-				regulation: regulation,
-				assigned_to: user,
-                status: user == null? "NOT ASSIGNED": "ASSIGNED",
 			});
 			return samplingObj;
 		})
