@@ -114,14 +114,8 @@ exports.createProject = async function (files, body) {
   if (!project.contact_person) {
     throw new Error("Please specify the contact person");
   }
-  if (!project.regulation) {
-    throw new Error("Please specify the regulation");
-  }
   if (!project.sampling_list) {
     throw new Error("Please specify the sampling list");
-  }
-  if (!project.assigned_to) {
-    throw new Error("Please specify the username assigned to the project");
   }
   let new_folder = null;
   try {
@@ -138,8 +132,6 @@ exports.createProject = async function (files, body) {
       new_folder.result.id,
       project.sampling_list,
       project.project_name,
-      project.assigned_to,
-      project.regulation
     );
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,
