@@ -145,12 +145,11 @@ exports.createProject = async function (files, body) {
       files,
       new_folder.result.id
     );
-    const {FPP_FileId, FPP_FileName} = projectsUtils.copyFPPFile(new_folder.result.id);
 
-    const FPP_File = new File({
-      file_name: FPP_FileName,
-      file_id: FPP_FileId,
-    })
+    const FPP_result = await projectsUtils.copyFPPFile(new_folder.result.id);
+    
+    const fillFPP = await projectsUtils.fillFPPFile(FPP_result.fileId, no_penawaran, project.client_name, project.contact_person, project.alamat_kantor, project.surel, project.project_name, 
+      project.alamat_sampling)
 
     const create_project = new Project({
       ...project,
@@ -159,7 +158,7 @@ exports.createProject = async function (files, body) {
       folder_id: new_folder.result.id,
       surat_penawaran: id_surat_penawaran,
       sampling_list: sampling_object_list,
-      file: [files_object_list, FPP_File],
+      file: files_object_list,
     });
 
     await create_project.save();

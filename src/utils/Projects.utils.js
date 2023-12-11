@@ -44,8 +44,8 @@ exports.copySampleTemplate = async function copySampleTemplate(
 	folder_id,
 	sampling_list,
 	project_name,
-    assigned_to,
-    regulation_name
+	assigned_to,
+	regulation_name
 ) {
 	const auth = getAuth("https://www.googleapis.com/auth/drive");
 
@@ -59,23 +59,23 @@ exports.copySampleTemplate = async function copySampleTemplate(
 		sampling_list.map(async (sample) => {
 			const result = await BaseSample.findOne({ sample_name: sample });
 			const user = await User.findOne({ username: assigned_to });
-            const regulation = await Regulation.findOne({ regulation_name: regulation_name });
+			const regulation = await Regulation.findOne({ regulation_name: regulation_name });
 			if (!result) {
 				throw new Error("Error while copying sample template: Base sample not found");
 			}
-            if (!user) {
+			if (!user) {
 				throw new Error("Error while copying sample template: User in field assigned_to not found");
 			}
-            if (!regulation) {
-                throw new Error("Error while copying sample template: Regulation in field regulation not found");
-            }
+			if (!regulation) {
+				throw new Error("Error while copying sample template: Regulation in field regulation not found");
+			}
 			const samplingObj = new Sampling({
 				fileId: result.file_id,
 				sample_name: result.sample_name,
 				param: result.param,
 				regulation: regulation,
 				assigned_to: user,
-                status: user == null? "NOT ASSIGNED": "ASSIGNED",
+				status: user == null ? "NOT ASSIGNED" : "ASSIGNED",
 			});
 			return samplingObj;
 		})
@@ -90,9 +90,8 @@ exports.copySampleTemplate = async function copySampleTemplate(
 		const copiedFile = await drive.files.copy({
 			fileId: sample.fileId,
 			requestBody: {
-				name: `Sampel_${sample.sample_name}_${project_name}_${
-					index + 1
-				}`,
+				name: `Sampel_${sample.sample_name}_${project_name}_${index + 1
+					}`,
 				parents: [new_folder.result.id],
 			},
 		});
@@ -199,7 +198,7 @@ exports.generateProjectID = async function (nomorProject) {
 	return projectID;
 };
 
-exports.copyFPPFile = async function(folder_id){
+exports.copyFPPFile = async function (folder_id) {
 	const fpp_id = process.env.FPP_ID;
 
 	const auth = getAuth("https://www.googleapis.com/auth/drive");
@@ -227,7 +226,84 @@ exports.copyFPPFile = async function(folder_id){
 			emailAddress: editor,
 		},
 	});
-	return {fileId: copiedFileId, fileName: "FPP"};
+	return { fileId: copiedFileId, fileName: "FPP" };
 };
 
-// masukan ke file_list, id dan nama di project
+exports.fillFPPFile = async function (
+	file_id,
+	no_permohonan,
+	no_customer,
+	personil_pehubung,
+	alamat_customer,
+	kontak,
+	nama_proyek,
+	alamat_proyek
+	) {
+	const sheetName = "FPP";
+	const cellAddress = ["C8", "C9", "C10", "C11", "C12", "F8", "F9"];
+
+	const data = [
+		no_permohonan,
+		no_customer,
+		personil_pehubung,
+		alamat_customer,
+		kontak,
+		nama_proyek,
+		alamat_proyek,
+	];
+	
+	const result = await insertValuesIntoCells(file_id, data, sheetName, cellAddress);
+
+	return result;
+}
+
+async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
+	try {
+	  const auth = new google.auth.GoogleAuth({
+		credentials: {
+		  type: process.env.GOOGLE_TYPE,
+		  project_id: process.env.GOOGLE_PROJECT_ID,
+		  private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+		  private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Replace escaped newline characters
+		  client_email: process.env.GOOGLE_CLIENT_EMAIL,
+		  client_id: process.env.GOOGLE_CLIENT_ID,
+		  auth_uri: process.env.GOOGLE_AUTH_URI,
+		  token_uri: process.env.GOOGLE_TOKEN_URI,
+		  auth_provider_x509_cert_url:
+			process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+		  client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
+		},
+		scopes: ["https://www.googleapis.com/auth/drive"],
+	  });
+  
+	  const client = await auth.getClient();
+	  const sheets = google.sheets({ version: "v4", auth: client });
+  
+	  for (let i = 0; i < cellAddresses.length; i++) {
+		const cellAddress = cellAddresses[i];
+		const range = `${sheetName}!${cellAddress}`;
+  
+		const result = await sheets.spreadsheets.values
+		  .update({
+			auth,
+			spreadsheetId: fileId,
+			range: range,
+			valueInputOption: "USER_ENTERED",
+			resource: {
+			  values: [[values[i]]], // Use values[i] to update the cell
+			},
+		  })
+		  .then((response) => {
+			return response;
+		  })
+		  .catch((error) => {
+			console.error("Error:", error);
+			throw error;
+		  });
+	  }
+  
+	  return { message: "Data inserted into cells" };
+	} catch (error) {
+	  return { message: "Error inserting data into cells", error: error.message };
+	}
+  }
