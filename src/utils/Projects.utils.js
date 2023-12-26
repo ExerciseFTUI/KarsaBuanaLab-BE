@@ -206,7 +206,7 @@ exports.copyFPPFile = async function (folder_id) {
 	const drive = google.drive({ version: "v3", auth });
 
 	// Create a copy of the file on Google Drive
-	const copiedFile = await drive.files.copy({
+	const copiedFile = await drive.files.copy(	{
 		fileId: fpp_id,
 		requestBody: {
 			name: "FPP",
@@ -257,7 +257,7 @@ exports.fillFPPFile = async function (
 	return result;
 }
 
-async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
+exports.insertValuesIntoCells = async function (fileId, values, sheetName, cellAddresses) {
 	try {
 	  const auth = new google.auth.GoogleAuth({
 		credentials: {
