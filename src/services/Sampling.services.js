@@ -13,7 +13,7 @@ exports.getSampling = async function (params) {
 exports.sampleAssignment = async function (params, body) {
     const user = await User.findById(body.accountId).exec();
     if (user == null) {
-        throw new Error(body.accountId);
+        throw new Error("No user found");
     }
 
     const projectList = await Project.find({ created_year: params.tahun }).exec();
@@ -21,18 +21,21 @@ exports.sampleAssignment = async function (params, body) {
         throw new Error("No project found");
     }
 
-    // TODO: salah di assignmentnya, typecast error untuk regulation 
-    projectList.forEach(async (project) => {
+    for (const project of projectList) {
         const sampleList = project.sampling_list;
-        sampleList.forEach(async (sample) => {
+        for (const sample of sampleList) {
             if (sample._id == params.no_sampling) {
-                sample.assigned_to.push(user)
-                console.log(sample.assigned_to);
+                const userSample = sample.assigned_to;
+                const isUserAssigned = userSample.some(acc => acc._id == body.accountId);
+                if (isUserAssigned) {
+                    throw new Error("User already assigned to this sample");
+                }
+                userSample.push(user);
             }
-        });
+        }
 
         await project.save();
-    });
+    }
 
     const sample = await getSample(params);
     

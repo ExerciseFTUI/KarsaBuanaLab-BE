@@ -137,6 +137,12 @@ exports.createProject = async function (files, body) {
       files,
       new_folder.result.id
     );
+
+    const FPP_result = await projectsUtils.copyFPPFile(new_folder.result.id);
+    
+    const fillFPP = await projectsUtils.fillFPPFile(FPP_result.fileId, no_penawaran, project.client_name, project.contact_person, project.alamat_kantor, project.surel, project.project_name, 
+      project.alamat_sampling)
+
     const create_project = new Project({
       ...project,
       no_penawaran,
@@ -156,6 +162,8 @@ exports.createProject = async function (files, body) {
         project: create_project,
       },
     };
+
+
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
   }
