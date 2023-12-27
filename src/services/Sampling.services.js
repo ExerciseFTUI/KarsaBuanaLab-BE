@@ -11,9 +11,13 @@ exports.getSampling = async function (params) {
 }
 
 exports.sampleAssignment = async function (params, body) {
-    const user = await User.findById(body.accountId).exec();
-    if (user == null) {
-        throw new Error("No user found");
+    const user = [];
+    for(const id of body.accountId){
+        const acc = await User.findById(id).exec();
+        if (acc == null) {
+            throw new Error("No user found");
+        }
+        user.push(acc);
     }
 
     const projectList = await Project.find({ created_year: params.tahun }).exec();
@@ -30,7 +34,10 @@ exports.sampleAssignment = async function (params, body) {
                 if (isUserAssigned) {
                     throw new Error("User already assigned to this sample");
                 }
-                userSample.push(user);
+
+                for(const acc of user){
+                    userSample.push(acc);
+                }
             }
         }
 
@@ -86,9 +93,15 @@ exports.changeSampleStatus = async function (params, body) {
     if (projectList == null) {
         throw new Error("No sample found");
     }
+
+    const statusEnum = ["OnProgress", "Accepted", "Finished", "Revision"];
+
     const sampleList = projectList.sampling_list;
     sampleList.forEach(async (sample) => {
         if (sample._id == params.no_sampling) {
+            if (!statusEnum.includes(body.status)) {
+                throw new Error("Status not valid");
+            }
             sample.status = body.status;
         }
     });
