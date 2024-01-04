@@ -131,7 +131,7 @@ exports.createProject = async function (files, body) {
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       new_folder.result.id,
       project.sampling_list,
-      project.project_name,
+      project.project_name
     );
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,
@@ -139,9 +139,17 @@ exports.createProject = async function (files, body) {
     );
 
     const FPP_result = await projectsUtils.copyFPPFile(new_folder.result.id);
-    
-    const fillFPP = await projectsUtils.fillFPPFile(FPP_result.fileId, no_penawaran, project.client_name, project.contact_person, project.alamat_kantor, project.surel, project.project_name, 
-      project.alamat_sampling)
+
+    const fillFPP = await projectsUtils.fillFPPFile(
+      FPP_result.fileId,
+      no_penawaran,
+      project.client_name,
+      project.contact_person,
+      project.alamat_kantor,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
+    );
 
     const create_project = new Project({
       ...project,
@@ -162,9 +170,27 @@ exports.createProject = async function (files, body) {
         project: create_project,
       },
     };
-
-
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
+  }
+};
+
+exports.getSample = async function (body) {
+  try {
+    const { projectId } = body;
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      throw { message: "Project not found" };
+    }
+
+    const samples = project.sampling_list.map((sample) => ({
+      fileId: sample.fileId,
+      sample_name: sample.sample_name,
+    }));
+
+    return samples;
+  } catch (error) {
+    throw { message: error.message };
   }
 };
