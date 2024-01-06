@@ -139,8 +139,8 @@ exports.createProject = async function (files, body) {
     );
 
     const FPP_result = await projectsUtils.copyFPPFile(new_folder.result.id);
-    
-    const fillFPP = await projectsUtils.fillFPPFile(FPP_result.fileId, no_penawaran, project.client_name, project.contact_person, project.alamat_kantor, project.surel, project.project_name, 
+
+    const fillFPP = await projectsUtils.fillFPPFile(FPP_result.fileId, no_penawaran, project.client_name, project.contact_person, project.alamat_kantor, project.surel, project.project_name,
       project.alamat_sampling)
 
     const create_project = new Project({
@@ -167,4 +167,39 @@ exports.createProject = async function (files, body) {
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
   }
+};
+
+
+exports.getLinkFiles = async function (params) {
+  if(!params.ProjectID) throw new Error("Please specify the project ID");
+
+  const resultProject = await Project.findById(params.ProjectID).exec();
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  const result = {
+    sampling_list: [],
+    file: []
+  }
+
+  resultProject.sampling_list.forEach(sampling => { 
+    const {sample_name, fileId} = sampling;
+    const sample_key = {
+      name: sample_name,
+      url: "https://drive.google.com/drive/folders/" + fileId
+    }
+    result.sampling_list.push(sample_key);
+  });
+
+  resultProject.file.forEach(fl => {
+    const {file_name, file_id} = fl;
+    const file_key = {
+      name: file_name,
+      url: "https://drive.google.com/file/d/" + file_id
+    }
+    result.file.push(file_key);
+  });
+
+  return { message: "Success", result };
 };
