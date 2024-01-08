@@ -24,11 +24,13 @@ const projectSchema = new mongoose.Schema({
   surel: { type: String, required: true },
   contact_person: { type: String, required: true },
   status: { type: String, required: false, default: "RUNNING" },
+  current_division: { type: String, required: false, default: "MARKETING" },
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
   jumlah_revisi: { type: Number, required: false, default: 0 },
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
+  surat_fpp: { type: String, required: false },
   created_year: {
     type: String,
     required: false,
