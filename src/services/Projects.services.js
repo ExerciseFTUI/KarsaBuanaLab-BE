@@ -117,6 +117,9 @@ exports.createProject = async function (files, body) {
   if (!project.sampling_list) {
     throw new Error("Please specify the sampling list");
   }
+  if (!project.regulation) {
+    throw new Error("Please specify the regulation");
+  }
   let new_folder = null;
   try {
     const no_sampling = await projectsUtils.generateSamplingID();
@@ -131,25 +134,26 @@ exports.createProject = async function (files, body) {
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       new_folder.result.id,
       project.sampling_list,
-      project.project_name
+      project.project_name,
+      project.regulation
     );
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,
       new_folder.result.id
     );
 
-    const FPP_result = await projectsUtils.copyFPPFile(new_folder.result.id);
+    const id_surat_fpp = await projectsUtils.copyFPPFile(new_folder.result.id);
 
-    const fillFPP = await projectsUtils.fillFPPFile(
-      FPP_result.fileId,
-      no_penawaran,
-      project.client_name,
-      project.contact_person,
-      project.alamat_kantor,
-      project.surel,
-      project.project_name,
-      project.alamat_sampling
-    );
+    // const fillFPP = await projectsUtils.fillFPPFile(
+    //   FPP_result.fileId,
+    //   no_penawaran,
+    //   project.client_name,
+    //   project.contact_person,
+    //   project.alamat_kantor,
+    //   project.surel,
+    //   project.project_name,
+    //   project.alamat_sampling
+    // );
 
     const create_project = new Project({
       ...project,
@@ -159,6 +163,7 @@ exports.createProject = async function (files, body) {
       surat_penawaran: id_surat_penawaran,
       sampling_list: sampling_object_list,
       file: files_object_list,
+      surat_fpp: id_surat_fpp,
     });
 
     await create_project.save();
