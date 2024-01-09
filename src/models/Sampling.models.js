@@ -21,10 +21,7 @@ const samplingSchema = new mongoose.Schema({
       required: true,
     },
   ],
-  regulation_name: {
-    type: String,
-    required: false,
-  },
+  regulation_name: [regulationSchema],
   location: {
     type: String,
     required: false,
