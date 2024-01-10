@@ -41,3 +41,12 @@ exports.getSample = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.getProjectByDivision = async function (req, res) {
+  try {
+    const result = await projectsServices.getProjectyByDivision(req.params.division);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}

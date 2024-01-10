@@ -199,3 +199,12 @@ exports.getSample = async function (body) {
     throw { message: error.message };
   }
 };
+
+exports.getProjectyByDivision = async function (division) {
+  try {
+    const projects = await Project.find({ current_division: division });
+    return projects;
+  } catch (error) {
+    throw { message: error.message };
+  }
+}

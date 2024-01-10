@@ -7,5 +7,6 @@ router.post("/add-base-sample", projectsControllers.newBaseSample);
 router.post("/create", projectMiddleware.uploadFiles, projectsControllers.createProject);
 router.put("/edit", projectMiddleware.uploadFiles, projectsControllers.editProject);
 router.get("/get-sample",projectsControllers.getSample);
+router.get("/get-project-by-division/:division",projectsControllers.getProjectByDivision);
 
 module.exports = router;
