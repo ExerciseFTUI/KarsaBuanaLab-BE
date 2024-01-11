@@ -8,5 +8,6 @@ router.post("/create", projectMiddleware.uploadFiles, projectsControllers.create
 router.put("/edit", projectMiddleware.uploadFiles, projectsControllers.editProject);
 router.get("/get-sample",projectsControllers.getSample);
 router.get("/get-project-by-division/:division",projectsControllers.getProjectByDivision);
+router.get("/get-link-files/:ProjectID", projectsControllers.getLinkFiles);
 
 module.exports = router;
