@@ -36,8 +36,12 @@ exports.sampleAssignment = async function (params, body) {
   if (userObj == null) {
     throw new Error("No user found");
   }
-  const sampleObj = projectObj.sampling_list.filter(sample => sample._id == id_sampling);
-  const duplicateUser = sampleObj[0].assigned_to.filter(acc => acc._id == user.accountId);
+  const sampleObj = projectObj.sampling_list.filter(
+    (sample) => sample._id == id_sampling
+  );
+  const duplicateUser = sampleObj[0].assigned_to.filter(
+    (acc) => acc._id == user.accountId
+  );
   if (duplicateUser.length > 0) {
     throw new Error("User already assigned");
   }
@@ -95,28 +99,29 @@ exports.getSampleByAcc = async function (params, body) {
   return { message: "success", data: projectRes };
 };
 
-exports.changeSampleStatus = async function (params, body) {
+exports.changeSampleStatus = async function (body) {
+  const { projectId, status, sample_name } = body;
+
   const projectList = await Project.findOne(
-    { created_year: params.tahun },
-    { "sampling_list._id": params.no_sampling }
+    { _id: projectId },
+    { "sampling_list.sample_name": sample_name }
   );
-  if (projectList == null) {
-    throw new Error("No sample found");
+
+  if (!projectList) {
+    throw new Error("No project found");
   }
+
   const sampleList = projectList.sampling_list;
+
   sampleList.forEach(async (sample) => {
-    if (sample._id == params.no_sampling) {
-      sample.status = body.status;
+    if (sample.sample_name === sample_name) {
+      sample.status = status;
     }
   });
+
   await projectList.save();
-  const sample = await getSample(params);
 
-  if (sample == null) {
-    throw new Error("No sample found");
-  }
-
-  return { message: "success update status", data: sample };
+  return { message: "Success update status", data: projectList };
 };
 
 async function getSample(params) {

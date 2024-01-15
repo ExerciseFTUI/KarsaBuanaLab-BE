@@ -20,7 +20,7 @@ exports.getSampleByAcc = async function (req, res) {
 
 exports.changeSampleStatus = async function (req, res) {
     try {
-        const result = await samplingServices.changeSampleStatus(req.params, req.body);
+        const result = await samplingServices.changeSampleStatus(req.body);
         res.status(200).json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
