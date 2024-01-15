@@ -4,6 +4,7 @@ WORKDIR /home/node/app
 COPY package*.json ./
 USER node
 RUN npm install
-COPY --chown=node:node . .
-EXPOSE 8080
+COPY --chown=node:package*.json . .
+EXPOSE 5000
+
 CMD [ "node", "index.js" ]
