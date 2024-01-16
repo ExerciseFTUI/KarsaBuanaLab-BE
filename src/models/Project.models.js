@@ -39,9 +39,9 @@ const projectSchema = new mongoose.Schema({
   sampling_list: [samplingSchema],
   file: [fileSchema],
   created_at: {
-    type: String,
+    type: Date,
     required: false,
-    default: new Date().getFullYear()
+    default: Date.now
   }
 });
 
