@@ -117,8 +117,8 @@ exports.createProject = async function (files, body) {
   if (!project.sampling_list) {
     throw new Error("Please specify the sampling list");
   }
-  if (!project.regulation) {
-    throw new Error("Please specify the regulation");
+  if (!project.regulation_list) {
+    throw new Error("Please specify the regulation list");
   }
   let new_folder = null;
   try {
@@ -135,7 +135,7 @@ exports.createProject = async function (files, body) {
       new_folder.result.id,
       project.sampling_list,
       project.project_name,
-      project.regulation
+      project.regulation_list
     );
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,

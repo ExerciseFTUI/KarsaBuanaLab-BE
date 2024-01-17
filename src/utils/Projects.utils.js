@@ -44,20 +44,23 @@ exports.copySampleTemplate = async function copySampleTemplate(
 	folder_id,
 	sampling_list,
 	project_name,
-    regulation_name
+    regulation_arr
 ) {
 	const auth = getAuth("https://www.googleapis.com/auth/drive");
 
 	const drive = google.drive({ version: "v3", auth });
 
 	if (!Array.isArray(sampling_list)) {
-		return null;
+		throw new Error("Error while copying sample template: Sampling list is not an array");
+	}
+    if (!Array.isArray(sampling_list)) {
+		throw new Error("Error while copying sample template: Regulation list is not an array");
 	}
 
 	const sample_object_list = await Promise.all(
-		sampling_list.map(async (sample) => {
+		sampling_list.map(async (sample, index) => {
 			const result = await BaseSample.findOne({ sample_name: sample });
-            const regulation = await Regulation.findOne({ regulation_name: regulation_name });
+            const regulation = await Regulation.findOne({ regulation_name: regulation_arr[index] });
 			if (!result) {
 				throw new Error("Error while copying sample template: Base sample not found");
 			}
@@ -68,7 +71,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
 				fileId: result.file_id,
 				sample_name: result.sample_name,
 				param: result.param,
-				regulation: regulation,
+				regulation_name: regulation,
 			});
 			return samplingObj;
 		})
@@ -154,16 +157,16 @@ exports.generateSamplingID = async function () {
 		created_year: currentYear,
 	}).sort({ no_sampling: -1 });
 
-	let nomorProject;
+	let nomorProject = 0;
 	if (lastProjectInYear) {
 		// Increment the project number from the last project in the current year
-		nomorProject = lastProjectInYear.no_sampling + 1;
+		nomorProject = parseInt(lastProjectInYear.no_sampling) + 1;
 	} else {
 		// If no project exists in the current year, start from 1
 		nomorProject = 1;
 	}
 
-	return nomorProject;
+	return addLeadingZeros(nomorProject, 3);
 };
 
 exports.generateProjectID = async function (nomorProject) {
@@ -299,4 +302,12 @@ exports.insertValuesIntoCells = async function (fileId, values, sheetName, cellA
 	} catch (error) {
 	  return { message: "Error inserting data into cells", error: error.message };
 	}
+  }
+
+  function addLeadingZeros(number, zeros) {
+    const numberString = String(number);
+    const numberOfZeros = Math.max(0, zeros - numberString.length);
+    const zerosString = "0".repeat(numberOfZeros);
+  
+    return zerosString + numberString;
   }
