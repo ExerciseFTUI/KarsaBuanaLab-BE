@@ -207,10 +207,10 @@ exports.getProjectyByDivision = async function (division) {
   } catch (error) {
     throw { message: error.message };
   }
-}
+};
 
 exports.getLinkFiles = async function (params) {
-  if(!params.ProjectID) throw new Error("Please specify the project ID");
+  if (!params.ProjectID) throw new Error("Please specify the project ID");
 
   const resultProject = await Project.findById(params.ProjectID).exec();
   if (!resultProject) {
@@ -219,26 +219,80 @@ exports.getLinkFiles = async function (params) {
 
   const result = {
     sampling_list: [],
-    file: []
-  }
+    file: [],
+  };
 
-  resultProject.sampling_list.forEach(sampling => { 
-    const {sample_name, fileId} = sampling;
+  resultProject.sampling_list.forEach((sampling) => {
+    const { sample_name, fileId } = sampling;
     const sample_key = {
       name: sample_name,
-      url: "https://drive.google.com/drive/folders/" + fileId
-    }
+      url: "https://drive.google.com/drive/folders/" + fileId,
+    };
     result.sampling_list.push(sample_key);
   });
 
-  resultProject.file.forEach(fl => {
-    const {file_name, file_id} = fl;
+  //TO-Do Add after surat Tugas Added
+  const surat_tugas = {
+    name: "Surat Tugas",
+    url: "https://drive.google.com/file/d/",
+    type: "Preparation",
+  };
+  result.file.push(surat_tugas);
+
+  const logbook = {
+    name: "Logbook Jadwal Sampling",
+    url: "https://drive.google.com/file/d/",
+    type: "Preparation",
+  };
+  result.file.push(logbook);
+
+  const suratPenawaran = {
+    name: "Surat Penawaran",
+    url: "https://drive.google.com/file/d/" + resultProject.surat_penawaran,
+    type: "Preparation",
+  };
+  result.file.push(suratPenawaran);
+
+  const KajiUlang = {
+    name: "Form Kaji Ulang",
+    url: "https://drive.google.com/file/d/",
+    type: "Preparation",
+  };
+  result.file.push(KajiUlang);
+
+  const coc = {
+    name: "DP Chain of Custody",
+    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    type: "Preparation",
+  };
+  result.file.push(coc);
+
+  const list_sample = {
+    name: "List Pengambilan Sample",
+    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    type: "Result",
+  };
+  result.file.push(list_sample);
+
+  const result_sampling = {
+    name: "Result Sampling",
+    url: "https://drive.google.com/file/d/",
+    type: "Result",
+  };
+  result.file.push(result_sampling);
+
+  resultProject.file.forEach((fl) => {
+    const { file_name, file_id } = fl;
     const file_key = {
       name: file_name,
-      url: "https://drive.google.com/file/d/" + file_id
-    }
+      url: "https://drive.google.com/file/d/" + file_id,
+      type: "User",
+    };
     result.file.push(file_key);
   });
+  
+
+
 
   return { message: "Success", result };
 };
