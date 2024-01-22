@@ -45,7 +45,6 @@ exports.sampleAssignment = async function (params, body) {
   if (duplicateUser.length > 0) {
     throw new Error("User already assigned");
   }
-  // check if user exist in project.project_assigned_to
   const inProject = projectObj.project_assigned_to.filter(
     (acc) => acc._id == user.accountId
   );
