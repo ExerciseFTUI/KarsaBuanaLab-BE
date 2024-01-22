@@ -44,7 +44,10 @@ const projectSchema = new mongoose.Schema({
     required: false,
     default: Date.now
   },
-  project_assigned_to : [userSchema]
+  project_assigned_to : {
+    type: String,
+    required: false
+  }
 });
 
 const Project = mongoose.model("Project", projectSchema);
