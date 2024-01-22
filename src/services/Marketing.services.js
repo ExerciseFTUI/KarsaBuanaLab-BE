@@ -41,7 +41,6 @@ exports.dashboard = async function (req, res) {
 exports.getSample = async function (req, res) {
     const result = await BaseSample.find().exec();
     return { message: "Success", result };
-
 }
 
 exports.getProjectByStatus = async function (params) {
@@ -65,47 +64,67 @@ async function getApprovedOffer() {
 }
 
 async function getTotalProjectPerYear() {
-    const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
-    const projectList = result.map(project => project.project_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    try {
+        const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
+        const projectList = result.map(project => project.project_name);
+        const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
+        const totalProject = Object.keys(projectCount).length;
+        return totalProject;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function getTotalClientPerYear() {
-    const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
-    const projectList = result.map(project => project.client_name);
-    const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-    const totalProject = Object.keys(projectCount).length;
-    return totalProject;
+    try {
+        const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
+        const projectList = result.map(project => project.client_name);
+        const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
+        const totalProject = Object.keys(projectCount).length;
+        return totalProject;
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function getOfferPerMonth() {
-    const resultRunning  = await Project.find({ status: "RUNNING" }).exec();
-    const resultFinished = await Project.find({ status: "FINISHED" }).exec();
+    try {
+        const resultRunning = await Project.find({ status: "RUNNING" }).exec();
+        const resultFinished = await Project.find({ status: "FINISHED" }).exec();
+        let totalValuation = 0;
 
-    const offerPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
-    resultRunning.forEach(project => {
-        if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        offerPerMonth[new Date(project.created_at).getMonth()].sales++;
-    });
+        const offerPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
+        resultRunning.forEach(project => {
+            if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
+            offerPerMonth[new Date(project.created_at).getMonth()].sales++;
+        });
 
-    resultFinished.forEach(project => {
-        if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        offerPerMonth[new Date(project.created_at).getMonth()].sales++;
-    });
-
-    return offerPerMonth;
+        resultFinished.forEach(project => {
+            if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
+            offerPerMonth[new Date(project.created_at).getMonth()].sales++;
+            const valuation = project.valuasi_proyek;
+            if (valuation === undefined || valuation === null || valuation === NaN) return;
+            totalValuation += valuation;
+        });
+        console.log(totalValuation);
+        return { offerPerMonth, totalValuation }
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 async function projectStatusPerMonth(status) {
-    const result = await Project.find({ status: status }).exec();
+    try {
+        const result = await Project.find({ status: status }).exec();
 
-    const projectPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
-    result.forEach(project => {
-        if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        projectPerMonth[new Date(project.created_at).getMonth()].sales++;
-    });
+        const projectPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
+        result.forEach(project => {
+            if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
+            projectPerMonth[new Date(project.created_at).getMonth()].sales++;
+        });
 
-    return projectPerMonth;
+        return projectPerMonth;
+    } catch (error) {
+        console.log(error);
+    }
 }
