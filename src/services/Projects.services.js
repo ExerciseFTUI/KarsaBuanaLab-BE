@@ -220,6 +220,7 @@ exports.getLinkFiles = async function (params) {
   const result = {
     sampling_list: [],
     file: [],
+    lhp: null,
   };
 
   resultProject.sampling_list.forEach((sampling) => {
@@ -281,6 +282,13 @@ exports.getLinkFiles = async function (params) {
   };
   result.file.push(result_sampling);
 
+  const log_penerimaan = {
+    name: "Log Penerimaan",
+    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    type: "Result",
+  };
+  result.file.push(log_penerimaan);
+
   resultProject.file.forEach((fl) => {
     const { file_name, file_id } = fl;
     const file_key = {
@@ -290,9 +298,12 @@ exports.getLinkFiles = async function (params) {
     };
     result.file.push(file_key);
   });
-  
 
-
+  result.lhp = {
+    name: "LHP",
+    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    type: "Result",
+  };
 
   return { message: "Success", result };
 };
