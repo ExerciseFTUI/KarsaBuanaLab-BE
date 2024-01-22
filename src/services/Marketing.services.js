@@ -1,7 +1,20 @@
 const { Project } = require("../models/Project.models");
 const { BaseSample } = require("../models/BaseSample.models");
 
-
+const keyPerMonth = [
+    { month: "Jan", sales: 0 },
+    { month: "Feb", sales: 0 },
+    { month: "Mar", sales: 0 },
+    { month: "Apr", sales: 0 },
+    { month: "May", sales: 0 },
+    { month: "Jun", sales: 0 },
+    { month: "Jul", sales: 0 },
+    { month: "Aug", sales: 0 },
+    { month: "Sep", sales: 0 },
+    { month: "Oct", sales: 0 },
+    { month: "Nov", sales: 0 },
+    { month: "Dec", sales: 0 }
+]
 
 exports.dashboard = async function (req, res) {
     const approvedOffer = await getApprovedOffer();
@@ -70,53 +83,29 @@ async function getTotalClientPerYear() {
 async function getOfferPerMonth() {
     const resultRunning  = await Project.find({ status: "RUNNING" }).exec();
     const resultFinished = await Project.find({ status: "FINISHED" }).exec();
-    const projectPerMonth = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0
-    };
+
+    const offerPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
     resultRunning.forEach(project => {
         if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        projectPerMonth[new Date(project.created_at).getMonth()]++;
+        offerPerMonth[new Date(project.created_at).getMonth()].sales++;
     });
 
     resultFinished.forEach(project => {
         if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        projectPerMonth[new Date(project.created_at).getMonth()]++;
+        offerPerMonth[new Date(project.created_at).getMonth()].sales++;
     });
 
-    return projectPerMonth;
+    return offerPerMonth;
 }
 
 async function projectStatusPerMonth(status) {
     const result = await Project.find({ status: status }).exec();
-    const projectPerMonth = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0,
-        5: 0,
-        6: 0,
-        7: 0,
-        8: 0,
-        9: 0,
-        10: 0,
-        11: 0
-    };
 
+    const projectPerMonth = JSON.parse(JSON.stringify(keyPerMonth));
     result.forEach(project => {
         if (new Date(project.created_at).getFullYear() !== new Date().getFullYear()) return;
-        projectPerMonth[new Date(project.created_at).getMonth()]++;
+        projectPerMonth[new Date(project.created_at).getMonth()].sales++;
     });
+
     return projectPerMonth;
 }
