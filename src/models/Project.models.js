@@ -32,7 +32,7 @@ const projectSchema = new mongoose.Schema({
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
-  deadline_project: { type: String, required: false },
+  jadwal_sampling: { type: String, required: false },
   created_year: {
     type: String,
     required: false,
@@ -44,12 +44,12 @@ const projectSchema = new mongoose.Schema({
   created_at: {
     type: Date,
     required: false,
-    default: Date.now
+    default: Date.now,
   },
-  project_assigned_to : {
+  project_assigned_to: {
     type: String,
-    required: false
-  }
+    required: false,
+  },
 });
 
 const Project = mongoose.model("Project", projectSchema);
