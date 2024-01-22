@@ -307,3 +307,12 @@ exports.getLinkFiles = async function (params) {
 
   return { message: "Success", result };
 };
+
+exports.getProjectByAcc = async function (body) {
+  const projectList = await Project.find({ project_assigned_to: body.accountId });
+  if (projectList == null) {
+    throw new Error("No project found");
+  }
+
+  return { message: "success", data: projectList };
+}

@@ -39,14 +39,18 @@ exports.sampleAssignment = async function (params, body) {
   const sampleObj = projectObj.sampling_list.filter(
     (sample) => sample._id == id_sampling
   );
-  const duplicateUser = sampleObj[0].assigned_to.filter(
+  const duplicateUser = sampleObj[0].lab_assigned_to.filter(
     (acc) => acc._id == user.accountId
   );
   if (duplicateUser.length > 0) {
     throw new Error("User already assigned");
   }
+  const inProject = projectObj.project_assigned_to.filter(
+    (acc) => acc._id == user.accountId
+  );
+
   const update = {
-    $push: { "sampling_list.$.assigned_to": userObj },
+    $push: { "sampling_list.$.lab_assigned_to": userObj },
     $set: { "sampling_list.$.status": "ASSIGNED" },
   };
   const result = await Project.findOneAndUpdate(criteria, update, {
@@ -68,7 +72,7 @@ exports.getSampleByAcc = async function (params, body) {
   projectList.forEach(async (project) => {
     const sampleList = project.sampling_list;
     sampleList.forEach(async (sample) => {
-      const user = sample.assigned_to;
+      const user = sample.lab_assigned_to;
       user.forEach(async (acc) => {
         if (acc._id == body.accountId) {
           projectRes.push(project);
