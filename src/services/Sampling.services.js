@@ -141,7 +141,7 @@ async function getSample(params) {
 }
 
 exports.getUser = async function () {
-  const userList = await User.find({ role: "APA INI" });
+  const userList = await User.find({ role: "SPV" });
   if (userList == null) {
     throw new Error("No user found");
   }
