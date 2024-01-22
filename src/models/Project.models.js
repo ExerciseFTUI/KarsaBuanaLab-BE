@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { samplingSchema } = require("./Sampling.models");
 const { fileSchema } = require("./File.models");
+const { userSchema } = require("./User.models");
 
 function generatePass() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -43,8 +44,9 @@ const projectSchema = new mongoose.Schema({
   created_at: {
     type: Date,
     required: false,
-    default: Date.now,
+    default: Date.now
   },
+  project_assigned_to : [userSchema]
 });
 
 const Project = mongoose.model("Project", projectSchema);
