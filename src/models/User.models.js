@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true
   },
-  role: { type: String, enum: ["ADMIN", "USER"], required: false, default: "USER" },
+  role: { type: String, enum: ["ADMIN", "USER", "SPV"], required: false, default: "USER" },
   division: { type: String, required: true },
 });
 

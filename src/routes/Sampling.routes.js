@@ -6,5 +6,6 @@ router.get('/sample/:tahun' , samplingController.getSampleByAcc);
 router.get('/get/:tahun/:no_sampling', samplingController.getSampling);
 router.post('/change', samplingController.changeSampleStatus);
 router.post('/assign/:id_sampling', samplingController.sampleAssignment);
+router.get('/getuser',  samplingController.getUser);
 
 module.exports = router;

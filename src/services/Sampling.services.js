@@ -139,3 +139,11 @@ async function getSample(params) {
 
   return samplingList[0];
 }
+
+exports.getUser = async function () {
+  const userList = await User.find({ role: "SPV" });
+  if (userList == null) {
+    throw new Error("No user found");
+  }
+  return { message: "success", data: userList };
+}
