@@ -45,10 +45,6 @@ exports.sampleAssignment = async function (params, body) {
   if (duplicateUser.length > 0) {
     throw new Error("User already assigned");
   }
-  const inProject = projectObj.project_assigned_to.filter(
-    (acc) => acc._id == user.accountId
-  );
-
   const update = {
     $push: { "sampling_list.$.lab_assigned_to": userObj },
     $set: { "sampling_list.$.status": "ASSIGNED" },
