@@ -65,7 +65,9 @@ async function getApprovedOffer() {
 
 async function getTotalProjectPerYear() {
     try {
-        const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
+        const resultRunning = await Project.find({ status: "RUNNING" }).exec();
+        const resultFinished = await Project.find({ status: "FINISHED" }).exec();
+        const result = resultRunning.concat(resultFinished);
         const projectList = result.map(project => project.project_name);
         const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
         const totalProject = Object.keys(projectCount).length;
@@ -77,10 +79,12 @@ async function getTotalProjectPerYear() {
 
 async function getTotalClientPerYear() {
     try {
-        const result = await Project.find({ status: "RUNNING" } || { status: "FINISHED" }).exec();
-        const projectList = result.map(project => project.client_name);
-        const projectCount = projectList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
-        const totalProject = Object.keys(projectCount).length;
+        const resultRunning = await Project.find({ status: "RUNNING" }).exec();
+        const resultFinished = await Project.find({ status: "FINISHED" }).exec();
+        const result = resultRunning.concat(resultFinished);
+        const clientList = result.map(project => project.client_name);
+        const clientCount = clientList.reduce((prev, curr) => (prev[curr] = ++prev[curr] || 1, prev), {});
+        const totalProject = Object.keys(clientCount).length;
         return totalProject;
     } catch (error) {
         console.log(error);
@@ -106,7 +110,6 @@ async function getOfferPerMonth() {
             if (valuation === undefined || valuation === null || valuation === NaN) return;
             totalValuation += valuation;
         });
-        console.log(totalValuation);
         return { offerPerMonth, totalValuation }
     } catch (error) {
         console.log(error);
