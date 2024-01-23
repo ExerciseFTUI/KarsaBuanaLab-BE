@@ -1,5 +1,5 @@
-const projectsServices = require('../services/Projects.services');
-const drivesServices = require('../services/Drives.services');
+const projectsServices = require("../services/Projects.services");
+const drivesServices = require("../services/Drives.services");
 
 exports.newBaseSample = async function (req, res) {
   try {
@@ -8,30 +8,59 @@ exports.newBaseSample = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.editProject = async function (req, res) {
   try {
-    const result = await projectsServices.editProject(req.files,req.body);
+    const result = await projectsServices.editProject(req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
+
+exports.editProjectSamples = async function (req, res) {
+  try {
+    const result = await projectsServices.editProjectSamples(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.editProjectFiles = async function (req, res) {
+  try {
+    const result = await projectsServices.editProjectFiles(req.files, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
 
 exports.createProject = async function (req, res) {
   try {
     const result = await projectsServices.createProject(req.files, req.body);
     res.status(200).json(result);
   } catch (errorObj) {
-    if(errorObj.new_folder_id == null) {
-      res.status(400).json({ message: errorObj.message, result: "Failed to create project folder" });
+    if (errorObj.new_folder_id == null) {
+      res.status(400).json({
+        message: errorObj.message,
+        result: "Failed to create project folder",
+      });
       return;
     }
-    const delete_folder = await drivesServices.deleteFile({file_id: errorObj.new_folder_id});
-    res.status(400).json({ message: errorObj.message, result: delete_folder == null? "Failed to delete the project folder": "Project folder deleted" });
+    const delete_folder = await drivesServices.deleteFile({
+      file_id: errorObj.new_folder_id,
+    });
+    res.status(400).json({
+      message: errorObj.message,
+      result:
+        delete_folder == null
+          ? "Failed to delete the project folder"
+          : "Project folder deleted",
+    });
   }
-}
+};
 
 exports.getSample = async function (req, res) {
   try {
@@ -44,12 +73,14 @@ exports.getSample = async function (req, res) {
 
 exports.getProjectByDivision = async function (req, res) {
   try {
-    const result = await projectsServices.getProjectyByDivision(req.params.division);
+    const result = await projectsServices.getProjectyByDivision(
+      req.params.division
+    );
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getLinkFiles = async function (req, res) {
   try {
@@ -58,7 +89,7 @@ exports.getLinkFiles = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getProjectByAcc = async function (req, res) {
   try {
@@ -67,7 +98,7 @@ exports.getProjectByAcc = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.assignProject = async function (req, res) {
   try {
@@ -76,4 +107,4 @@ exports.assignProject = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
