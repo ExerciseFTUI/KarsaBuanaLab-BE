@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { samplingSchema } = require("./Sampling.models");
 const { fileSchema } = require("./File.models");
+const { userSchema } = require("./User.models");
 
 function generatePass() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -23,14 +24,15 @@ const projectSchema = new mongoose.Schema({
   alamat_sampling: { type: String, required: true },
   surel: { type: String, required: true },
   contact_person: { type: String, required: true },
-  status: { type: String, required: false, default: "RUNNING" },
-  current_division: { type: String, required: false, default: "MARKETING" },
+  status: { type: String, required: false, default: "RUNNING", enum: ["RUNNING", "FINISHED", "CANCELLED"]},
+  current_division: { type: String, required: false, default: "MARKETING", enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"]},
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
   jumlah_revisi: { type: Number, required: false, default: 0 },
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
+  jadwal_sampling: { type: String, required: false },
   created_year: {
     type: String,
     required: false,
@@ -38,11 +40,16 @@ const projectSchema = new mongoose.Schema({
   },
   sampling_list: [samplingSchema],
   file: [fileSchema],
+  lab_file: [fileSchema],
   created_at: {
     type: Date,
     required: false,
-    default: Date.now
-  }
+    default: Date.now,
+  },
+  project_assigned_to: [{
+    type: String,
+    required: false,
+  }],
 });
 
 const Project = mongoose.model("Project", projectSchema);

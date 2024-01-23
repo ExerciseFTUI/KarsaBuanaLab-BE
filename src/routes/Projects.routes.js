@@ -11,5 +11,7 @@ router.put("/editFiles", projectMiddleware.uploadFiles, projectsControllers.edit
 router.get("/get-sample",projectsControllers.getSample);
 router.get("/get-project-by-division/:division",projectsControllers.getProjectByDivision);
 router.get("/get-link-files/:ProjectID", projectsControllers.getLinkFiles);
+router.get("/get-project-by-acc", projectsControllers.getProjectByAcc);
+router.post("/assign-project", projectsControllers.assignProject);
 
 module.exports = router;

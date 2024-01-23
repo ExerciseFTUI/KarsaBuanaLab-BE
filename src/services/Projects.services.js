@@ -336,3 +336,31 @@ exports.getLinkFiles = async function (params) {
 
   return { message: "Success", result };
 };
+
+exports.getProjectByAcc = async function (body) {
+  if (body.accountId === null) throw new Error("Please specify the account ID");
+
+  const projectList = await Project.find({
+    project_assigned_to: body.accountId,
+  });
+
+  if (projectList === null) throw new Error("Project not found");
+
+  return { message: "success", data: projectList };
+}
+
+exports.assignProject = async function (body) {
+  if (body.projectId === null) throw new Error("Please specify the project ID");
+  if (body.accountId === null) throw new Error("Please specify the account ID");
+
+  const projectObj = await Project.findById(body.projectId);
+  if (projectObj === null) throw new Error("Project not found");
+
+  if(projectObj.project_assigned_to.includes(body.accountId)) throw new Error("User already assigned to this project");
+
+  projectObj.project_assigned_to.push(body.accountId);
+
+  await projectObj.save();
+
+  return { message: "success", data: projectObj };
+}
