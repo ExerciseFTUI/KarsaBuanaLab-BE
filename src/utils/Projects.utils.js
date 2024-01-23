@@ -41,6 +41,7 @@ exports.copySuratPenawaran = async function (folder_id) {
 };
 
 exports.copySampleTemplate = async function copySampleTemplate(
+  is_new,
   folder_id,
   sampling_list,
   project_name,
@@ -86,18 +87,23 @@ exports.copySampleTemplate = async function copySampleTemplate(
       return samplingObj;
     })
   );
+  let parents_folder = null;
+  if (is_new) {
+    const new_folder = await drivesServices.createFolder({
+      folder_name: "Folder Sampel",
+      root_folder_id: folder_id,
+    });
+    parents_folder = new_folder.result.id;
+  }else{
+    parents_folder = folder_id;
+  }
 
-  const new_folder = await drivesServices.createFolder({
-    folder_name: "Folder Sampel",
-    root_folder_id: folder_id,
-  });
-
-  sample_object_list.forEach(async (sample, index) => {
+  const promises = sample_object_list.map(async (sample, index) => {
     const copiedFile = await drive.files.copy({
       fileId: sample.fileId,
       requestBody: {
         name: `Sampel_${sample.sample_name}_${project_name}_${index + 1}`,
-        parents: [new_folder.result.id],
+        parents: [parents_folder],
       },
     });
     await drive.permissions.create({
@@ -107,8 +113,9 @@ exports.copySampleTemplate = async function copySampleTemplate(
         type: "anyone",
       },
     });
+    sample_object_list[index].fileId = copiedFile.data.id;
   });
-
+  await Promise.all(promises);
   return sample_object_list;
 };
 
@@ -323,6 +330,22 @@ exports.insertValuesIntoCells = async function (
     return { message: "Error inserting data into cells", error: error.message };
   }
 };
+
+exports.getFolderIdByName = async function (folder_name, parent_id) {
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  const folder = await drive.files.list({
+    q: `name = '${folder_name}' and '${parent_id}' in parents`,
+  });
+
+  if (folder.data.files.length == 0) {
+    return null;
+  }
+
+  return folder.data.files[0].id;
+}
 
 function addLeadingZeros(number, zeros) {
   const numberString = String(number);

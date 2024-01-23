@@ -53,12 +53,11 @@ exports.editProject = async function (body) {
   if (!result) {
     throw new Error("Project not found");
   }
-    return { message: "Successfully edited project", result };
+  return { message: "Successfully edited project", result };
 };
 
 exports.editProjectSamples = async function (body) {
   const { ...project } = body;
-  let sampling_list = [];
 
   if (!project._id || project._id == null) {
     throw new Error("Please specify the project _id");
@@ -66,30 +65,66 @@ exports.editProjectSamples = async function (body) {
   if (Object.keys(project).length == 1) {
     throw new Error("Only project _id is being passed");
   }
-  if (project.sampling_list) {
-    sampling_list = project.sampling_list;
-    delete project.sampling_list;
+  if (!Array.isArray(project.sampling_list) || !project.sampling_list.length) {
+    throw new Error("Please passed an array as sampling_list");
   }
-  let result = await Project.findOneAndUpdate(
-    { _id: project._id },
-    { ...project },
-    { new: true }
-  );
+  if (
+    !Array.isArray(project.regulation_list) ||
+    !project.regulation_list.length
+  ) {
+    throw new Error("Please passed an array as regulation_list");
+  }
+  if (project.sampling_list.length !== project.regulation_list.length) {
+    throw new Error(
+      "Please passed the same amount of regulation_list and sampling_list"
+    );
+  }
+  let result = await Project.findOne({ _id: project._id });
   if (!result) {
     throw new Error("Project not found");
   }
-  if (sampling_list.length) {
-    const sampling_object_list = await copySampleTemplate(
-      result.folder_id,
-      sampling_list,
-      result.project_name
+  let new_sampling_list = [];
+  let new_regulation_list = [];
+  let sampling_object_list = [];
+  project.sampling_list.forEach((sample, index) => {
+    const indexOfValue = result.sampling_list.findIndex(
+      (res) => res.sample_name === sample
     );
-    result = await Project.findOneAndUpdate(
-      { _id: project._id },
-      { $push: { sampling_list: { $each: sampling_object_list } } },
-      { new: true }
+    if (indexOfValue !== -1) {
+      if (
+        result.sampling_list[indexOfValue].regulation_name[0].regulation_name ==
+        project.regulation_list[index]
+      ) {
+        sampling_object_list.push(result.sampling_list[indexOfValue]);
+      } else {
+        new_regulation_list.push(project.regulation_list[index]);
+        new_sampling_list.push(sample);
+      }
+    } else {
+      new_sampling_list.push(sample);
+      new_regulation_list.push(project.regulation_list[index]);
+    }
+  });
+
+  if (new_sampling_list.length || new_regulation_list.length) {
+    const folder_sample_id = await projectsUtils.getFolderIdByName("Folder Sampel", result.folder_id);
+    
+    const new_sampling_obj = await projectsUtils.copySampleTemplate(
+      false,
+      folder_sample_id,
+      new_sampling_list,
+      result.project_name,
+      new_regulation_list
     );
+
+    sampling_object_list = sampling_object_list.concat(new_sampling_obj);
   }
+
+  result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { sampling_list: sampling_object_list },
+    { new: true }
+  );
 
   return { message: "Successfully edited project samples", result };
 };
@@ -103,16 +138,37 @@ exports.editProjectFiles = async function (files, body) {
   if (!files.length) {
     throw new Error("Please specify the files");
   }
-  const result = await Project.findOne(
-    { _id: project._id },
-  );
-  const new_files_obj = await uploadFilesToDrive(files, result.folder_id);
+  let result = await Project.findOne({ _id: project._id });
+  if (!result) {
+    throw new Error("Project not found");
+  }
+  let new_files_list = [];
+  let files_object_list = [];
+  files.forEach((file) => {
+    const indexOfValue = result.file.findIndex(
+      (res) => res.file_name === file.originalname
+    );
+    if (indexOfValue !== -1) {
+      files_object_list.push(result.file[indexOfValue]);
+    } else {
+      new_files_list.push(file);
+    }
+  });
+
+  if (new_files_list.length) {
+    const new_files_obj = await projectsUtils.uploadFilesToDrive(
+      files,
+      result.folder_id
+    );
+    files_object_list = files_object_list.concat(new_files_obj);
+  }
 
   result = await Project.findOneAndUpdate(
     { _id: project._id },
-    { $push: { file: { $each: new_files_obj } } },
+    { file: files_object_list },
     { new: true }
   );
+
   return {
     message: "Successfully added files and the project has been edited",
     result,
@@ -161,6 +217,7 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
     const sampling_object_list = await projectsUtils.copySampleTemplate(
+      true,
       new_folder.result.id,
       project.sampling_list,
       project.project_name,
@@ -347,7 +404,7 @@ exports.getProjectByAcc = async function (body) {
   if (projectList === null) throw new Error("Project not found");
 
   return { message: "success", data: projectList };
-}
+};
 
 exports.assignProject = async function (body) {
   if (body.projectId === null) throw new Error("Please specify the project ID");
@@ -356,11 +413,12 @@ exports.assignProject = async function (body) {
   const projectObj = await Project.findById(body.projectId);
   if (projectObj === null) throw new Error("Project not found");
 
-  if(projectObj.project_assigned_to.includes(body.accountId)) throw new Error("User already assigned to this project");
+  if (projectObj.project_assigned_to.includes(body.accountId))
+    throw new Error("User already assigned to this project");
 
   projectObj.project_assigned_to.push(body.accountId);
 
   await projectObj.save();
 
   return { message: "success", data: projectObj };
-}
+};
