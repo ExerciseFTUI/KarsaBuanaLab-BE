@@ -36,22 +36,38 @@ exports.newBaseSample = async function (body) {
       - Rename gdrive folder if project name is changed
       - Remove duplicate folder sample
 */
-exports.editProject = async function (files, body) {
+exports.editProject = async function (body) {
+  const { ...project } = body;
+
+  if (!project._id || project._id == null) {
+    throw new Error("Please specify the project _id");
+  }
+  if (Object.keys(project).length == 1) {
+    throw new Error("Only project _id is being passed");
+  }
+  let result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { ...project },
+    { new: true }
+  );
+  if (!result) {
+    throw new Error("Project not found");
+  }
+    return { message: "Successfully edited project", result };
+};
+
+exports.editProjectSamples = async function (body) {
   const { ...project } = body;
   let sampling_list = [];
 
   if (!project._id || project._id == null) {
-    return { message: "Please specify the project _id", result: null };
+    throw new Error("Please specify the project _id");
   }
-  if (Object.keys(project).length == 1 && !files.length) {
-    return { message: "Only project _id is being passed", result: null };
-  }
-  if (project.files) {
-    delete project.files;
+  if (Object.keys(project).length == 1) {
+    throw new Error("Only project _id is being passed");
   }
   if (project.sampling_list) {
     sampling_list = project.sampling_list;
-    console.log(sampling_list);
     delete project.sampling_list;
   }
   let result = await Project.findOneAndUpdate(
@@ -60,7 +76,7 @@ exports.editProject = async function (files, body) {
     { new: true }
   );
   if (!result) {
-    return { message: "Project not found", result: null };
+    throw new Error("Project not found");
   }
   if (sampling_list.length) {
     const sampling_object_list = await copySampleTemplate(
@@ -74,9 +90,22 @@ exports.editProject = async function (files, body) {
       { new: true }
     );
   }
-  if (!files.length) {
-    return { message: "Successfully edited", result };
+
+  return { message: "Successfully edited project samples", result };
+};
+
+exports.editProjectFiles = async function (files, body) {
+  const { ...project } = body;
+
+  if (!project._id || project._id == null) {
+    throw new Error("Please specify the project _id");
   }
+  if (!files.length) {
+    throw new Error("Please specify the files");
+  }
+  const result = await Project.findOne(
+    { _id: project._id },
+  );
   const new_files_obj = await uploadFilesToDrive(files, result.folder_id);
 
   result = await Project.findOneAndUpdate(
@@ -92,7 +121,7 @@ exports.editProject = async function (files, body) {
 
 /* TODO: 
       - Autofill surat penawaran
-      - Serialize nomor proyek
+      - Serialize nomor proyek ✅
 */
 exports.createProject = async function (files, body) {
   const { ...project } = body;
