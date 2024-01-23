@@ -25,7 +25,7 @@ const projectSchema = new mongoose.Schema({
   surel: { type: String, required: true },
   contact_person: { type: String, required: true },
   status: { type: String, required: false, default: "RUNNING" },
-  current_division: { type: String, required: false, default: "MARKETING" },
+  current_division: { type: String, required: false, default: "MARKETING", enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"]},
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
   jumlah_revisi: { type: Number, required: false, default: 0 },
