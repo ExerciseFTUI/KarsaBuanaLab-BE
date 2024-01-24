@@ -13,5 +13,7 @@ router.get("/get-project-by-division/:division",projectsControllers.getProjectBy
 router.get("/get-link-files/:ProjectID", projectsControllers.getLinkFiles);
 router.get("/get-project-by-acc", projectsControllers.getProjectByAcc);
 router.post("/assign-project", projectsControllers.assignProject);
+router.post("/assign-project/edit-users", projectsControllers.editAssignedProjectUsers);
+router.post("/assign-project/edit-schedule", projectsControllers.editAssignedProjectSchedule);
 
 module.exports = router;

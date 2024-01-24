@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
       required: true
   },
   role: { type: String, enum: ["ADMIN", "USER", "SPV"], required: false, default: "USER" },
-  division: { type: String, required: true },
+  division: { type: String, required: true, enum: ["Marketing", "Sampling", "Lab", "PPLHP"] },
 });
 
 const User = mongoose.model("User", userSchema);

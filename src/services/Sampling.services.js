@@ -141,7 +141,7 @@ async function getSample(params) {
 }
 
 exports.getUser = async function () {
-  const userList = await User.find({ role: "SPV" });
+  const userList = await User.find({ role: "SPV", division: "LAB" });
   if (userList == null) {
     throw new Error("No user found");
   }
