@@ -289,7 +289,7 @@ exports.getSample = async function (body) {
 exports.getProjectyByDivision = async function (division) {
   try {
     const projects = await Project.find({ current_division: division });
-    return projects;
+    return { message: "Success", projects };
   } catch (error) {
     throw { message: error.message };
   }
