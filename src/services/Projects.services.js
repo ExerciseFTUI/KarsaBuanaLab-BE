@@ -56,72 +56,74 @@ exports.editProject = async function (body) {
   return { message: "Successfully edited project", result };
 };
 
-exports.editProjectSamples = async function (body) {
-  const { ...project } = body;
+exports.editProjectSamples = async function (project_id, body) {
+  if (!project_id || project_id == null) {
+    throw new Error("Please specify the project_id");
+  }
+  if (!body || body == null) {
+    throw new Error("Request body is empty");
+  }
 
-  if (!project._id || project._id == null) {
-    throw new Error("Please specify the project _id");
-  }
-  if (Object.keys(project).length == 1) {
-    throw new Error("Only project _id is being passed");
-  }
-  if (!Array.isArray(project.sampling_list) || !project.sampling_list.length) {
-    throw new Error("Please passed an array as sampling_list");
-  }
-  if (
-    !Array.isArray(project.regulation_list) ||
-    !project.regulation_list.length
-  ) {
-    throw new Error("Please passed an array as regulation_list");
-  }
-  if (project.sampling_list.length !== project.regulation_list.length) {
-    throw new Error(
-      "Please passed the same amount of regulation_list and sampling_list"
-    );
-  }
-  let result = await Project.findOne({ _id: project._id });
+  let result = await Project.findOne({ _id: project_id });
   if (!result) {
     throw new Error("Project not found");
   }
   let new_sampling_list = [];
   let new_regulation_list = [];
+  let new_param_list = [];
   let sampling_object_list = [];
-  project.sampling_list.forEach((sample, index) => {
+  body.forEach((sample, index) => {
     const indexOfValue = result.sampling_list.findIndex(
-      (res) => res.sample_name === sample
+      (res) => res.sample_name === sample.sample_name
     );
     if (indexOfValue !== -1) {
       if (
         result.sampling_list[indexOfValue].regulation_name[0].regulation_name ==
-        project.regulation_list[index]
+        body[index].regulation_name
       ) {
-        sampling_object_list.push(result.sampling_list[indexOfValue]);
+        if (result.sampling_list[indexOfValue].param.toString() === sample.param.toString()) {
+          sampling_object_list.push(result.sampling_list[indexOfValue]);
+        } else {
+          new_sampling_list.push(sample.sample_name);
+          new_regulation_list.push(body[index].regulation_name);
+          new_param_list.push(body[index].param);
+        }
       } else {
-        new_regulation_list.push(project.regulation_list[index]);
-        new_sampling_list.push(sample);
+        new_sampling_list.push(sample.sample_name);
+        new_regulation_list.push(body[index].regulation_name);
+        new_param_list.push(body[index].param);
       }
     } else {
-      new_sampling_list.push(sample);
-      new_regulation_list.push(project.regulation_list[index]);
+      new_sampling_list.push(sample.sample_name);
+      new_regulation_list.push(body[index].regulation_name);
+      new_param_list.push(body[index].param);
     }
   });
 
-  if (new_sampling_list.length || new_regulation_list.length) {
-    const folder_sample_id = await projectsUtils.getFolderIdByName("Folder Sampel", result.folder_id);
-    
+  if (
+    new_sampling_list.length ||
+    new_regulation_list.length ||
+    new_param_list.length
+  ) {
+    const folder_sample_id = await projectsUtils.getFolderIdByName(
+      "Folder Sampel",
+      result.folder_id
+    );
+
     const new_sampling_obj = await projectsUtils.copySampleTemplate(
       false,
       folder_sample_id,
       new_sampling_list,
       result.project_name,
-      new_regulation_list
+      new_regulation_list,
+      new_param_list
     );
 
     sampling_object_list = sampling_object_list.concat(new_sampling_obj);
   }
 
   result = await Project.findOneAndUpdate(
-    { _id: project._id },
+    { _id: project_id },
     { sampling_list: sampling_object_list },
     { new: true }
   );
@@ -200,10 +202,13 @@ exports.createProject = async function (files, body) {
     throw new Error("Please specify the contact person");
   }
   if (!project.sampling_list) {
-    throw new Error("Please specify the sampling list");
+    throw new Error("Please specify the sampling_list");
   }
   if (!project.regulation_list) {
-    throw new Error("Please specify the regulation list");
+    throw new Error("Please specify the regulation_list");
+  }
+  if (!project.param_list) {
+    throw new Error("Please specify the param_list or pass an empty array");
   }
   let new_folder = null;
   try {
@@ -213,22 +218,22 @@ exports.createProject = async function (files, body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    const id_surat_penawaran = await projectsUtils.copySuratPenawaran(
-      new_folder.result.id
-    );
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
       new_folder.result.id,
       project.sampling_list,
       project.project_name,
-      project.regulation_list
+      project.regulation_list,
+      project.param_list
     );
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,
       new_folder.result.id
     );
 
-    const id_surat_fpp = await projectsUtils.copyFPPFile(new_folder.result.id);
+    const lab_file_object_list = await projectsUtils.copyFilesIntoLabFiles(
+      new_folder.result.id
+    );
 
     // const fillFPP = await projectsUtils.fillFPPFile(
     //   FPP_result.fileId,
@@ -246,10 +251,9 @@ exports.createProject = async function (files, body) {
       no_penawaran,
       no_sampling,
       folder_id: new_folder.result.id,
-      surat_penawaran: id_surat_penawaran,
       sampling_list: sampling_object_list,
       file: files_object_list,
-      surat_fpp: id_surat_fpp,
+      lab_file: lab_file_object_list,
     });
 
     await create_project.save();

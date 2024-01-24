@@ -21,7 +21,7 @@ exports.editProject = async function (req, res) {
 
 exports.editProjectSamples = async function (req, res) {
   try {
-    const result = await projectsServices.editProjectSamples(req.body);
+    const result = await projectsServices.editProjectSamples(req.params.id, req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });

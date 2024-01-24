@@ -10,7 +10,7 @@ const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
 const fs = require("fs");
 
-exports.copySuratPenawaran = async function (folder_id) {
+exports.copySuratPenawaran = async function copySuratPenawaran(folder_id) {
   const surat_penawaran_id = process.env.SPREADSHEET_SURAT_PENAWARAN;
 
   const auth = getAuth("https://www.googleapis.com/auth/drive");
@@ -45,7 +45,8 @@ exports.copySampleTemplate = async function copySampleTemplate(
   folder_id,
   sampling_list,
   project_name,
-  regulation_arr
+  regulation_list,
+  param_array_list
 ) {
   const auth = getAuth("https://www.googleapis.com/auth/drive");
 
@@ -66,7 +67,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
     sampling_list.map(async (sample, index) => {
       const result = await BaseSample.findOne({ sample_name: sample });
       const regulation = await Regulation.findOne({
-        regulation_name: regulation_arr[index],
+        regulation_name: regulation_list[index],
       });
       if (!result) {
         throw new Error(
@@ -81,7 +82,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
-        param: result.param,
+        param: param_array_list[index],
         regulation_name: regulation,
       });
       return samplingObj;
@@ -94,7 +95,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
       root_folder_id: folder_id,
     });
     parents_folder = new_folder.result.id;
-  }else{
+  } else {
     parents_folder = folder_id;
   }
 
@@ -211,7 +212,7 @@ exports.generateProjectID = async function (nomorProject) {
   return projectID;
 };
 
-exports.copyFPPFile = async function (folder_id) {
+exports.copyFPPFile = async function copyFPPFile(folder_id) {
   const fpp_id = process.env.FPP_ID;
 
   const auth = getAuth("https://www.googleapis.com/auth/drive");
@@ -345,7 +346,62 @@ exports.getFolderIdByName = async function (folder_name, parent_id) {
   }
 
   return folder.data.files[0].id;
-}
+};
+
+exports.copyFilesIntoLabFiles = async function (folder_id) {
+  const id_sample = await exports.copySuratPenawaran(folder_id);
+  const id_fpp = await exports.copyFPPFile(folder_id);
+  let file_list = [id_sample, id_fpp];
+  const file_name = ["Surat Penawaran", "FPP"];
+  file_list = file_list.map((id, index) => {
+    const new_file = new File({
+      file_name: file_name[index],
+      file_type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      file_id: id,
+      file_extension: "xlsx",
+    });
+    return new_file;
+  });
+  return file_list;
+};
+
+exports.copySuratTugas = async function (folder_id) {
+    const id_surat_tugas = process.env.SPREADSHEET_SURAT_PENAWARAN;
+    const id_file_jsa = process.env.FPP_ID;
+  
+    const auth = getAuth("https://www.googleapis.com/auth/drive");
+  
+    const drive = google.drive({ version: "v3", auth });
+  
+    const copiedSuratTugas = await drive.files.copy({
+      fileId: id_surat_tugas,
+      requestBody: {
+        name: "Surat Tugas",
+        parents: [folder_id],
+      },
+    });
+
+    const copiedFileJSA = await drive.files.copy({
+        fileId: id_file_jsa,
+        requestBody: {
+          name: "File JSA",
+          parents: [folder_id],
+        },
+      });
+  
+    const copiedFileId = copiedSuratTugas.data.id;
+  
+    await drive.permissions.create({
+      fileId: copiedFileId,
+      requestBody: {
+        role: "writer",
+        type: "anyone",
+      },
+    });
+  
+    return copiedFileId;
+  };
 
 function addLeadingZeros(number, zeros) {
   const numberString = String(number);
