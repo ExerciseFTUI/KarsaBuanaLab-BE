@@ -24,8 +24,18 @@ const projectSchema = new mongoose.Schema({
   alamat_sampling: { type: String, required: true },
   surel: { type: String, required: true },
   contact_person: { type: String, required: true },
-  status: { type: String, required: false, default: "RUNNING", enum: ["RUNNING", "FINISHED", "CANCELLED"]},
-  current_division: { type: String, required: false, default: "MARKETING", enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"]},
+  status: {
+    type: String,
+    required: false,
+    default: "RUNNING",
+    enum: ["RUNNING", "FINISHED", "CANCELLED"],
+  },
+  current_division: {
+    type: String,
+    required: false,
+    default: "MARKETING",
+    enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"],
+  },
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
   jumlah_revisi: { type: Number, required: false, default: 0 },
@@ -33,6 +43,7 @@ const projectSchema = new mongoose.Schema({
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
   jadwal_sampling: { type: String, required: false },
+
   created_year: {
     type: String,
     required: false,
@@ -46,10 +57,13 @@ const projectSchema = new mongoose.Schema({
     required: false,
     default: Date.now,
   },
-  project_assigned_to: [{
-    type: String,
-    required: false,
-  }],
+  project_assigned_to: [
+    {
+      type: String,
+      required: false,
+    },
+  ],
+  is_paid: { type: Boolean, default: false },
 });
 
 const Project = mongoose.model("Project", projectSchema);
