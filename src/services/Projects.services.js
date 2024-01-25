@@ -432,11 +432,10 @@ exports.assignProject = async function (body) {
   if (projectObj.project_assigned_to.includes(body.accountId))
     throw new Error("User already assigned to this project");
 
-  if (projectObj.jadwal_sampling === null) {
-    projectObj.jadwal_sampling = body.jadwal_sampling;
-  }
+  if (await User.findById(body.accountId) === null) throw new Error("User not found");
 
   projectObj.project_assigned_to.push(body.accountId);
+  projectObj.jadwal_sampling = project.jadwal_sampling;
 
   await projectObj.save();
 
@@ -449,6 +448,8 @@ exports.editAssignedProjectUsers = async function (body) {
 
   const projectObj = await Project.findById(body.projectId);
   if (projectObj === null) throw new Error("Project not found");
+
+  if (await User.findById(body.accountId) === null) throw new Error("User not found");
 
   projectObj.project_assigned_to = body.accountId;
 
