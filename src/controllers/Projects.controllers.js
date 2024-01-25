@@ -73,9 +73,7 @@ exports.getSample = async function (req, res) {
 
 exports.getProjectByDivision = async function (req, res) {
   try {
-    const result = await projectsServices.getProjectyBDivision(
-      req.params.division
-    );
+    const result = await projectsServices.getProjectyBDivision(req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
