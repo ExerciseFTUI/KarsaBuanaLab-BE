@@ -11,21 +11,26 @@ const projectsUtils = require("../utils/Projects.utils");
 const { Regulation } = require("../models/Regulation.models");
 
 exports.newBaseSample = async function (body) {
-  const { sample_name, file_id, safety_file_id, param, regulation } = body;
-
-  const arrOfRegulation = regulation.map(
-    (reg) =>
-      new Regulation({
+  const regulationObj = body;
+  const dupCheck = await BaseSample.findOne({ sample_name:      regulationObj.sample_name });
+  if (dupCheck) {
+    throw new Error("Base sample already exists");
+  }
+  const arrOfRegulation = await Promise.all(regulationObj.regulation.map(
+    async (reg) => {
+      const regulation = new Regulation({
         regulation_name: reg.regulation_name,
         default_param: reg.default_param,
       })
-  );
+      await regulation.save();
+      return regulation;
+    }));
 
   const result = new BaseSample({
-    sample_name: sample_name,
-    file_id: file_id,
-    safety_file_id: safety_file_id,
-    param: param,
+    sample_name: regulationObj.sample_name,
+    file_id: regulationObj.file_id,
+    file_safety_id: regulationObj.file_safety_id,
+    param: regulationObj.param,
     regulation: arrOfRegulation,
   });
   await result.save();

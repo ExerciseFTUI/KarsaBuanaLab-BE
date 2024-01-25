@@ -43,7 +43,7 @@ const projectSchema = new mongoose.Schema({
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
   jadwal_sampling: { type: String, required: false },
-
+  description: { type: String, required: false },
   created_year: {
     type: String,
     required: false,
