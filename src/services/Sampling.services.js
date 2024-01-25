@@ -140,8 +140,12 @@ async function getSample(params) {
   return samplingList[0];
 }
 
-exports.getUser = async function () {
-  const userList = await User.find({ role: "SPV", division: "LAB" });
+exports.getUser = async function (body) {
+  const { role, division } = body;
+  if(!role || !division){
+    throw new Error("Please specify the role and division");
+  }
+  const userList = await User.find({ role: role, division: division });
   if (userList == null) {
     throw new Error("No user found");
   }
