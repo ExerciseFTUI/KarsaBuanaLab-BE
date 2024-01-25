@@ -286,6 +286,7 @@ exports.getSample = async function (body) {
   }
 };
 
+// TODO: Ada statusnya, opsional. Ubah jadi body
 exports.getProjectByDivision = async function (division) {
   try {
     const projects = await Project.find({ current_division: division.toUpperCase() });
