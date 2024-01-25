@@ -5,6 +5,7 @@ const projectMiddleware = require("../middlewares/Projects.middlewares");
 
 router.post("/add-base-sample", projectsControllers.newBaseSample);
 router.post("/create", projectMiddleware.uploadFiles, projectsControllers.createProject);
+router.post("/createJSON", projectsControllers.createProjectJSON);
 router.put("/edit", projectsControllers.editProject);
 router.put("/editSamples/:id", projectsControllers.editProjectSamples);
 router.put("/editFiles", projectMiddleware.uploadFiles, projectsControllers.editProjectFiles);
