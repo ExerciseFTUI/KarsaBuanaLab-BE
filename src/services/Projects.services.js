@@ -492,7 +492,7 @@ exports.getProjectByAcc = async function (body) {
 
   if (projectList === null) throw new Error("Project not found");
 
-  return { message: "success", data: projectList };
+  return { message: "success", projectList };
 };
 
 exports.assignProject = async function (body) {
@@ -514,7 +514,7 @@ exports.assignProject = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", data: projectObj };
+  return { message: "success", projectObj };
 };
 
 exports.editAssignedProjectUsers = async function (body) {
@@ -530,7 +530,7 @@ exports.editAssignedProjectUsers = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", data: projectObj };
+  return { message: "success", projectObj };
 }
 
 exports.editAssignedProjectSchedule = async function (body) {
@@ -544,5 +544,5 @@ exports.editAssignedProjectSchedule = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", data: projectObj };
+  return { message: "success", projectObj };
 }
