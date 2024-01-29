@@ -64,6 +64,12 @@ const projectSchema = new mongoose.Schema({
     },
   ],
   is_paid: { type: Boolean, default: false },
+  pplhp_status: {
+    type: String,
+    required: false,
+    default: "DRAFT",
+    enum: ["RECEIVE", "DRAFT", "FINISHED"],
+  },
 });
 
 const Project = mongoose.model("Project", projectSchema);

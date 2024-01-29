@@ -81,7 +81,10 @@ exports.editProjectSamples = async function (project_id, body) {
         result.sampling_list[indexOfValue].regulation_name[0].regulation_name ==
         body[index].regulation_name
       ) {
-        if (result.sampling_list[indexOfValue].param.toString() === sample.param.toString()) {
+        if (
+          result.sampling_list[indexOfValue].param.toString() ===
+          sample.param.toString()
+        ) {
           sampling_object_list.push(result.sampling_list[indexOfValue]);
         } else {
           new_sampling_list.push(sample.sample_name);
@@ -296,7 +299,9 @@ exports.getProjectByDivision = async function (body) {
     let projects = null;
     if (!division) throw new Error("Please specify the division");
     if (!status) {
-      projects = await Project.find({ current_division: division.toUpperCase() });
+      projects = await Project.find({
+        current_division: division.toUpperCase(),
+      });
     } else {
       projects = await Project.find({
         current_division: division.toUpperCase(),
@@ -424,7 +429,8 @@ exports.assignProject = async function (body) {
   const { ...project } = body;
   if (!project.projectId) throw new Error("Please specify the project ID");
   if (!project.accountId) throw new Error("Please specify the account ID");
-  if (!project.jadwal_sampling) throw new Error("Please specify the sampling schedule");
+  if (!project.jadwal_sampling)
+    throw new Error("Please specify the sampling schedule");
 
   const projectObj = await Project.findById(project.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
@@ -432,7 +438,8 @@ exports.assignProject = async function (body) {
   if (projectObj.project_assigned_to.includes(body.accountId))
     throw new Error("User already assigned to this project");
 
-  if (await User.findById(body.accountId) === null) throw new Error("User not found");
+  if ((await User.findById(body.accountId)) === null)
+    throw new Error("User not found");
 
   projectObj.project_assigned_to.push(body.accountId);
   projectObj.jadwal_sampling = project.jadwal_sampling;
@@ -449,17 +456,19 @@ exports.editAssignedProjectUsers = async function (body) {
   const projectObj = await Project.findById(body.projectId);
   if (projectObj === null) throw new Error("Project not found");
 
-  if (await User.findById(body.accountId) === null) throw new Error("User not found");
+  if ((await User.findById(body.accountId)) === null)
+    throw new Error("User not found");
 
   projectObj.project_assigned_to = body.accountId;
 
   await projectObj.save();
 
   return { message: "success", data: projectObj };
-}
+};
 
 exports.editAssignedProjectSchedule = async function (body) {
-  if (body.jadwal_sampling === null) throw new Error("Please specify the sampling schedule");
+  if (body.jadwal_sampling === null)
+    throw new Error("Please specify the sampling schedule");
   if (body.projectId === null) throw new Error("Please specify the project ID");
 
   const projectObj = await Project.findById(body.projectId);
@@ -470,4 +479,21 @@ exports.editAssignedProjectSchedule = async function (body) {
   await projectObj.save();
 
   return { message: "success", data: projectObj };
-}
+};
+
+exports.changeDraftStatus = async function (params) {
+  if (!params.id) throw new Error("Please specify the project ID");
+
+  const resultProject = await Project.findById(params.id).exec();
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  const newStatus = "FINISHED";
+
+  resultProject.pplhp_status = newStatus;
+
+  await project.save();
+
+  return { message: "pplhp_status updated successfully", data: resultProject };
+};
