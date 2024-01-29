@@ -8,6 +8,7 @@ const drivesRoutes = require("./src/routes/Drives.routes");
 const projectsRoutes = require("./src/routes/Projects.routes");
 const marketingRoutes = require("./src/routes/Marketing.route");
 const samplingRoutes = require("./src/routes/Sampling.routes");
+const clientsRoutes = require("./src/routes/Clients.routes");
 
 const app = express();
 dotenv.config();
@@ -80,6 +81,7 @@ app.use("/drive", drivesRoutes);
 app.use("/projects", projectsRoutes);
 app.use("/marketing", marketingRoutes);
 app.use("/sampling", samplingRoutes);
+app.use("/clients", clientsRoutes);
 
 const port = process.env.PORT;
 
