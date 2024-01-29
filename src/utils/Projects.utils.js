@@ -85,6 +85,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
         param: param_array_list[index],
         regulation_name: regulation,
       });
+      await samplingObj.save();
       return samplingObj;
     })
   );

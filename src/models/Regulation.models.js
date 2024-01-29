@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const regulationSchema = new mongoose.Schema({
-  regulation_name: { type: String, required: true },
+  regulation_name: { type: String, required: true, unique: true},
   default_param: [{ type: String, required: true }],
 });
 
