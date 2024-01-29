@@ -12,7 +12,7 @@ const { Regulation } = require("../models/Regulation.models");
 
 exports.newBaseSample = async function (body) {
   const regulationObj = body;
-  const dupCheck = await BaseSample.findOne({ sample_name:      regulationObj.sample_name });
+  const dupCheck = await BaseSample.findOne({ sample_name: regulationObj.sample_name });
   if (dupCheck) {
     throw new Error("Base sample already exists");
   }
@@ -243,16 +243,19 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
 
-    // const fillFPP = await projectsUtils.fillFPPFile(
-    //   FPP_result.fileId,
-    //   no_penawaran,
-    //   project.client_name,
-    //   project.contact_person,
-    //   project.alamat_kantor,
-    //   project.surel,
-    //   project.project_name,
-    //   project.alamat_sampling
-    // );
+    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+
+    const fillFPP = await projectsUtils.fillFPPFile(
+      fpp_id,
+      no_penawaran,
+      project.client_name,
+      project.contact_person,
+      project.alamat_kantor,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
+    )
+
 
     const create_project = new Project({
       ...project,
@@ -279,74 +282,87 @@ exports.createProject = async function (files, body) {
 };
 
 exports.createProjectJSON = async function (body) {
-    const project = body;
-    if (!project.client_name) {
-      throw new Error("Please specify the client name");
-    }
-    if (!project.project_name) {
-      throw new Error("Please specify the project name");
-    }
-    if (!project.alamat_kantor) {
-      throw new Error("Please specify the almaat kantor");
-    }
-    if (!project.alamat_sampling) {
-      throw new Error("Please specify the alamat sampling");
-    }
-    if (!project.surel) {
-      throw new Error("Please specify the email");
-    }
-    if (!project.contact_person) {
-      throw new Error("Please specify the contact person");
-    }
-    if (!project.sampling_list) {
-      throw new Error("Please specify the sampling_list");
-    }
-    let new_folder = null;
-    try {
-      const no_sampling = await projectsUtils.generateSamplingID();
-      const no_penawaran = await projectsUtils.generateProjectID(no_sampling);
-      new_folder = await drivesServices.createFolder({
-        folder_name: project.project_name,
-        root_folder_id: process.env.FOLDER_ID_PROJECT,
-      });
-      const new_sampling_list = project.sampling_list.map((sample) => sample.sample_name);
-      const new_regulation_list = project.sampling_list.map((sample) => sample.regulation_name);
-      const new_param_list = project.sampling_list.map((sample) => sample.param);
-      const sampling_object_list = await projectsUtils.copySampleTemplate(
-        true,
-        new_folder.result.id,
-        new_sampling_list,
-        project.project_name,
-        new_regulation_list,
-        new_param_list
-      );
-  
-      const lab_file_object_list = await projectsUtils.copyFilesIntoLabFiles(
-        new_folder.result.id
-      );
-  
-      const create_project = new Project({
-        ...project,
-        no_penawaran,
-        no_sampling,
-        folder_id: new_folder.result.id,
-        sampling_list: sampling_object_list,
-        lab_file: lab_file_object_list,
-      });
-  
-      await create_project.save();
-      return {
-        message: "Successfull",
-        result: {
-          id: new_folder.result.id,
-          url: "https://drive.google.com/drive/folders/" + new_folder.result.id,
-          project: create_project,
-        },
-      };
-    } catch (error) {
-      throw { message: error.message, new_folder_id: new_folder.result.id };
-    }
-  };
+  const project = body;
+  if (!project.client_name) {
+    throw new Error("Please specify the client name");
+  }
+  if (!project.project_name) {
+    throw new Error("Please specify the project name");
+  }
+  if (!project.alamat_kantor) {
+    throw new Error("Please specify the almaat kantor");
+  }
+  if (!project.alamat_sampling) {
+    throw new Error("Please specify the alamat sampling");
+  }
+  if (!project.surel) {
+    throw new Error("Please specify the email");
+  }
+  if (!project.contact_person) {
+    throw new Error("Please specify the contact person");
+  }
+  if (!project.sampling_list) {
+    throw new Error("Please specify the sampling_list");
+  }
+  let new_folder = null;
+  try {
+    const no_sampling = await projectsUtils.generateSamplingID();
+    const no_penawaran = await projectsUtils.generateProjectID(no_sampling);
+    new_folder = await drivesServices.createFolder({
+      folder_name: project.project_name,
+      root_folder_id: process.env.FOLDER_ID_PROJECT,
+    });
+    const new_sampling_list = project.sampling_list.map((sample) => sample.sample_name);
+    const new_regulation_list = project.sampling_list.map((sample) => sample.regulation_name);
+    const new_param_list = project.sampling_list.map((sample) => sample.param);
+    const sampling_object_list = await projectsUtils.copySampleTemplate(
+      true,
+      new_folder.result.id,
+      new_sampling_list,
+      project.project_name,
+      new_regulation_list,
+      new_param_list
+    );
+
+    const lab_file_object_list = await projectsUtils.copyFilesIntoLabFiles(
+      new_folder.result.id
+    );
+
+    const create_project = new Project({
+      ...project,
+      no_penawaran,
+      no_sampling,
+      folder_id: new_folder.result.id,
+      sampling_list: sampling_object_list,
+      lab_file: lab_file_object_list,
+    });
+
+    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+
+    const fillFPP = await projectsUtils.fillFPPFile(
+      fpp_id,
+      no_penawaran,
+      project.client_name,
+      project.contact_person,
+      project.alamat_kantor,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
+    )
+
+    await create_project.save();
+    return {
+      message: "Successfull",
+      result: {
+        id: new_folder.result.id,
+        url: "https://drive.google.com/drive/folders/" + new_folder.result.id,
+        project: create_project,
+      },
+    };
+  } catch (error) {
+    throw { message: error.message, new_folder_id: new_folder.result.id };
+  }
+};
 
 exports.getSample = async function (body) {
   try {
