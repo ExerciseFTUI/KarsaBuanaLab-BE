@@ -243,16 +243,19 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
 
-    // const fillFPP = await projectsUtils.fillFPPFile(
-    //   FPP_result.fileId,
-    //   no_penawaran,
-    //   project.client_name,
-    //   project.contact_person,
-    //   project.alamat_kantor,
-    //   project.surel,
-    //   project.project_name,
-    //   project.alamat_sampling
-    // );
+    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+
+    const fillFPP = await projectsUtils.fillFPPFile(
+      fpp_id,
+      no_penawaran,
+      project.client_name,
+      project.contact_person,
+      project.alamat_kantor,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
+    )
+
 
     const create_project = new Project({
       ...project,
@@ -333,6 +336,19 @@ exports.createProjectJSON = async function (body) {
       sampling_list: sampling_object_list,
       lab_file: lab_file_object_list,
     });
+
+    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+
+    const fillFPP = await projectsUtils.fillFPPFile(
+      fpp_id,
+      no_penawaran,
+      project.client_name,
+      project.contact_person,
+      project.alamat_kantor,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
+    )
 
     await create_project.save();
     return {
