@@ -267,7 +267,7 @@ exports.fillFPPFile = async function (
     alamat_proyek,
   ];
 
-  const result = await insertValuesIntoCells(
+  const result = await exports.insertValuesIntoCells(
     file_id,
     data,
     sheetName,

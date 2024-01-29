@@ -149,3 +149,12 @@ exports.editAssignedProjectSchedule = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 }
+
+exports.createFPPFile = async function (req, res) {
+  try {
+    const result = await projectsServices.createFPPFile(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message })
+  }
+}

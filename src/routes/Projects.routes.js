@@ -16,5 +16,6 @@ router.get("/get-project-by-acc", projectsControllers.getProjectByAcc);
 router.post("/assign-project", projectsControllers.assignProject);
 router.post("/assign-project/edit-users", projectsControllers.editAssignedProjectUsers);
 router.post("/assign-project/edit-schedule", projectsControllers.editAssignedProjectSchedule);
+router.post("/create-fpp-file", projectsControllers.createFPPFile);
 
 module.exports = router;
