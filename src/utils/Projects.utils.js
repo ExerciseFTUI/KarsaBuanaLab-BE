@@ -368,41 +368,41 @@ exports.copyFilesIntoLabFiles = async function (folder_id) {
 };
 
 exports.copySuratTugas = async function (folder_id) {
-    const id_surat_tugas = process.env.SPREADSHEET_SURAT_PENAWARAN;
-    const id_file_jsa = process.env.FPP_ID;
-  
-    const auth = getAuth("https://www.googleapis.com/auth/drive");
-  
-    const drive = google.drive({ version: "v3", auth });
-  
-    const copiedSuratTugas = await drive.files.copy({
-      fileId: id_surat_tugas,
-      requestBody: {
-        name: "Surat Tugas",
-        parents: [folder_id],
-      },
-    });
+  const id_surat_tugas = process.env.SPREADSHEET_SURAT_PENAWARAN;
+  const id_file_jsa = process.env.FPP_ID;
 
-    const copiedFileJSA = await drive.files.copy({
-        fileId: id_file_jsa,
-        requestBody: {
-          name: "File JSA",
-          parents: [folder_id],
-        },
-      });
-  
-    const copiedFileId = copiedSuratTugas.data.id;
-  
-    await drive.permissions.create({
-      fileId: copiedFileId,
-      requestBody: {
-        role: "writer",
-        type: "anyone",
-      },
-    });
-  
-    return copiedFileId;
-  };
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  const copiedSuratTugas = await drive.files.copy({
+    fileId: id_surat_tugas,
+    requestBody: {
+      name: "Surat Tugas",
+      parents: [folder_id],
+    },
+  });
+
+  const copiedFileJSA = await drive.files.copy({
+    fileId: id_file_jsa,
+    requestBody: {
+      name: "File JSA",
+      parents: [folder_id],
+    },
+  });
+
+  const copiedFileId = copiedSuratTugas.data.id;
+
+  await drive.permissions.create({
+    fileId: copiedFileId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
+
+  return copiedFileId;
+};
 
 function addLeadingZeros(number, zeros) {
   const numberString = String(number);
@@ -410,4 +410,13 @@ function addLeadingZeros(number, zeros) {
   const zerosString = "0".repeat(numberOfZeros);
 
   return zerosString + numberString;
+}
+
+exports.fillSample = async function (
+  file_id,
+  jenis_sample,
+  jumlah_sample,
+  lokasi_sample,
+  regulasi_paramter) {
+    
 }
