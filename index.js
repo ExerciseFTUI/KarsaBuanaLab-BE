@@ -9,6 +9,7 @@ const projectsRoutes = require("./src/routes/Projects.routes");
 const marketingRoutes = require("./src/routes/Marketing.route");
 const samplingRoutes = require("./src/routes/Sampling.routes");
 const clientsRoutes = require("./src/routes/Clients.routes");
+const baseSampleRoutes = require("./src/routes/BaseSample.routes");
 
 const app = express();
 dotenv.config();
@@ -24,7 +25,6 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  // Send an HTML response
   const htmlResponse = `
     <!DOCTYPE html>
     <html lang="en">
@@ -81,6 +81,7 @@ app.use("/projects", projectsRoutes);
 app.use("/marketing", marketingRoutes);
 app.use("/sampling", samplingRoutes);
 app.use("/clients", clientsRoutes);
+app.use("/base-sample", baseSampleRoutes);
 
 const port = process.env.PORT;
 
