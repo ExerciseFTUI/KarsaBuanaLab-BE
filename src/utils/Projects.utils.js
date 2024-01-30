@@ -423,3 +423,21 @@ function addLeadingZeros(number, zeros) {
 
   return zerosString + numberString;
 }
+
+exports.fillSample = async function (
+  file_id,
+  jenis_sample,
+  jumlah_sample,
+  lokasi_sample,
+  regulasi_paramter) {
+    if(!jenis_sample || !jumlah_sample || !lokasi_sample || !regulasi_paramter){
+      throw new Error("Error while filling sample: Parameter is null")
+    }
+
+    if(jenis_sample.length != regulasi_paramter.length){
+      throw new Error("Error while filling sample: Parameter length is not the same")
+    }
+
+    let first_row = 16;
+    let first_col = A;
+}
