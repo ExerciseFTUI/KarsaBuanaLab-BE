@@ -12,19 +12,22 @@ const { Regulation } = require("../models/Regulation.models");
 
 exports.newBaseSample = async function (body) {
   const regulationObj = body;
-  const dupCheck = await BaseSample.findOne({ sample_name: regulationObj.sample_name });
+  const dupCheck = await BaseSample.findOne({
+    sample_name: regulationObj.sample_name,
+  });
   if (dupCheck) {
     throw new Error("Base sample already exists");
   }
-  const arrOfRegulation = await Promise.all(regulationObj.regulation.map(
-    async (reg) => {
+  const arrOfRegulation = await Promise.all(
+    regulationObj.regulation.map(async (reg) => {
       const regulation = new Regulation({
         regulation_name: reg.regulation_name,
         default_param: reg.default_param,
-      })
+      });
       await regulation.save();
       return regulation;
-    }));
+    })
+  );
 
   const result = new BaseSample({
     sample_name: regulationObj.sample_name,
@@ -139,7 +142,7 @@ exports.editProjectSamples = async function (project_id, body) {
   return { message: "Successfully edited project samples", result };
 };
 
-exports.editProjectFiles = async function (files, body) {
+exports.addProjectFiles = async function (files, body) {
   const { ...project } = body;
 
   if (!project._id || project._id == null) {
@@ -152,35 +155,45 @@ exports.editProjectFiles = async function (files, body) {
   if (!result) {
     throw new Error("Project not found");
   }
-  let new_files_list = [];
-  let files_object_list = [];
-  files.forEach((file) => {
-    const indexOfValue = result.file.findIndex(
-      (res) => res.file_name === file.originalname
-    );
-    if (indexOfValue !== -1) {
-      files_object_list.push(result.file[indexOfValue]);
-    } else {
-      new_files_list.push(file);
-    }
-  });
 
-  if (new_files_list.length) {
-    const new_files_obj = await projectsUtils.uploadFilesToDrive(
-      files,
-      result.folder_id
-    );
-    files_object_list = files_object_list.concat(new_files_obj);
-  }
+  const files_object_list = await projectsUtils.uploadFilesToDrive(
+    files,
+    result.folder_id
+  );
 
   result = await Project.findOneAndUpdate(
     { _id: project._id },
-    { file: files_object_list },
+    { $push: { file: { $each: files_object_list } } },
     { new: true }
   );
 
   return {
     message: "Successfully added files and the project has been edited",
+    result,
+  };
+};
+
+exports.removeProjectFiles = async function (body) {
+  const { ...project } = body;
+
+  if (!project._id || project._id == null) {
+    throw new Error("Please specify the project _id");
+  }
+  if (!project.file_id || project.file_id == null) {
+    throw new Error(
+      "Please specify the file_id using the _id from the database"
+    );
+  }
+  const result = await Project.findOneAndUpdate(
+    { _id: project._id },
+    { $pull: { file: { _id: project.file_id } } },
+    { new: true }
+  );
+  if (!result) {
+    throw new Error("Project not found");
+  }
+  return {
+    message: "Successfully removed file and the project has been edited",
     result,
   };
 };
@@ -243,7 +256,9 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
 
-    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+    const fpp_id = create_project.lab_file.find(
+      (file) => file.file_name === "FPP"
+    ).file_id;
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -254,8 +269,7 @@ exports.createProject = async function (files, body) {
       project.surel,
       project.project_name,
       project.alamat_sampling
-    )
-
+    );
 
     const create_project = new Project({
       ...project,
@@ -312,8 +326,12 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    const new_sampling_list = project.sampling_list.map((sample) => sample.sample_name);
-    const new_regulation_list = project.sampling_list.map((sample) => sample.regulation_name);
+    const new_sampling_list = project.sampling_list.map(
+      (sample) => sample.sample_name
+    );
+    const new_regulation_list = project.sampling_list.map(
+      (sample) => sample.regulation_name
+    );
     const new_param_list = project.sampling_list.map((sample) => sample.param);
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
@@ -337,7 +355,9 @@ exports.createProjectJSON = async function (body) {
       lab_file: lab_file_object_list,
     });
 
-    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+    const fpp_id = create_project.lab_file.find(
+      (file) => file.file_name === "FPP"
+    ).file_id;
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -348,7 +368,7 @@ exports.createProjectJSON = async function (body) {
       project.surel,
       project.project_name,
       project.alamat_sampling
-    )
+    );
 
     await create_project.save();
     return {
