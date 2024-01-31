@@ -277,7 +277,11 @@ exports.createProject = async function (files, body) {
       lab_file: lab_file_object_list,
     });
 
-    // await projectsUtils.fillSample(fpp_id, create_project.alamat_sampling, create_project.sampling_list)
+    const fillFPPSample = await projectsUtils.fillSample(
+      fpp_id,
+      create_project.alamat_sampling,
+      create_project.sampling_list
+    )
 
     await create_project.save();
     return {
@@ -367,6 +371,12 @@ exports.createProjectJSON = async function (body) {
       project.project_name,
       project.alamat_sampling
     );
+
+    const fillFPPSample = await projectsUtils.fillSample(
+      fpp_id,
+      create_project.alamat_sampling,
+      create_project.sampling_list
+    )
 
     await create_project.save();
     return {
@@ -572,7 +582,7 @@ exports.editAssignedProjectUsers = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", projectObj };
+  return { message: "success", data: projectObj };
 };
 
 exports.editAssignedProjectSchedule = async function (body) {
@@ -587,7 +597,7 @@ exports.editAssignedProjectSchedule = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", projectObj };
+  return { message: "success", data: projectObj };
 };
 
 exports.changeToDraft = async function (params) {
