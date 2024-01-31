@@ -58,6 +58,7 @@ exports.getPaymentStatus = async function (body) {
   const payment = {
     is_paid: project.is_paid,
     report: "https://drive.google.com/file/d/",
+    is_survey_filled: project.is_survey_filled,
   };
 
   return {
