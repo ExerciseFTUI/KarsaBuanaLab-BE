@@ -64,22 +64,11 @@ exports.login = async function (body) {
 
   const passwordCheck = await bcrypt.compare(password, user.password);
   if (!passwordCheck) {
-    // return { message: "Password is not correct" };
     throw new Error("Password is not correct");
   }
 
-  const accessToken = generateAccessToken({ username: user.username });
-  const refreshToken = jwt.sign(
-    { email: user.email },
-    process.env.REFRESH_TOKEN_SECRET
-  );
-
-  if (refreshTokens.length > process.env.REFRESH_TOKEN_LIMIT) {
-    refreshTokens.shift();
-  }
-  refreshTokens.push(refreshToken);
-
-  return { message: "Login Successful!", result: user.role };
+  delete user._doc.password;
+  return { message: "Login Successful!", result: user };
 };
 
 exports.logout = async function (body) {
