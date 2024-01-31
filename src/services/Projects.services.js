@@ -600,7 +600,7 @@ exports.changeToDraft = async function (params) {
 
   resultProject.pplhp_status = newStatus;
 
-  await project.save();
+  await resultProject.save();
 
   return { message: "pplhp_status updated successfully", data: resultProject };
 };
@@ -617,7 +617,7 @@ exports.changeToFinished = async function (params) {
 
   resultProject.pplhp_status = newStatus;
 
-  await project.save();
+  await resultProject.save();
 
   return { message: "pplhp_status updated successfully", data: resultProject };
 };
