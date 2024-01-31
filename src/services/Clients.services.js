@@ -2,7 +2,7 @@ const { Project } = require("../models/Project.models");
 
 exports.login = async function (body) {
   const { projectId, password } = body;
-//   console.log(projectId);
+  //   console.log(projectId);
   const project = await Project.findOne({ _id: projectId });
   if (!project) {
     throw new Error("Project Not Found");
@@ -63,5 +63,22 @@ exports.getPaymentStatus = async function (body) {
   return {
     message: "Get Payment Status Successful!",
     result: payment,
+  };
+};
+
+exports.fillSurvey = async function (body) {
+  const { projectId } = body;
+  const project = await Project.findOne({ _id: projectId });
+  if (!project) {
+    throw new Error("Project Not Found");
+  }
+
+  project.is_survey_filled = true;
+
+  await project.save();
+
+  return {
+    message: "Survey Is Filled",
+    result: project.is_survey_filled,
   };
 };

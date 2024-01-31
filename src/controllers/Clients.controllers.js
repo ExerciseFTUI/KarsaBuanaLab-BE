@@ -35,3 +35,12 @@ exports.getPaymentStatus = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.fillSurvey = async function (req, res) {
+  try {
+    const result = await clientsServices.fillSurvey(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
