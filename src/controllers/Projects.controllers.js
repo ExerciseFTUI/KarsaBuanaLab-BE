@@ -31,9 +31,18 @@ exports.editProjectSamples = async function (req, res) {
   }
 };
 
-exports.editProjectFiles = async function (req, res) {
+exports.addProjectFiles = async function (req, res) {
   try {
-    const result = await projectsServices.editProjectFiles(req.files, req.body);
+    const result = await projectsServices.addProjectFiles(req.files, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.removeProjectFiles = async function (req, res) {
+  try {
+    const result = await projectsServices.removeProjectFiles(req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });

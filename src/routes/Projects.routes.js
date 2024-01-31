@@ -8,7 +8,8 @@ router.post("/create", projectMiddleware.uploadFiles, projectsControllers.create
 router.post("/createJSON", projectsControllers.createProjectJSON);
 router.put("/edit", projectsControllers.editProject);
 router.put("/editSamples/:id", projectsControllers.editProjectSamples);
-router.put("/editFiles", projectMiddleware.uploadFiles, projectsControllers.editProjectFiles);
+router.put("/addFiles", projectMiddleware.uploadFiles, projectsControllers.addProjectFiles);
+router.put("/removeFile", projectsControllers.removeProjectFiles);
 router.get("/get-sample",projectsControllers.getSample);
 router.get("/get-project-by-division",projectsControllers.getProjectByDivision);
 router.get("/get-link-files/:ProjectID", projectsControllers.getLinkFiles);
