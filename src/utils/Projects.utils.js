@@ -426,18 +426,36 @@ function addLeadingZeros(number, zeros) {
 
 exports.fillSample = async function (
   file_id,
-  jenis_sample,
-  jumlah_sample,
-  lokasi_sample,
-  regulasi_paramter) {
-    if(!jenis_sample || !jumlah_sample || !lokasi_sample || !regulasi_paramter){
-      throw new Error("Error while filling sample: Parameter is null")
-    }
+  alamat_sampling,
+  sampling_list) {
+  if (!sampling_list) throw new Error("Error while filling sample: Sampling list is not an array");
+  let initial_col = 20;
 
-    if(jenis_sample.length != regulasi_paramter.length){
-      throw new Error("Error while filling sample: Parameter length is not the same")
-    }
+  let data = [];
+  let cellAddress = [];
+  const sheetName = "FPP";
+  sampling_list.forEach(async (sample, index) => {
+    data.push(index + 1);
+    data.push(sample.sample_name);
+    data.push(sample.regulation_name[0].regulation_name);
+    cellAddress.push("A" + initial_col);
+    cellAddress.push("B" + initial_col);
+    cellAddress.push("F" + initial_col);
+    initial_col += 1;
+  });
 
-    let first_row = 16;
-    let first_col = A;
+  data.push(alamat_sampling);
+  cellAddress.push("D16");
+
+  await exports.insertValuesIntoCells(
+    file_id,
+    data,
+    sheetName,
+    cellAddress
+  );
+
+  console.log(data);
+  console.log(cellAddress);
+
+  return { message: "Data inserted into cells" };
 }

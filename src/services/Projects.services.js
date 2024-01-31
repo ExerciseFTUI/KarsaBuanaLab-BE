@@ -243,6 +243,8 @@ exports.createProject = async function (files, body) {
       lab_file: lab_file_object_list,
     });
 
+    // await projectsUtils.fillSample(fpp_id, create_project.alamat_sampling, create_project.sampling_list)
+
     await create_project.save();
     return {
       message: "Successfull",
@@ -536,7 +538,7 @@ exports.editAssignedProjectUsers = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", data: projectObj };
+  return { message: "success", projectObj };
 };
 
 exports.editAssignedProjectSchedule = async function (body) {
@@ -551,7 +553,7 @@ exports.editAssignedProjectSchedule = async function (body) {
 
   await projectObj.save();
 
-  return { message: "success", data: projectObj };
+  return { message: "success", projectObj };
 };
 
 exports.changeDraftStatus = async function (params) {
@@ -570,3 +572,27 @@ exports.changeDraftStatus = async function (params) {
 
   return { message: "pplhp_status updated successfully", data: resultProject };
 };
+
+exports.fillSample = async function (body) {
+  const { projectId } = body;
+  if (!projectId) throw new Error("Please specify the project ID");
+
+  const projectObj = await Project.findById(projectId).exec();
+  if (!projectObj) throw new Error("Project not found");
+
+  let fpp_id;
+  try {
+    fpp_id = projectObj.lab_file.find(
+      (file) => file.file_name === "FPP"
+    ).file_id;
+  } catch (error) {
+    fpp_id = projectObj.surat_fpp;
+  }
+  const result = await projectsUtils.fillSample(
+    fpp_id,
+    projectObj.alamat_sampling,
+    projectObj.sampling_list
+  );
+
+  return { message: "Success", projectObj };
+}

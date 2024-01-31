@@ -18,5 +18,6 @@ router.post("/assign-project", projectsControllers.assignProject);
 router.post("/assign-project/edit-users", projectsControllers.editAssignedProjectUsers);
 router.post("/assign-project/edit-schedule", projectsControllers.editAssignedProjectSchedule);
 router.post("/change-draft-status/:id",projectsControllers.changeDraftStatus);
+router.post("/fill-sample",projectsControllers.fillSample);
 
 module.exports = router;
