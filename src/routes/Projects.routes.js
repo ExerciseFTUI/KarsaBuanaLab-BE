@@ -17,7 +17,8 @@ router.get("/get-project-by-acc", projectsControllers.getProjectByAcc);
 router.post("/assign-project", projectsControllers.assignProject);
 router.post("/assign-project/edit-users", projectsControllers.editAssignedProjectUsers);
 router.post("/assign-project/edit-schedule", projectsControllers.editAssignedProjectSchedule);
-router.post("/change-draft-status/:id",projectsControllers.changeDraftStatus);
-router.post("/fill-sample",projectsControllers.fillSample);
+router.post("/change-to-draft/:id",projectsControllers.changeToDraft);
+router.post("/change-to-finished/:id", projectsControllers.changeToFinished);
+router.get("/get-pplhp-by-status/:status",projectsControllers.getPplhpByStatus);
 
 module.exports = router;

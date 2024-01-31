@@ -7,5 +7,7 @@ router.post("/login", clientsControllers.login);
 router.get("/get-sample-status", clientsControllers.getSampleStatus);
 router.get("/get-analysis-status", clientsControllers.getAnalysisStatus);
 router.get("/get-payment-status", clientsControllers.getPaymentStatus);
+router.post("/fill-survey", clientsControllers.fillSurvey);
+
 
 module.exports = router;

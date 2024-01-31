@@ -43,7 +43,11 @@ const projectSchema = new mongoose.Schema({
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
   jadwal_sampling: { type: String, required: false },
-  desc_failed: { type: String, required: false, default: "Project running smoothly." },
+  desc_failed: {
+    type: String,
+    required: false,
+    default: "Project running smoothly.",
+  },
   created_year: {
     type: String,
     required: false,
@@ -67,9 +71,10 @@ const projectSchema = new mongoose.Schema({
   pplhp_status: {
     type: String,
     required: false,
-    default: "DRAFT",
+    default: "RECEIVE",
     enum: ["RECEIVE", "DRAFT", "FINISHED"],
   },
+  is_survey_filled: { type: Boolean, default: false },
 });
 
 const Project = mongoose.model("Project", projectSchema);

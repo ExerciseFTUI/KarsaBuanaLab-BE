@@ -162,9 +162,27 @@ exports.editAssignedProjectSchedule = async function (req, res) {
   }
 };
 
-exports.changeDraftStatus = async function (req, res) {
+exports.changeToDraft = async function (req, res) {
   try {
-    const result = await projectsServices.changeDraftStatus(req.params);
+    const result = await projectsServices.changeToDraft(req.params);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.changeToFinished = async function (req, res) {
+  try {
+    const result = await projectsServices.changeToFinished(req.params);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.getPplhpByStatus = async function (req, res) {
+  try {
+    const result = await projectsServices.getPplhpByStatus(req.params);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
