@@ -7,7 +7,7 @@ exports.getSampling = async function (params) {
   if (sample == null) {
     throw new Error("No sample found");
   }
-  return { message: "success", data: sample };
+  return { message: "success", sample };
 };
 
 exports.sampleAssignment = async function (params, body) {
@@ -96,7 +96,7 @@ exports.getSampleByAcc = async function (params, body) {
   if (projectRes == null) {
     throw new Error("No project found");
   }
-  return { message: "success", data: projectRes };
+  return { message: "success", projectRes };
 };
 
 exports.changeSampleStatus = async function (body) {
@@ -121,7 +121,7 @@ exports.changeSampleStatus = async function (body) {
 
   await projectList.save();
 
-  return { message: "Success update status", data: projectList };
+  return { message: "Success update status", projectList };
 };
 
 async function getSample(params) {
@@ -149,5 +149,5 @@ exports.getUser = async function (body) {
   if (userList == null) {
     throw new Error("No user found");
   }
-  return { message: "success", data: userList };
+  return { message: "success", userList };
 }

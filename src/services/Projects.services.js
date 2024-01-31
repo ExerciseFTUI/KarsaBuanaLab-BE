@@ -277,6 +277,12 @@ exports.createProject = async function (files, body) {
       lab_file: lab_file_object_list,
     });
 
+    const fillFPPSample = await projectsUtils.fillSample(
+      fpp_id,
+      create_project.alamat_sampling,
+      create_project.sampling_list
+    )
+
     await create_project.save();
     return {
       message: "Successfull",
@@ -365,6 +371,12 @@ exports.createProjectJSON = async function (body) {
       project.project_name,
       project.alamat_sampling
     );
+
+    const fillFPPSample = await projectsUtils.fillSample(
+      fpp_id,
+      create_project.alamat_sampling,
+      create_project.sampling_list
+    )
 
     await create_project.save();
     return {
