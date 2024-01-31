@@ -12,19 +12,22 @@ const { Regulation } = require("../models/Regulation.models");
 
 exports.newBaseSample = async function (body) {
   const regulationObj = body;
-  const dupCheck = await BaseSample.findOne({ sample_name: regulationObj.sample_name });
+  const dupCheck = await BaseSample.findOne({
+    sample_name: regulationObj.sample_name,
+  });
   if (dupCheck) {
     throw new Error("Base sample already exists");
   }
-  const arrOfRegulation = await Promise.all(regulationObj.regulation.map(
-    async (reg) => {
+  const arrOfRegulation = await Promise.all(
+    regulationObj.regulation.map(async (reg) => {
       const regulation = new Regulation({
         regulation_name: reg.regulation_name,
         default_param: reg.default_param,
-      })
+      });
       await regulation.save();
       return regulation;
-    }));
+    })
+  );
 
   const result = new BaseSample({
     sample_name: regulationObj.sample_name,
@@ -243,7 +246,9 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
 
-    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+    const fpp_id = create_project.lab_file.find(
+      (file) => file.file_name === "FPP"
+    ).file_id;
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -254,8 +259,7 @@ exports.createProject = async function (files, body) {
       project.surel,
       project.project_name,
       project.alamat_sampling
-    )
-
+    );
 
     const create_project = new Project({
       ...project,
@@ -312,8 +316,12 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    const new_sampling_list = project.sampling_list.map((sample) => sample.sample_name);
-    const new_regulation_list = project.sampling_list.map((sample) => sample.regulation_name);
+    const new_sampling_list = project.sampling_list.map(
+      (sample) => sample.sample_name
+    );
+    const new_regulation_list = project.sampling_list.map(
+      (sample) => sample.regulation_name
+    );
     const new_param_list = project.sampling_list.map((sample) => sample.param);
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
@@ -337,7 +345,9 @@ exports.createProjectJSON = async function (body) {
       lab_file: lab_file_object_list,
     });
 
-    const fpp_id = create_project.lab_file.find((file) => file.file_name === "FPP").file_id;
+    const fpp_id = create_project.lab_file.find(
+      (file) => file.file_name === "FPP"
+    ).file_id;
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -348,7 +358,7 @@ exports.createProjectJSON = async function (body) {
       project.surel,
       project.project_name,
       project.alamat_sampling
-    )
+    );
 
     await create_project.save();
     return {
@@ -572,7 +582,7 @@ exports.editAssignedProjectSchedule = async function (body) {
   return { message: "success", data: projectObj };
 };
 
-exports.changeDraftStatus = async function (params) {
+exports.changeToDraft = async function (params) {
   if (!params.id) throw new Error("Please specify the project ID");
 
   const resultProject = await Project.findById(params.id).exec();
@@ -580,11 +590,43 @@ exports.changeDraftStatus = async function (params) {
     throw new Error("Project not found");
   }
 
-  const newStatus = "FINISHED";
+  const newStatus = "DRAFT";
 
   resultProject.pplhp_status = newStatus;
 
   await project.save();
 
   return { message: "pplhp_status updated successfully", data: resultProject };
+};
+
+exports.changeToFinished = async function (params) {
+  if (!params.id) throw new Error("Please specify the project ID");
+
+  const resultProject = await Project.findById(params.id).exec();
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  const newStatus = resultProject.is_paid ? "FINISHED" : "DRAFT";
+
+  resultProject.pplhp_status = newStatus;
+
+  await project.save();
+
+  return { message: "pplhp_status updated successfully", data: resultProject };
+};
+
+exports.getPplhpByStatus = async function (params) {
+  if (!params.status) throw new Error("Please specify the project ID");
+
+  const resultProject = await Project.find({
+    current_division: "PPLHP",
+    pplhp_status: params.status.toUpperCase(),
+  }).exec();
+
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  return { message: "get Data Successful", data: resultProject };
 };
