@@ -435,27 +435,77 @@ exports.fillSample = async function (
   let cellAddress = [];
   const sheetName = "FPP";
   sampling_list.forEach(async (sample, index) => {
-    data.push(index + 1);
-    data.push(sample.sample_name);
-    data.push(sample.regulation_name[0].regulation_name);
-    cellAddress.push("A" + initial_col);
-    cellAddress.push("B" + initial_col);
-    cellAddress.push("F" + initial_col);
+    data.push([index + 1, sample.sample_name, "", "", "", sample.regulation_name[0].regulation_name]);
+    cellAddress.push(16);
     initial_col += 1;
   });
 
-  data.push(alamat_sampling);
-  cellAddress.push("D16");
-
-  await exports.insertValuesIntoCells(
+  await exports.insertValuesIntoRows(
     file_id,
     data,
     sheetName,
-    cellAddress
-  );
+    16,
+    16 + sampling_list.length
+  )
 
-  console.log(data);
-  console.log(cellAddress);
+  // TODO: Alamat sampling belum
+
 
   return { message: "Data inserted into cells" };
+}
+
+exports.insertValuesIntoRows = async function (
+  fileId,
+  values,
+  sheetname,
+  startrow,
+  endrow
+) {
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        type: process.env.GOOGLE_TYPE,
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Replace escaped newline characters
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        auth_uri: process.env.GOOGLE_AUTH_URI,
+        token_uri: process.env.GOOGLE_TOKEN_URI,
+        auth_provider_x509_cert_url:
+          process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+        client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
+      },
+      scopes: ["https://www.googleapis.com/auth/drive"],
+    });
+
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth: client });
+
+    for(let i = startrow; i <= endrow; i++) {
+      const range = `${sheetname}!A${i}:F${i}`;
+
+      const result = await sheets.spreadsheets.values
+        .update({
+          auth,
+          spreadsheetId: fileId,
+          range: range,
+          valueInputOption: "USER_ENTERED",
+          resource: {
+            values: [values[i - startrow]], // Use values[i] to update the cell
+          },
+        })
+        .then((response) => {
+          return response;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          throw error;
+        });
+    }
+
+    return { message: "Data inserted into row" };
+  } catch (error) {
+    return { message: "Error inserting data into row", error: error.message };
+  }
 }
