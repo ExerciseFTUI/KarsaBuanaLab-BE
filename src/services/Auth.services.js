@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const {User} = require("../models/User.models");
-
+const { User } = require("../models/User.models");
 
 let refreshTokens = [];
 
@@ -78,4 +77,10 @@ exports.logout = async function (body) {
   }
   refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
   return { message: "Logout successful" };
+};
+
+exports.getAllUser = async function (body) {
+  const result = User.find().sort({ createdAt: -1 });
+
+  return { message: "Get All User Success", result: result };
 };
