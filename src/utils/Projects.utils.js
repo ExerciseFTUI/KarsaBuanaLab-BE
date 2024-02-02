@@ -448,8 +448,12 @@ exports.fillSample = async function (
     16 + sampling_list.length
   )
 
-  // TODO: Alamat sampling belum
-
+  await exports.insertValuesIntoCells(
+    file_id,
+    [alamat_sampling],
+    sheetName,
+    ["D16"]
+  )
 
   return { message: "Data inserted into cells" };
 }
