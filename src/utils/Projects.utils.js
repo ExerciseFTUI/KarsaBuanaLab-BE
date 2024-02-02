@@ -426,18 +426,90 @@ function addLeadingZeros(number, zeros) {
 
 exports.fillSample = async function (
   file_id,
-  jenis_sample,
-  jumlah_sample,
-  lokasi_sample,
-  regulasi_paramter) {
-    if(!jenis_sample || !jumlah_sample || !lokasi_sample || !regulasi_paramter){
-      throw new Error("Error while filling sample: Parameter is null")
+  alamat_sampling,
+  sampling_list) {
+  if (!sampling_list) throw new Error("Error while filling sample: Sampling list is not an array");
+  let initial_col = 20;
+
+  let data = [];
+  let cellAddress = [];
+  const sheetName = "FPP";
+  sampling_list.forEach(async (sample, index) => {
+    data.push([index + 1, sample.sample_name, "", "", "", sample.regulation_name[0].regulation_name]);
+    cellAddress.push(16);
+    initial_col += 1;
+  });
+
+  await exports.insertValuesIntoRows(
+    file_id,
+    data,
+    sheetName,
+    16,
+    16 + sampling_list.length
+  )
+
+  await exports.insertValuesIntoCells(
+    file_id,
+    [alamat_sampling],
+    sheetName,
+    ["D16"]
+  )
+
+  return { message: "Data inserted into cells" };
+}
+
+exports.insertValuesIntoRows = async function (
+  fileId,
+  values,
+  sheetname,
+  startrow,
+  endrow
+) {
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        type: process.env.GOOGLE_TYPE,
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Replace escaped newline characters
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        auth_uri: process.env.GOOGLE_AUTH_URI,
+        token_uri: process.env.GOOGLE_TOKEN_URI,
+        auth_provider_x509_cert_url:
+          process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+        client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
+      },
+      scopes: ["https://www.googleapis.com/auth/drive"],
+    });
+
+    const client = await auth.getClient();
+    const sheets = google.sheets({ version: "v4", auth: client });
+
+    for(let i = startrow; i <= endrow; i++) {
+      const range = `${sheetname}!A${i}:F${i}`;
+
+      const result = await sheets.spreadsheets.values
+        .update({
+          auth,
+          spreadsheetId: fileId,
+          range: range,
+          valueInputOption: "USER_ENTERED",
+          resource: {
+            values: [values[i - startrow]], // Use values[i] to update the cell
+          },
+        })
+        .then((response) => {
+          return response;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          throw error;
+        });
     }
 
-    if(jenis_sample.length != regulasi_paramter.length){
-      throw new Error("Error while filling sample: Parameter length is not the same")
-    }
-
-    let first_row = 16;
-    let first_col = A;
+    return { message: "Data inserted into row" };
+  } catch (error) {
+    return { message: "Error inserting data into row", error: error.message };
+  }
 }
