@@ -162,5 +162,5 @@ exports.getUser = async function (body) {
     throw new Error("No user found");
   }
 
-  return { message: "success", userList };
+  return { message: "success", result: userList };
 }
