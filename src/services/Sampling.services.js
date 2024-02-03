@@ -141,13 +141,26 @@ async function getSample(params) {
 }
 
 exports.getUser = async function (body) {
-  const { role, division } = body;
-  if(!role || !division){
-    throw new Error("Please specify the role and division");
+  if(!body.role){
+    throw new Error("Please specify the role");
   }
-  const userList = await User.find({ role: role, division: division });
+
+  if(body.role === "SPV"){
+    if(!body.division){
+      throw new Error("Please specify the division");
+    }
+  }
+  let userList;
+
+  if(!body.division){
+    userList = await User.find({ role: body.role });
+  } else {
+    userList = await User.find({ role: body.role, division: body.division });
+  }
+
   if (userList == null) {
     throw new Error("No user found");
   }
+
   return { message: "success", userList };
 }
