@@ -548,21 +548,16 @@ exports.assignProject = async function (body) {
   const { ...project } = body;
   if (!project.projectId) throw new Error("Please specify the project ID");
   if (!project.accountId) throw new Error("Please specify the account ID");
-  if (!project.jadwal_sampling)
-    throw new Error("Please specify the sampling schedule");
+  if(!project.jadwal_sampling) throw new Error("Please specify the sampling schedule");
 
   const projectObj = await Project.findById(project.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
 
   body.accountId.forEach(async (id) => {
-    if (projectObj.project_assigned_to.includes(id))
-      throw new Error("User already assigned to this project");
-  
     if ((await User.findById(id)) === null) throw new Error("User not found");
-
-    projectObj.project_assigned_to.push(id);
   });
   
+  projectObj.project_assigned_to = project.accountId;
   projectObj.jadwal_sampling = project.jadwal_sampling;
 
   await projectObj.save();
