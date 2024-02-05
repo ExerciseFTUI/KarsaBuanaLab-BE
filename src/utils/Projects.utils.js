@@ -435,7 +435,9 @@ exports.fillSample = async function (
   let cellAddress = [];
   const sheetName = "FPP";
   sampling_list.forEach(async (sample, index) => {
-    data.push([index + 1, sample.sample_name, "", "", "", sample.regulation_name[0].regulation_name]);
+    const regulation = `Regulation: ${sample.regulation_name[0].regulation_name}`;
+    const param = `Parameter: ${sample.param.join(", ")}`;
+    data.push([index + 1, sample.sample_name, "", "", "", `${regulation}\n${param}`]);
     cellAddress.push(16);
     initial_col += 1;
   });
