@@ -19,7 +19,7 @@ exports.getSampleStatus = async function (body) {
   const { projectId } = body;
   const project = await Project.findOne({ _id: projectId });
   if (!project) {
-    throw new Error("Project Not Found");
+    throw new Error("Project Not Found"); 
   }
 
   const sampleStatusArray = project.sampling_list.map((sampling) => ({
