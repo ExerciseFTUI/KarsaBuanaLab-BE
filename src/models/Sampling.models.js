@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const { userSchema } = require("./User.models");
+const { regulationSchema } = require("./Regulation.models");
 
 const samplingSchema = new mongoose.Schema({
   sample_name: {
@@ -19,16 +21,38 @@ const samplingSchema = new mongoose.Schema({
       required: true,
     },
   ],
-  regulation: {
-    type: String,
-    required: true,
-  },
+  regulation_name: [regulationSchema],
   location: {
     type: String,
+    required: false,
+  },
+  lab_assigned_to: {
+    type: String,
+    required: false,
+  },
+  status: {
+    type: String,
+    enum: [
+      "ASSIGNED",
+      "NOT ASSIGNED",
+      "VERIFYING",
+      "FINISHED",
+      "SUBMIT",
+      "WAITING",
+      "ACCEPTED",
+    ],
+    required: false,
+    default: "NOT ASSIGNED",
+  },
+  jadwal: {
+    type: Date,
     required: false,
   },
 });
 
 const Sampling = mongoose.model("Sampling", samplingSchema);
 
-module.exports = Sampling;
+module.exports = {
+  samplingSchema,
+  Sampling,
+};

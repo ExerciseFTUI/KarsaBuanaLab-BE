@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User.models");
+const { User } = require("../models/User.models");
 
 let refreshTokens = [];
 
@@ -63,21 +63,11 @@ exports.login = async function (body) {
 
   const passwordCheck = await bcrypt.compare(password, user.password);
   if (!passwordCheck) {
-    return { message: "Password is not correct" };
+    throw new Error("Password is not correct");
   }
 
-  const accessToken = generateAccessToken({ username: user.username });
-  const refreshToken = jwt.sign(
-    { email: user.email },
-    process.env.REFRESH_TOKEN_SECRET
-  );
-
-  if (refreshTokens.length > process.env.REFRESH_TOKEN_LIMIT) {
-    refreshTokens.shift();
-  }
-  refreshTokens.push(refreshToken);
-
-  return { accessToken: accessToken, refreshToken: refreshToken };
+  delete user._doc.password;
+  return { message: "Login Successful!", result: user };
 };
 
 exports.logout = async function (body) {
@@ -87,4 +77,10 @@ exports.logout = async function (body) {
   }
   refreshTokens = refreshTokens.filter((token) => token !== refresh_token);
   return { message: "Logout successful" };
+};
+
+exports.getAllUser = async function (body) {
+  const result = User.find().sort({ createdAt: -1 });
+
+  return { message: "Get All User Success", result: result };
 };

@@ -19,11 +19,8 @@ exports.getMeta = async function () {
 
 exports.postData = async function (data) {
   const { spreadsheet_id, key, value } = data;
+  const auth = getAuth("https://www.googleapis.com/auth/spreadsheets");
 
-  const auth = new google.auth.GoogleAuth({
-    keyFile: "credentials.json",
-    scopes: "https://www.googleapis.com/auth/spreadsheets",
-  });
 
   // Create client instance for auth
   const client = await auth.getClient();
@@ -183,8 +180,20 @@ function getSpreadsheetIdFromUrl(spreadsheetUrl) {
 async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
   try {
     const auth = new google.auth.GoogleAuth({
-      keyFile: "credentials.json",
-      scopes: "https://www.googleapis.com/auth/spreadsheets",
+      credentials: {
+        type: process.env.GOOGLE_TYPE,
+        project_id: process.env.GOOGLE_PROJECT_ID,
+        private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Replace escaped newline characters
+        client_email: process.env.GOOGLE_CLIENT_EMAIL,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        auth_uri: process.env.GOOGLE_AUTH_URI,
+        token_uri: process.env.GOOGLE_TOKEN_URI,
+        auth_provider_x509_cert_url:
+          process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+        client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
+      },
+      scopes: ["https://www.googleapis.com/auth/drive"],
     });
 
     const client = await auth.getClient();
@@ -194,21 +203,23 @@ async function insertValuesIntoCells(fileId, values, sheetName, cellAddresses) {
       const cellAddress = cellAddresses[i];
       const range = `${sheetName}!${cellAddress}`;
 
-      const result = await sheets.spreadsheets.values.update({
-        auth,
-        spreadsheetId: fileId,
-        range: range,
-        valueInputOption: "USER_ENTERED",
-        resource: {
-          values: [[values[i]]], // Use values[i] to update the cell
-        },
-      }).then((response) => {
-        return response;
-      }).catch((error) => {
-        console.error("Error:", error);
-        throw error;
-      });
-
+      const result = await sheets.spreadsheets.values
+        .update({
+          auth,
+          spreadsheetId: fileId,
+          range: range,
+          valueInputOption: "USER_ENTERED",
+          resource: {
+            values: [[values[i]]], // Use values[i] to update the cell
+          },
+        })
+        .then((response) => {
+          return response;
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          throw error;
+        });
     }
 
     return { message: "Data inserted into cells" };
@@ -227,9 +238,17 @@ exports.fillSuratPenawaran = async function (
   alamatProyek
 ) {
   const sheetName = "RAB";
-  const cellAddresses = ["G2","G4", "G7", "G8", "G11", "G12", "G15"];
+  const cellAddresses = ["G2", "G4", "G7", "G8", "G11", "G12", "G15"];
 
-  const data = [no_penawaran,new Date(), namaProyek, alamatProyek, cp, surel, alamat];
+  const data = [
+    no_penawaran,
+    new Date(),
+    namaProyek,
+    alamatProyek,
+    cp,
+    surel,
+    alamat,
+  ];
 
   const result = await insertValuesIntoCells(
     fileId,
@@ -241,30 +260,21 @@ exports.fillSuratPenawaran = async function (
   return result;
 };
 
-
 exports.fillValue = async function (body) {
-  const { fileId,
-    cp,
-    alamat,
-    surel,
-    namaProyek,
-    alamatProyek } = body;
-  
-    const sheetName = "RAB";
+  const { fileId, cp, alamat, surel, namaProyek, alamatProyek } = body;
+
+  const sheetName = "RAB";
   const cellAddresses = ["G4", "G7", "G8", "G11", "G12", "G15"];
 
   const data = [new Date(), namaProyek, alamatProyek, cp, surel, alamat];
 
-  console.log("masuk sini");
+//   console.log("masuk sini");
   const result = await insertValuesIntoCells(
     fileId,
     data,
     sheetName,
     cellAddresses
   );
-    
 
-    return result;
-
+  return result;
 };
-
