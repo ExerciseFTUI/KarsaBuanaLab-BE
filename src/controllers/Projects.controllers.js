@@ -180,6 +180,16 @@ exports.changeToFinished = async function (req, res) {
   }
 };
 
+exports.changeToReview = async function (req, res) {
+  try {
+    const result = await projectsServices.changeToReview(req.params);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+
 exports.getPplhpByStatus = async function (req, res) {
   try {
     const result = await projectsServices.getPplhpByStatus(req.params);

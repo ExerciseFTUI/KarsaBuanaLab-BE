@@ -281,7 +281,7 @@ exports.createProject = async function (files, body) {
       fpp_id,
       create_project.alamat_sampling,
       create_project.sampling_list
-    )
+    );
 
     await create_project.save();
     return {
@@ -376,7 +376,7 @@ exports.createProjectJSON = async function (body) {
       fpp_id,
       create_project.alamat_sampling,
       create_project.sampling_list
-    )
+    );
 
     await create_project.save();
     return {
@@ -548,7 +548,8 @@ exports.assignProject = async function (body) {
   const { ...project } = body;
   if (!project.projectId) throw new Error("Please specify the project ID");
   if (!project.accountId) throw new Error("Please specify the account ID");
-  if(!project.jadwal_sampling) throw new Error("Please specify the sampling schedule");
+  if (!project.jadwal_sampling)
+    throw new Error("Please specify the sampling schedule");
 
   const projectObj = await Project.findById(project.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
@@ -556,7 +557,7 @@ exports.assignProject = async function (body) {
   body.accountId.forEach(async (id) => {
     if ((await User.findById(id)) === null) throw new Error("User not found");
   });
-  
+
   projectObj.project_assigned_to = project.accountId;
   projectObj.jadwal_sampling = project.jadwal_sampling;
 
@@ -614,6 +615,23 @@ exports.changeToDraft = async function (params) {
   return { message: "pplhp_status updated successfully", data: resultProject };
 };
 
+exports.changeToReview = async function (params) {
+  if (!params.id) throw new Error("Please specify the project ID");
+
+  const resultProject = await Project.findById(params.id).exec();
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  const newStatus = "REVIEW";
+
+  resultProject.pplhp_status = newStatus;
+
+  await resultProject.save();
+
+  return { message: "pplhp_status updated successfully", data: resultProject };
+};
+
 exports.changeToFinished = async function (params) {
   if (!params.id) throw new Error("Please specify the project ID");
 
@@ -622,7 +640,7 @@ exports.changeToFinished = async function (params) {
     throw new Error("Project not found");
   }
 
-  const newStatus = resultProject.is_paid ? "FINISHED" : "DRAFT";
+  const newStatus = "FINISHED";
 
   resultProject.pplhp_status = newStatus;
 
