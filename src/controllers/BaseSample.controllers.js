@@ -11,7 +11,7 @@ exports.getBaseSample = async function (req, res) {
 
 exports.addBaseSample = async function (req, res) {
   try {
-    const result = await baseSampleServices.addBaseSample(req.body);
+    const result = await baseSampleServices.addBaseSample(req.files, req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -24,6 +24,15 @@ exports.editBaseSample = async function (req, res) {
       req.params.id,
       req.body
     );
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.removeBaseSample = async function (req, res) {
+  try {
+    const result = await baseSampleServices.removeBaseSample(req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });

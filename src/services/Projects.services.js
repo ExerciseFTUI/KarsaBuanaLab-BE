@@ -10,40 +10,6 @@ const sheetsServices = require("../services/Sheets.services");
 const projectsUtils = require("../utils/Projects.utils");
 const { Regulation } = require("../models/Regulation.models");
 
-exports.newBaseSample = async function (body) {
-  const regulationObj = body;
-  const dupCheck = await BaseSample.findOne({
-    sample_name: regulationObj.sample_name,
-  });
-  if (dupCheck) {
-    throw new Error("Base sample already exists");
-  }
-  const arrOfRegulation = await Promise.all(
-    regulationObj.regulation.map(async (reg) => {
-      const regulation = new Regulation({
-        regulation_name: reg.regulation_name,
-        default_param: reg.default_param,
-      });
-      await regulation.save();
-      return regulation;
-    })
-  );
-
-  const result = new BaseSample({
-    sample_name: regulationObj.sample_name,
-    file_id: regulationObj.file_id,
-    file_safety_id: regulationObj.file_safety_id,
-    param: regulationObj.param,
-    regulation: arrOfRegulation,
-  });
-  await result.save();
-  return { message: "Base sample created", result };
-};
-
-/* TODO: 
-      - Rename gdrive folder if project name is changed
-      - Remove duplicate folder sample
-*/
 exports.editProject = async function (body) {
   const { ...project } = body;
 
