@@ -19,23 +19,28 @@ exports.addBaseSample = async function (files, body) {
   if (dupCheck) {
     throw new Error("Base sample already exists");
   }
-  const new_folder = await drivesServices.createFolder({
-    folder_name: regulationObj.sample_name,
-    root_folder_id: process.env.FOLDER_ID_BASE_SAMPLE,
-  });
-  const files_object_list = await projectsUtils.uploadFilesToDrive(
-    files,
-    new_folder.result.id
-  );
-  const result = new BaseSample({
-    sample_name: regulationObj.sample_name,
-    file_id: files_object_list[0].file_id,
-    file_safety_id: files_object_list[1].file_id,
-    param: [],
-    regulation: [],
-  });
-  await result.save();
-  return { message: "Base sample created", result };
+  let new_folder = null;
+  try {
+    new_folder = await drivesServices.createFolder({
+      folder_name: regulationObj.sample_name,
+      root_folder_id: process.env.FOLDER_ID_BASE_SAMPLE,
+    });
+    const files_object_list = await projectsUtils.uploadFilesToDrive(
+      files,
+      new_folder.result.id
+    );
+    const result = new BaseSample({
+      sample_name: regulationObj.sample_name,
+      file_id: files_object_list[0].file_id,
+      file_safety_id: files_object_list[1].file_id,
+      param: [],
+      regulation: [],
+    });
+    await result.save();
+    return { message: "Base sample created", result };
+  } catch (error) {
+    throw { message: error.message, new_folder_id: new_folder.result.id };
+  }
 };
 
 exports.editBaseSample = async function (id, body) {
