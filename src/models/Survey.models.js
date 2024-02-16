@@ -15,7 +15,7 @@ const surveySchema = new mongoose.Schema({
   ],
   responses: [
     {
-      userId: {
+      projectId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
