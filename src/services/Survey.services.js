@@ -22,3 +22,33 @@ exports.getSurvey = async function (body) {
 
   return { message: "Get Survey Success", survey };
 };
+
+exports.submitSurvey = async function (body) {
+  const { projectId, answers } = body;
+
+  const survey = await Survey.findById("65cf38e96b9daebce80bb89a").exec();
+  if (!survey) {
+    throw new Error("Survey Not Found");
+  }
+
+  const response = {
+    projectId: projectId,
+    answers: answers,
+  };
+
+  survey.responses.push(response);
+
+  await survey.save();
+
+  return { message: "Post Answers Success", survey };
+};
+
+// {
+//   "surveyId": "your_survey_id",
+//   "projectId": "your_project_id",
+//   "answers": [
+//     { "questionId": "your_question_id_1", "value": "answer1" },
+//     { "questionId": "your_question_id_2", "value": "answer2" },
+//     // Add more answers as needed
+//   ]
+// }
