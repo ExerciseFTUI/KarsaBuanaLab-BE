@@ -9,6 +9,7 @@ const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
 const projectsUtils = require("../utils/Projects.utils");
 const { Regulation } = require("../models/Regulation.models");
+const { notifyEmail } = require("../utils/Mail.utils");
 
 exports.editProject = async function (body) {
   const { ...project } = body;
@@ -345,6 +346,8 @@ exports.createProjectJSON = async function (body) {
     );
 
     await create_project.save();
+
+    await notifyEmail(create_project.surel, "Project Created", `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`);
     return {
       message: "Successfull",
       result: {

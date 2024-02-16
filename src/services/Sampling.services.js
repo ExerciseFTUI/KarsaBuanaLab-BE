@@ -100,28 +100,21 @@ exports.getSampleByAcc = async function (params, body) {
 };
 
 exports.changeSampleStatus = async function (body) {
-  const { projectId, status, sample_name } = body;
+  // const { projectId, status, sample_name } = body;
+  const { projectId, status, sample_id } = body;
 
-  const projectList = await Project.findOne(
-    { _id: projectId },
-    { "sampling_list.sample_name": sample_name }
-  );
+  const projectObj = await Project.findById(projectId).exec();
+  if(!projectObj) throw new Error("Project not exist!")
 
-  if (!projectList) {
-    throw new Error("No project found");
-  }
-
-  const sampleList = projectList.sampling_list;
-
-  sampleList.forEach(async (sample) => {
-    if (sample.sample_name === sample_name) {
+  projectObj.sampling_list.forEach(async (sample) => {
+    if(sample._id == sample_id){
       sample.status = status;
     }
-  });
+  })
 
-  await projectList.save();
+  await projectObj.save();
 
-  return { message: "Success update status", projectList };
+  return { message: "Success update status", projectObj };
 };
 
 async function getSample(params) {
@@ -141,18 +134,18 @@ async function getSample(params) {
 }
 
 exports.getUser = async function (body) {
-  if(!body.role){
+  if (!body.role) {
     throw new Error("Please specify the role");
   }
 
-  if(body.role === "SPV"){
-    if(!body.division){
+  if (body.role === "SPV") {
+    if (!body.division) {
       throw new Error("Please specify the division");
     }
   }
   let userList;
 
-  if(!body.division){
+  if (!body.division) {
     userList = await User.find({ role: body.role });
   } else {
     userList = await User.find({ role: body.role, division: body.division });

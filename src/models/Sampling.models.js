@@ -40,6 +40,7 @@ const samplingSchema = new mongoose.Schema({
       "SUBMIT",
       "WAITING",
       "ACCEPTED",
+      "REVISION",
     ],
     required: false,
     default: "NOT ASSIGNED",
