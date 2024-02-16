@@ -1,3 +1,4 @@
+const { Project } = require("../models/Project.models");
 const { Survey } = require("../models/Survey.models");
 
 exports.createSurvey = async function (body) {
@@ -31,6 +32,12 @@ exports.submitSurvey = async function (body) {
     throw new Error("Survey Not Found");
   }
 
+  const project = await Project.findById(projectId).exec();
+
+  if (!project) {
+    throw new Error("Project Not Found");
+  }
+
   const response = {
     projectId: projectId,
     answers: answers,
@@ -39,6 +46,10 @@ exports.submitSurvey = async function (body) {
   survey.responses.push(response);
 
   await survey.save();
+
+  project.is_survey_filled = true;
+
+  await project.save();
 
   return { message: "Post Answers Success", survey };
 };
