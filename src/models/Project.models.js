@@ -33,8 +33,8 @@ const projectSchema = new mongoose.Schema({
   current_division: {
     type: String,
     required: false,
-    default: "MARKETING",
-    enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"],
+    default: "SAMPLING",
+    enum: ["LAB", "SAMPLING", "PPLHP"],
   },
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
@@ -72,7 +72,7 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: "RECEIVE",
-    enum: ["RECEIVE", "DRAFT","REVIEW", "FINISHED"],
+    enum: ["RECEIVE", "DRAFT", "REVIEW", "FINISHED"],
   },
   is_survey_filled: { type: Boolean, default: false },
 });
