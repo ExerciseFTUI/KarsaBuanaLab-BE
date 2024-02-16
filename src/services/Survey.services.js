@@ -18,9 +18,7 @@ exports.createSurvey = async function (body) {
 };
 
 exports.getSurvey = async function (body) {
-  const { surveyId } = body;
-
-  const survey = await Survey.findById(surveyId).exec();
+  const survey = await Survey.findById("65cf38e96b9daebce80bb89a").exec();
 
   return { message: "Get Survey Success", survey };
 };
