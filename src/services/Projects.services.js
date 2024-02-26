@@ -632,3 +632,19 @@ exports.getPplhpByStatus = async function (params) {
 
   return { message: "get Data Successful", data: resultProject };
 };
+
+exports.changeDivision = async function (body) {
+  if (!body.projectId) throw new Error("Please specify the project ID");
+  if (!body.division) throw new Error("Please specify the division");
+
+  const resultProject = await Project.findById(body.projectId).exec();
+  if (!resultProject) {
+    throw new Error("Project not found");
+  }
+
+  resultProject.current_division = body.division.toUpperCase();
+
+  await resultProject.save();
+
+  return { message: "Division updated successfully", data: resultProject };
+}
