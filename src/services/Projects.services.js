@@ -327,6 +327,12 @@ exports.createProjectJSON = async function (body) {
     const fpp_id = create_project.lab_file.find(
       (file) => file.file_name === "FPP"
     ).file_id;
+    
+    const surat_penawaran_id = create_project.lab_file.find(
+      (file) => file.file_name === "Surat Penawaran"
+    ).file_id;
+
+    console.log(fpp_id, surat_penawaran_id);
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -343,6 +349,18 @@ exports.createProjectJSON = async function (body) {
       fpp_id,
       create_project.alamat_sampling,
       create_project.sampling_list
+    );
+
+    const fillSuratPenawaran = await projectsUtils.fillSuratPenawaran(
+      surat_penawaran_id,
+      no_penawaran,
+      Date.now(),
+      project.client_name,
+      project.alamat_kantor,
+      project.contact_person,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
     );
 
     await create_project.save();

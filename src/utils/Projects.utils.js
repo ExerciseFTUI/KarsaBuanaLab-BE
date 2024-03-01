@@ -488,7 +488,7 @@ exports.insertValuesIntoRows = async function (
     const client = await auth.getClient();
     const sheets = google.sheets({ version: "v4", auth: client });
 
-    for(let i = startrow; i <= endrow; i++) {
+    for (let i = startrow; i <= endrow; i++) {
       const range = `${sheetname}!A${i}:F${i}`;
 
       const result = await sheets.spreadsheets.values
@@ -514,4 +514,20 @@ exports.insertValuesIntoRows = async function (
   } catch (error) {
     return { message: "Error inserting data into row", error: error.message };
   }
+}
+
+exports.fillSuratPenawaran = async function (file_id, no_penawaran, tanggal, nama_client, alamat_client, contact_person, email, nama_proyek, alamat_proyek) {
+  if (!file_id || !no_penawaran || !tanggal || !nama_client || !alamat_client || !contact_person || !email || !nama_proyek || !alamat_proyek) throw new Error("Error while filling surat penawaran: Missing required parameter");
+  const sheetName = "Surat Penawaran";
+  const cellAddress = ["G2", "G4", "G7", "G8", "G11", "G12", "G13", "G15"];
+  const data = [no_penawaran, tanggal, nama_client, alamat_client, contact_person, email, nama_proyek, alamat_proyek];
+
+  const result = await exports.insertValuesIntoCells(
+    file_id,
+    data,
+    sheetName,
+    cellAddress
+  );
+
+  return result;
 }
