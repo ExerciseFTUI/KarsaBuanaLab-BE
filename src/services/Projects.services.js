@@ -541,8 +541,18 @@ exports.assignProject = async function (body) {
   const projectObj = await Project.findById(project.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
 
+  const jadwalUserObj = {
+    projectID: project.projectId,
+    projectName: projectObj.project_name,
+    from: project.jadwal_sampling.from,
+    to: project.jadwal_sampling.to,
+  };
+
   body.accountId.forEach(async (id) => {
-    if ((await User.findById(id)) === null) throw new Error("User not found");
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.push(jadwalUserObj);
+    await userObj.save();
   });
 
   projectObj.project_assigned_to = project.accountId;
@@ -563,7 +573,29 @@ exports.editAssignedProjectUsers = async function (body) {
   if ((await User.findById(body.accountId)) === null)
     throw new Error("User not found");
 
+  projectObj.project_assigned_to.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.forEach((jadwal) => {
+      if (jadwal.projectID === body.projectId) jadwal.remove();
+    });
+  });
+
   projectObj.project_assigned_to = body.accountId;
+
+  const jadwalUserObj = {
+    projectID: body.projectId,
+    projectName: projectObj.project_name,
+    from: body.jadwal_sampling.from,
+    to: body.jadwal_sampling.to,
+  };
+
+  body.accountId.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.push(jadwalUserObj);
+    await userObj.save();
+  });
 
   await projectObj.save();
 
@@ -577,6 +609,22 @@ exports.editAssignedProjectSchedule = async function (body) {
 
   const projectObj = await Project.findById(body.projectId);
   if (projectObj === null) throw new Error("Project not found");
+
+  const jadwalUserObj = {
+    projectID: body.projectId,
+    projectName: projectObj.project_name,
+    from: body.jadwal_sampling.from,
+    to: body.jadwal_sampling.to,
+  };
+
+  projectObj.project_assigned_to.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.forEach((jadwal) => {
+      if (jadwal.projectID === body.projectId) jadwal.remove();
+    });
+    userObj.jadwal.push(jadwalUserObj);
+  });
 
   projectObj.jadwal_sampling = body.jadwal_sampling;
 
