@@ -728,3 +728,24 @@ exports.changeDivision = async function (body) {
 
   return { message: "Division updated successfully", data: resultProject };
 }
+
+exports.getAllLHP = async function () {
+  try {
+    const projectList = await Project.find({ pplhp_status: "REVIEW" });
+    if (projectList == null) {
+      throw new Error("No LHP found");
+    }
+
+    let projectListFiltered = projectList.map((project) => {
+      return {
+        project_name: project.project_name,
+        project_deadline: project.jadwal_sampling,
+        lab_files: project.lab_file,
+      };
+    });
+
+    return { message: "success", projectList: projectListFiltered};
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};

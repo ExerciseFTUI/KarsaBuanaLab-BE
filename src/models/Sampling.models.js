@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { userSchema } = require("./User.models");
 const { regulationSchema } = require("./Regulation.models");
+const { paramSchema } = require("./Param.models");
 
 const samplingSchema = new mongoose.Schema({
   sample_name: {
@@ -16,10 +17,7 @@ const samplingSchema = new mongoose.Schema({
     required: true,
   },
   param: [
-    {
-      type: String,
-      required: true,
-    },
+    paramSchema,
   ],
   regulation_name: [regulationSchema],
   location: {
@@ -47,6 +45,10 @@ const samplingSchema = new mongoose.Schema({
   },
   jadwal: {
     type: Date,
+    required: false,
+  },
+  deadline: {
+    type: String,
     required: false,
   },
 });

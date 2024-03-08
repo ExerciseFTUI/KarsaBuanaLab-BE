@@ -21,5 +21,6 @@ router.post("/change-to-review/:id",projectsControllers.changeToReview)
 router.post("/change-to-finished/:id", projectsControllers.changeToFinished);
 router.get("/get-pplhp-by-status/:status",projectsControllers.getPplhpByStatus);
 router.post("/change-division", projectsControllers.changeDivision);
+router.get("/get-all-lhp", projectsControllers.getAllLHP);
 
 module.exports = router;
