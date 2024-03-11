@@ -66,6 +66,7 @@ exports.addBaseSample = async function (files, body) {
 exports.editBaseSample = async function (id, body) {
   const regulationObj = body;
   let arrOfRegulation = [];
+  let arrOfParam = [];
   
   if (regulationObj.regulation) {
     arrOfRegulation = await Promise.all(
@@ -94,6 +95,41 @@ exports.editBaseSample = async function (id, body) {
       })
     );
   }
+
+  if (regulationObj.param) {
+    arrOfParam = await Promise.all(
+      regulationObj.param.map(async (param, index) => {
+        const search = await Param.findOne({
+          param: param.param,
+        });
+        if (!search) {
+          const oldParam = new Param({
+            param: param.param,
+            method: param.method || null,
+            unit: param.unit || null,
+            operator: param.operator || null,
+            baku_mutu: param.baku_mutu || null,
+          });
+          await oldParam.save();
+          return oldParam;
+        }
+
+        const newParam = Param.findOneAndUpdate(
+          { _id: search._id },
+          {
+            param: param.param,
+            method: param.method || null,
+            unit: param.unit || null,
+            operator: param.operator || null,
+            baku_mutu: param.baku_mutu || null,
+          },
+          { new: true }
+        );
+        return newParam;
+      })
+    );
+  }
+
   const updateFields = {};
   if (regulationObj.sample_name) {
     updateFields.sample_name = regulationObj.sample_name;
