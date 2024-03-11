@@ -75,6 +75,7 @@ const projectSchema = new mongoose.Schema({
     enum: ["RECEIVE", "DRAFT", "REVIEW", "FINISHED"],
   },
   is_survey_filled: { type: Boolean, default: false },
+  deadline: { type: String, required: false },
 });
 
 const Project = mongoose.model("Project", projectSchema);

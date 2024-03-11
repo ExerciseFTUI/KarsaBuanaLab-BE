@@ -2,6 +2,7 @@ const { BaseSample } = require("../models/BaseSample.models");
 const { Regulation } = require("../models/Regulation.models");
 const projectsUtils = require("../utils/Projects.utils");
 const drivesServices = require("../services/Drives.services");
+const { Param } = require("../models/Param.models");
 
 exports.getBaseSample = async function (body) {
   const result = await BaseSample.findOne({ _id: body._id });
@@ -16,27 +17,46 @@ exports.addBaseSample = async function (files, body) {
   const dupCheck = await BaseSample.findOne({
     sample_name: regulationObj.sample_name,
   });
-  if (dupCheck) {
-    throw new Error("Base sample already exists");
-  }
+
+  if(!regulationObj.sample_name || !regulationObj.param || !regulationObj.regulation) throw new Error("Please fill all the fields");
+  if (dupCheck) throw new Error("Base sample already exists"); 
+
   let new_folder = null;
+  let regulationParam = []; 
+
   try {
     new_folder = await drivesServices.createFolder({
       folder_name: regulationObj.sample_name,
-      root_folder_id: process.env.FOLDER_ID_BASE_SAMPLE,
+      root_folder_id: process.env.FOtLDER_ID_BASE_SAMPLE,
     });
     const files_object_list = await projectsUtils.uploadFilesToDrive(
       files,
       new_folder.result.id
     );
+
+    regulationObj.param.forEach(async (param) => {
+      const paramBaseSample = new Param({
+        param: param.param,
+        method: param.method || null,
+        unit: param.unit || null,
+        operator: param.operator || null,
+        baku_mutu: param.baku_mutu || null,
+      });
+
+      await paramBaseSample.save();
+      regulationParam.push(paramBaseSample);
+    });
+
     const result = new BaseSample({
       sample_name: regulationObj.sample_name,
       file_id: files_object_list[0].file_id,
       file_safety_id: files_object_list[1].file_id,
-      param: [],
+      param: regulationParam,
       regulation: [],
     });
+
     await result.save();
+    
     return { message: "Base sample created", result };
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
@@ -46,6 +66,7 @@ exports.addBaseSample = async function (files, body) {
 exports.editBaseSample = async function (id, body) {
   const regulationObj = body;
   let arrOfRegulation = [];
+  
   if (regulationObj.regulation) {
     arrOfRegulation = await Promise.all(
       regulationObj.regulation.map(async (reg, index) => {

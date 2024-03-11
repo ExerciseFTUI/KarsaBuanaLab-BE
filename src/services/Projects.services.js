@@ -327,6 +327,12 @@ exports.createProjectJSON = async function (body) {
     const fpp_id = create_project.lab_file.find(
       (file) => file.file_name === "FPP"
     ).file_id;
+    
+    const surat_penawaran_id = create_project.lab_file.find(
+      (file) => file.file_name === "Surat Penawaran"
+    ).file_id;
+
+    console.log(fpp_id, surat_penawaran_id);
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -343,6 +349,18 @@ exports.createProjectJSON = async function (body) {
       fpp_id,
       create_project.alamat_sampling,
       create_project.sampling_list
+    );
+
+    const fillSuratPenawaran = await projectsUtils.fillSuratPenawaran(
+      surat_penawaran_id,
+      no_penawaran,
+      Date.now(),
+      project.client_name,
+      project.alamat_kantor,
+      project.contact_person,
+      project.surel,
+      project.project_name,
+      project.alamat_sampling
     );
 
     await create_project.save();
@@ -523,8 +541,30 @@ exports.assignProject = async function (body) {
   const projectObj = await Project.findById(project.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
 
-  body.accountId.forEach(async (id) => {
-    if ((await User.findById(id)) === null) throw new Error("User not found");
+  const jadwalUserObj = {
+    projectID: project.projectId,
+    projectName: projectObj.project_name,
+    from: project.jadwal_sampling.from,
+    to: project.jadwal_sampling.to,
+  };
+
+  projectObj.project_assigned_to.forEach(async (old_id) => {
+    const userObj = await User.findById(old_id).exec();
+    if (userObj === null) throw new Error("User not found");
+
+    userObj.jadwal.forEach(async (jadwal) => {
+      if (jadwal.projectID === project.projectId) await userObj.jadwal.pull(jadwal);
+    });
+
+    await userObj.save();
+  });
+
+  project.accountId.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+
+    userObj.jadwal.push(jadwalUserObj);
+    await userObj.save();
   });
 
   projectObj.project_assigned_to = project.accountId;
@@ -539,13 +579,37 @@ exports.editAssignedProjectUsers = async function (body) {
   if (body.accountId === null) throw new Error("Please specify the account ID");
   if (body.projectId === null) throw new Error("Please specify the project ID");
 
-  const projectObj = await Project.findById(body.projectId);
+  const projectObj = await Project.findById(body.projectId).exec();
   if (projectObj === null) throw new Error("Project not found");
 
   if ((await User.findById(body.accountId)) === null)
     throw new Error("User not found");
 
+  projectObj.project_assigned_to.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.forEach((jadwal) => {
+      if (jadwal.projectID === body.projectId) jadwal.remove();
+    });
+
+    await userObj.save();
+  });
+
   projectObj.project_assigned_to = body.accountId;
+
+  const jadwalUserObj = {
+    projectID: body.projectId,
+    projectName: projectObj.project_name,
+    from: body.jadwal_sampling.from,
+    to: body.jadwal_sampling.to,
+  };
+
+  body.accountId.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.push(jadwalUserObj);
+    await userObj.save();
+  });
 
   await projectObj.save();
 
@@ -559,6 +623,22 @@ exports.editAssignedProjectSchedule = async function (body) {
 
   const projectObj = await Project.findById(body.projectId);
   if (projectObj === null) throw new Error("Project not found");
+
+  const jadwalUserObj = {
+    projectID: body.projectId,
+    projectName: projectObj.project_name,
+    from: body.jadwal_sampling.from,
+    to: body.jadwal_sampling.to,
+  };
+
+  projectObj.project_assigned_to.forEach(async (id) => {
+    const userObj = await User.findById(id).exec();
+    if (userObj === null) throw new Error("User not found");
+    userObj.jadwal.forEach((jadwal) => {
+      if (jadwal.projectID === body.projectId) jadwal.remove();
+    });
+    userObj.jadwal.push(jadwalUserObj);
+  });
 
   projectObj.jadwal_sampling = body.jadwal_sampling;
 
@@ -648,3 +728,24 @@ exports.changeDivision = async function (body) {
 
   return { message: "Division updated successfully", data: resultProject };
 }
+
+exports.getAllLHP = async function () {
+  try {
+    const projectList = await Project.find({ pplhp_status: "REVIEW" });
+    if (projectList == null) {
+      throw new Error("No LHP found");
+    }
+
+    let projectListFiltered = projectList.map((project) => {
+      return {
+        project_name: project.project_name,
+        project_deadline: project.jadwal_sampling,
+        lab_files: project.lab_file,
+      };
+    });
+
+    return { message: "success", projectList: projectListFiltered};
+  } catch (err) {
+    throw new Error(err.message);
+  }
+};
