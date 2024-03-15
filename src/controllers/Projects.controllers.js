@@ -234,3 +234,12 @@ exports.getLHP = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 }
+
+exports.setDeadlineLHP = async function (req, res) {
+  try {
+    const result = await projectsServices.setDeadlineLHP(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
