@@ -18,11 +18,11 @@ exports.addBaseSample = async function (files, body) {
     sample_name: regulationObj.sample_name,
   });
 
-  if(!regulationObj.sample_name || !regulationObj.param || !regulationObj.regulation) throw new Error("Please fill all the fields");
-  if (dupCheck) throw new Error("Base sample already exists"); 
+  if (!regulationObj.sample_name || !regulationObj.param || !regulationObj.regulation) throw new Error("Please fill all the fields");
+  if (dupCheck) throw new Error("Base sample already exists");
 
   let new_folder = null;
-  let regulationParam = []; 
+  let regulationParam = [];
 
   try {
     new_folder = await drivesServices.createFolder({
@@ -56,7 +56,7 @@ exports.addBaseSample = async function (files, body) {
     });
 
     await result.save();
-    
+
     return { message: "Base sample created", result };
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
@@ -67,7 +67,7 @@ exports.editBaseSample = async function (id, body) {
   const regulationObj = body;
   let arrOfRegulation = [];
   let arrOfParam = [];
-  
+
   if (regulationObj.regulation) {
     arrOfRegulation = await Promise.all(
       regulationObj.regulation.map(async (reg, index) => {
@@ -128,6 +128,18 @@ exports.editBaseSample = async function (id, body) {
         return newParam;
       })
     );
+  }
+
+  // check duplicate param and regulation using Set()
+  const setOfRegulation = new Set(arrOfRegulation);
+  const setOfParam = new Set(arrOfParam);
+
+  if (setOfRegulation.size !== arrOfRegulation.length) {
+    throw new Error("Duplicate regulation found");
+  }
+
+  if (setOfParam.size !== arrOfParam.length) {
+    throw new Error("Duplicate param found");
   }
 
   const updateFields = {};

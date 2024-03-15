@@ -749,3 +749,34 @@ exports.getAllLHP = async function () {
     throw new Error(err.message);
   }
 };
+
+exports.getLHP = async function (params) {
+  try {
+    if (!params.id) throw new Error("Please specify the project ID");
+
+    const project = await Project.findById(params.id);
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const mapProject = {
+      _id: project._id,
+      no_penawaran: project.no_penawaran,
+      project_name: project.project_name,
+      client_name: project.client_name,
+      alamat_sampling: project.alamat_sampling,
+      contact_person: project.contact_person,
+      created_at: project.created_at,
+      status: project.status,
+      current_division: project.current_division,
+      valuasi_proyek: project.valuasi_proyek,
+      jadwal_sampling: project.jadwal_sampling,
+      deadline_lhp: project.deadline_lhp,
+      desc_failed: project.desc_failed,
+    };
+
+    return { message: "success", project: mapProject };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
