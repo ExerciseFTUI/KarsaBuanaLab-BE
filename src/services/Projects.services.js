@@ -780,3 +780,20 @@ exports.getLHP = async function (params) {
     throw new Error(err.message);
   }
 }
+
+exports.setDeadlineLHP = async function (body) {
+  try {
+    if (!body.projectId) throw new Error("Please specify the project ID");
+    if (!body.deadline) throw new Error("Please specify the deadline");
+
+    const projectObj = await Project.findById(body.projectId).exec();
+    if (projectObj === null) throw new Error("Project not found");
+
+    projectObj.deadline_lhp = body.deadline;
+    await projectObj.save();
+
+    return { message: "success", project: projectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
