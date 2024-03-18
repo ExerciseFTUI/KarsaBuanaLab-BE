@@ -44,3 +44,12 @@ exports.getUser = async function (req, res) {
         res.status(400).json({ message: err.message });
     }
 }
+
+exports.getSamplingPerProject = async function (req, res) {
+    try {
+        const result = await samplingServices.getSamplingPerProject(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}

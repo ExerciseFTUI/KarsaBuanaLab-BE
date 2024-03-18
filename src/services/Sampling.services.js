@@ -1,6 +1,7 @@
 const { Sampling } = require("../models/Sampling.models");
 const { Project } = require("../models/Project.models");
 const { User } = require("../models/User.models");
+const mongoose = require("mongoose");
 
 exports.getSampling = async function (params) {
   const sample = await getSample(params);
@@ -104,13 +105,13 @@ exports.changeSampleStatus = async function (body) {
   const { projectId, status, sample_id } = body;
 
   const projectObj = await Project.findById(projectId).exec();
-  if(!projectObj) throw new Error("Project not exist!")
+  if (!projectObj) throw new Error("Project not exist!");
 
   projectObj.sampling_list.forEach(async (sample) => {
-    if(sample._id == sample_id){
+    if (sample._id == sample_id) {
       sample.status = status;
     }
-  })
+  });
 
   await projectObj.save();
 
@@ -156,4 +157,49 @@ exports.getUser = async function (body) {
   }
 
   return { message: "success", result: userList };
-}
+};
+
+exports.getSamplingPerProject = async function () {
+  const projects = await Project.find();
+
+  const result = await Promise.all(
+    projects.map(async (project) => {
+      let person = null;
+      if (
+        project.project_assigned_to != null ||
+        project.project_assigned_to.length != 0
+      ) {
+        let empty = false;
+        person = await Promise.all(
+          project.project_assigned_to.map(async (id) => {
+            if (mongoose.Types.ObjectId.isValid(id)) {
+              const user = await User.findById({ _id: id });
+              return user.username;
+            }
+            empty = true;
+            return null;
+          })
+        );
+        if (empty) {
+          person = [];
+        }
+      }
+      const result = project.sampling_list.map((sample) => {
+        return {
+          _id: sample._id,
+          title: sample.sample_name,
+          start:
+            project.jadwal_sampling == null
+              ? null
+              : project.jadwal_sampling.from,
+          end:
+            project.jadwal_sampling == null ? null : project.jadwal_sampling.to,
+          person,
+        };
+      });
+      return result;
+    })
+  );
+
+  return { message: "success", result };
+};
