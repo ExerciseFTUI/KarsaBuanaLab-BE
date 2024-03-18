@@ -184,19 +184,15 @@ exports.getDashboardSampling = async function () {
           person = [];
         }
       }
-      const result = project.sampling_list.map((sample) => {
-        return {
-          _id: sample._id,
-          title: sample.sample_name,
-          start:
-            project.jadwal_sampling == null
-              ? null
-              : project.jadwal_sampling.from,
-          end:
-            project.jadwal_sampling == null ? null : project.jadwal_sampling.to,
-          person,
-        };
-      });
+      const result = {
+        _id: project._id,
+        title: project.project_name,
+        start:
+          project.jadwal_sampling == null ? null : project.jadwal_sampling.from,
+        end:
+          project.jadwal_sampling == null ? null : project.jadwal_sampling.to,
+        person,
+      };
       return result;
     })
   );
