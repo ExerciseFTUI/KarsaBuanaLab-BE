@@ -159,7 +159,7 @@ exports.getUser = async function (body) {
   return { message: "success", result: userList };
 };
 
-exports.getSamplingPerProject = async function () {
+exports.getDashboardSampling = async function () {
   const projects = await Project.find();
 
   const result = await Promise.all(
