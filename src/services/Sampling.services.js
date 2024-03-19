@@ -189,7 +189,7 @@ exports.getDashboardSampling = async function () {
       const convertDateFormat = (dateString) => {
         if (!dateString) return null; // If dateString is null, return null
         const [day, month, year] = dateString.split('-');
-        return `${month}-${day}-${year}`;
+        return `${year}-${month}-${day}`;
       };
 
       const result = {
@@ -197,6 +197,7 @@ exports.getDashboardSampling = async function () {
         title: project.project_name,
         start: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.from : null),
         end: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.to : null),
+        location: project.alamat_sampling,
         person,
       };
       return result;
