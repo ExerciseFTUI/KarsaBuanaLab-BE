@@ -79,6 +79,9 @@ exports.copySampleTemplate = async function copySampleTemplate(
           "Error while copying sample template: Regulation not found"
         );
       }
+
+      // TODO: Fix PARAM
+
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
