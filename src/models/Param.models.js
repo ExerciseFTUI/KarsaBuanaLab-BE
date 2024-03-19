@@ -5,7 +5,7 @@ const OperatorEnum = ["<", ">", "="];
 const paramSchema = new mongoose.Schema({
   param: { type: String, required: true },
   method: [{ type: String, required: false }],
-  unit: { type: String, required: false },
+  unit: [{ type: String, required: false }],
   operator: { type: String, enum: OperatorEnum, required: false },
   baku_mutu: { type: Number, required: false},
   result: { type: Number, required: false}
