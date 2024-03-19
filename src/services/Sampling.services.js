@@ -173,7 +173,7 @@ exports.getDashboardSampling = async function () {
         person = await Promise.all(
           project.project_assigned_to.map(async (id) => {
             if (mongoose.Types.ObjectId.isValid(id)) {
-              const user = await User.findById({ _id: id });
+              const user = await User.findById(id);
               return user.username;
             }
             empty = true;
@@ -184,13 +184,19 @@ exports.getDashboardSampling = async function () {
           person = [];
         }
       }
+      
+      // Function to convert date format from DD/MM/YYYY to MM/DD/YYYY
+      const convertDateFormat = (dateString) => {
+        if (!dateString) return null; // If dateString is null, return null
+        const [day, month, year] = dateString.split('-');
+        return `${month}-${day}-${year}`;
+      };
+
       const result = {
         _id: project._id,
         title: project.project_name,
-        start:
-          project.jadwal_sampling == null ? null : project.jadwal_sampling.from,
-        end:
-          project.jadwal_sampling == null ? null : project.jadwal_sampling.to,
+        start: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.from : null),
+        end: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.to : null),
         person,
       };
       return result;
