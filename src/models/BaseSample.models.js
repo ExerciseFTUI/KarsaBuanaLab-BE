@@ -5,7 +5,7 @@ const { paramSchema } = require("./Param.models");
 const baseSampleSchema = new mongoose.Schema({
   sample_name: { type: String, required: true, unique: true },
   file_id: { type: String, required: true }, // id file samplingnya
-  file_safety_id: { type: String, required: true }, // id file JSA (JSA blom ada) 
+  file_safety_id: { type: String, required: true }, // id file JSA (JSA blom ada)
   param: [paramSchema],
   regulation: [regulationSchema],
 });

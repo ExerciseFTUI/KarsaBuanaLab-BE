@@ -1,6 +1,7 @@
 const { Sampling } = require("../models/Sampling.models");
 const { Project } = require("../models/Project.models");
 const { User } = require("../models/User.models");
+const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
 
 exports.getSampling = async function (params) {
@@ -184,25 +185,80 @@ exports.getDashboardSampling = async function () {
           person = [];
         }
       }
-      
+
       // Function to convert date format from DD/MM/YYYY to MM/DD/YYYY
       const convertDateFormat = (dateString) => {
         if (!dateString) return null; // If dateString is null, return null
-        const [day, month, year] = dateString.split('-');
+        const [day, month, year] = dateString.split("-");
         return `${year}-${month}-${day}`;
       };
 
       const result = {
         _id: project._id,
         title: project.project_name,
-        start: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.from : null),
-        end: convertDateFormat(project.jadwal_sampling ? project.jadwal_sampling.to : null),
+        start: convertDateFormat(
+          project.jadwal_sampling ? project.jadwal_sampling.from : null
+        ),
+        end: convertDateFormat(
+          project.jadwal_sampling ? project.jadwal_sampling.to : null
+        ),
         location: project.alamat_sampling,
         person,
       };
       return result;
     })
   );
+
+  return { message: "success", result };
+};
+
+exports.getSamplingDetails = async function (body) {
+  const { projectId } = body;
+
+  const project = await Project.findById(projectId);
+  if (!project) {
+    return { error: "Project not found" };
+  }
+
+  const samplingList = [];
+
+  // Extract project details
+
+  for (const sampling of project.sampling_list) {
+    const baseSample = await BaseSample.findOne({
+      sample_name: sampling.sample_name,
+    });
+
+    console.log(sampling);
+
+    const parameterDetails = sampling.param.map((param) => ({
+      parameterName: param.param,
+      unit:
+        baseSample.param.find(
+          (baseParam) => baseParam.param === param.sample_name
+        )?.unit || [],
+      method:
+        baseSample.param.find(
+          (baseParam) => baseParam.param === param.sample_name
+        )?.method || [],
+    }));
+
+    samplingList.push({
+      sampleName: sampling.sample_name,
+      assignedTo: sampling.lab_assigned_to,
+      parameters: parameterDetails,
+    });
+  }
+
+  const result = {
+    judul: project.project_name,
+    deadline: project.deadline_lhp,
+    dokumen: [
+      { judul: "Log Penerimaan Sample", url: null },
+      { judul: "Akomodasi Lingkungan", url: null },
+    ],
+    input: samplingList,
+  };
 
   return { message: "success", result };
 };

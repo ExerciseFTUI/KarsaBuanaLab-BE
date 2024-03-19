@@ -16,9 +16,7 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  param: [
-    paramSchema,
-  ],
+  param: [paramSchema],
   regulation_name: [regulationSchema],
   location: {
     type: String,
@@ -48,6 +46,14 @@ const samplingSchema = new mongoose.Schema({
     required: false,
   },
   deadline: {
+    type: String,
+    required: false,
+  },
+  unit: {
+    type: String,
+    required: false,
+  },
+  method: {
     type: String,
     required: false,
   },
