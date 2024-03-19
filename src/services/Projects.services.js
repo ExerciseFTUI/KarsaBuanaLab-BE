@@ -798,7 +798,7 @@ exports.setDeadlineLHP = async function (body) {
   }
 }
 
-exports.getAlllPPLHPDetail = async function () {
+exports.getAllPPLHPDetail = async function () {
   try {
     const projectList = await Project.find({ current_division: "PPLHP" });
     if (projectList == null) {
@@ -808,6 +808,7 @@ exports.getAlllPPLHPDetail = async function () {
     let projectListFiltered = projectList.map((project) => {
       return {
         project_name: project.project_name,
+        projectID: project._id,
         sampling_list: project.sampling_list,
         lab_files: project.lab_file,
         deadline_lhp: project.deadline_lhp,
@@ -828,6 +829,7 @@ exports.getPPLHPDetail = async function (params) {
     const mapProjectObj = projectObj.map((project) => {
       return {
         project_name: project.project_name,
+        projectID: project._id,
         sampling_list: project.sampling_list,
         lab_files: project.lab_file,
         deadline_lhp: project.deadline_lhp,
