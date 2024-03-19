@@ -797,3 +797,45 @@ exports.setDeadlineLHP = async function (body) {
     throw new Error(err.message);
   }
 }
+
+exports.getAlllPPLHPDetail = async function () {
+  try {
+    const projectList = await Project.find({ current_division: "PPLHP" });
+    if (projectList == null) {
+      throw new Error("No LHP found");
+    }
+
+    let projectListFiltered = projectList.map((project) => {
+      return {
+        project_name: project.project_name,
+        sampling_list: project.sampling_list,
+        lab_files: project.lab_file,
+        deadline_lhp: project.deadline_lhp,
+      };
+    });
+
+    return { message: "success", projectList: projectListFiltered};
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.getPPLHPDetail = async function (params) {
+  try {
+    const projectObj = await Project.findById(params.id).exec();
+    if (projectObj === null) throw new Error("Project not found");
+
+    const mapProjectObj = projectObj.map((project) => {
+      return {
+        project_name: project.project_name,
+        sampling_list: project.sampling_list,
+        lab_files: project.lab_file,
+        deadline_lhp: project.deadline_lhp,
+      };
+    });
+
+    return { message: "success", project: mapProjectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
