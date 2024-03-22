@@ -296,18 +296,16 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    const new_sampling_list = project.sampling_list.map((sample) =>
+    const new_sampling_list = project.sampling_list.map(
       (sample) => sample.sample_name
-
     );
+
     const new_regulation_list = project.sampling_list.map(
       (sample) => sample.regulation_name
     );
-    const new_param_list = project.sampling_list.map((sample) =>
-      sample.param.map((param) => 
-        Param.findOne({ param: param })
-      )
-    );
+
+    const new_param_list = project.sampling_list.map((sample) => sample.param);
+
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
       new_folder.result.id,
