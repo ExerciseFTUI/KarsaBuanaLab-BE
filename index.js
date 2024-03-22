@@ -11,6 +11,7 @@ const samplingRoutes = require("./src/routes/Sampling.routes");
 const clientsRoutes = require("./src/routes/Clients.routes");
 const baseSampleRoutes = require("./src/routes/BaseSample.routes");
 const surveyRoutes = require("./src/routes/Survey.routes.js");
+const labRoutes = require("./src/routes/Lab.routes");
 const app = express();
 dotenv.config();
 db.connectDB();
@@ -83,6 +84,7 @@ app.use("/sampling", samplingRoutes);
 app.use("/clients", clientsRoutes);
 app.use("/base-sample", baseSampleRoutes);
 app.use("/survey", surveyRoutes);
+app.use("/lab", labRoutes);
 
 const port = process.env.PORT;
 
