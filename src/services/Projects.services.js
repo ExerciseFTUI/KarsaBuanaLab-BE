@@ -296,6 +296,7 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
+    
     const new_sampling_list = project.sampling_list.map(
       (sample) => sample.sample_name
     );
