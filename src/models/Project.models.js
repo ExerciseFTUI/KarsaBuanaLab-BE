@@ -74,6 +74,16 @@ const projectSchema = new mongoose.Schema({
     default: "RECEIVE",
     enum: ["RECEIVE", "DRAFT", "REVIEW", "FINISHED"],
   },
+  lab_status: {
+    type: String,
+    required: false,
+    default: "RECEIVE",
+    enum: ["RECEIVE", "NEED ANALYZE", "IN REVIEW BY ADMIN", "REVISION"],
+    // "RECEIVE", IS DEFAULT VALUE WHEN PROJECT IS MOVED FROM PPLHP (after create DRAFT LHP) TO LAB
+    // "NEED ANALYZE", IS VALUE WHEN SPV HAS ASSIGNED THE PROJECT TO ANALYZER AND WAITING SPV TO REVIEW THE RESULT
+    // "IN REVIEW BY ADMIN", IS VALUE WHEN SPV HAS REVIEWED THE RESULT AND WAITING ADMIN TO REVIEW THE RESULT
+    // "REVISION", IS VALUE WHEN ADMIN HAS REVIEWED THE RESULT AND NEED REVISION
+  },
   is_survey_filled: { type: Boolean, default: false },
   deadline_lhp: { type: { from: String, to: String }, required: false },
 });

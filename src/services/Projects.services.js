@@ -680,6 +680,7 @@ exports.changeToReview = async function (params) {
   const newStatus = "REVIEW";
 
   resultProject.pplhp_status = newStatus;
+  resultProject.current_division = "LAB";
 
   await resultProject.save();
 
