@@ -3,7 +3,7 @@ const router = Express.Router();
 const labControllers = require("../controllers/Lab.controllers");
 
 
-router.post("/", labControllers.getProjectInLab);
+router.get("/", labControllers.getProjectInLab);
 router.post("/assign", labControllers.assignPersonToSample);
 router.post("/change-status", labControllers.changeSampleStatus);
 
