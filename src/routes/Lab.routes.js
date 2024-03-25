@@ -3,8 +3,9 @@ const router = Express.Router();
 const labControllers = require("../controllers/Lab.controllers");
 
 
-router.get("/", labControllers.getProjectInLab);
-router.post("/assign", labControllers.assignPersonToSample);
+router.post("/", labControllers.getProjectInLab);
+router.post("/assign", labControllers.assignStaffToSample);
 router.post("/change-status", labControllers.changeSampleStatus);
+router.post("/remove", labControllers.removeAssignedStaff);
 
 module.exports = router;

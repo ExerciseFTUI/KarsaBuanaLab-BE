@@ -10,13 +10,13 @@ exports.getProjectInLab = async function (body) {
   return { message: "Projects currently in lab found", result };
 };
 
-exports.assignPersonToSample = async function (body) {
+exports.assignStaffToSample = async function (body) {
   const { ...sample } = body;
   if (!sample.sample_id) {
     throw new Error("Please specify the sample_id");
   }
-  if (!sample.user_id) {
-    throw new Error("Please specify the user_id");
+  if (!sample.user_id && !Array.isArray(sample.user_id)) {
+    throw new Error("Please specify the user_id and should be an array");
   }
   if (!sample.deadline) {
     throw new Error("Please specify the deadline");
@@ -30,17 +30,19 @@ exports.assignPersonToSample = async function (body) {
   const result = await Project.findOneAndUpdate(
     { "sampling_list._id": sample.sample_id },
     {
-      $set: {
+      $push: {
         "sampling_list.$.lab_assigned_to": sample.user_id,
+      },
+      $set: {
         "sampling_list.$.deadline": sample.deadline,
       },
     },
     { new: true }
   );
   if (!result) {
-    throw new Error("Failed to assign person to sample");
+    throw new Error("Failed to assign staff(s) to sample");
   }
-  return { message: "Person assigned to sample", result };
+  return { message: "Staff(s) assigned to sample", result };
 };
 
 exports.changeSampleStatus = async function (body) {
@@ -69,5 +71,24 @@ exports.changeSampleStatus = async function (body) {
   if (!result) {
     throw new Error("Failed to accept sample");
   }
-  return { message: "Sample accepted", result };
+  return { message: `Sample status updated to ${sample.status}`, result };
+};
+
+exports.removeAssignedStaff = async function (body) {
+  const { ...sample } = body;
+  if (!sample.sample_id) {
+    throw new Error("Please specify the sample_id");
+  }
+  if (!sample.user_id) {
+    throw new Error("Please specify the user_id");
+  }
+  const result = await Project.findOneAndUpdate(
+    { "sampling_list._id": sample.sample_id },
+    { $pull: { "sampling_list.$.lab_assigned_to": sample.user_id } },
+    { new: true }
+  );
+  if (!result) {
+    throw new Error("Failed to remove staff(s) from sample");
+  }
+  return { message: "Staff removed from sample", result };
 };

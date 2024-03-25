@@ -23,7 +23,7 @@ const samplingSchema = new mongoose.Schema({
     required: false,
   },
   lab_assigned_to: {
-    type: String,
+    type: [String],
     required: false,
   },
   status: {
