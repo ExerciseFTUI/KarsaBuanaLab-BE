@@ -8,6 +8,6 @@ router.post("/change", samplingController.changeSampleStatus);
 router.post("/assign/:id_sampling", samplingController.sampleAssignment);
 router.get("/get-all-user", samplingController.getUser);
 router.get("/get-dashboard-sampling/", samplingController.getDashboardSampling);
-router.get("/get-sampling-details",samplingController.getSamplingDetails)
+router.get("/get-sampling-details",samplingController.getSamplingDetails);
 
 module.exports = router;
