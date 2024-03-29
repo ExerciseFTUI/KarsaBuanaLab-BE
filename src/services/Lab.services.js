@@ -92,3 +92,32 @@ exports.removeAssignedStaff = async function (body) {
   }
   return { message: "Staff removed from sample", result };
 };
+
+exports.submitLab = async function () {
+  const {userId } = body;
+  
+
+};
+
+exports.getProjectByLab = async function () {
+  const { projectId, userId } = body;
+
+  const labAssignedProjects = []; // Array to hold matching projects
+
+  // Find projects where current_division is "LAB"
+  const projects = await Project.find({ current_division: "LAB" });
+
+  // Iterate through each project
+  for (const project of projects) {
+    // Iterate through each sampling in the project
+    for (const sampling of project.sampling_list) {
+      // Check if lab_assigned_to includes the userId
+      if (sampling.lab_assigned_to.includes(userId)) {
+        labAssignedProjects.push(project); // Add project to the result array
+        break; // Move to the next project once a match is found
+      }
+    }
+  }
+
+  return { message: "Success Getting", result };
+};
