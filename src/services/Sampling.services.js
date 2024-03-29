@@ -13,51 +13,50 @@ exports.getSampling = async function (params) {
 };
 
 exports.sampleAssignment = async function (params, body) {
-  const { ...user } = body;
+  const { userId, deadline } = body;
   const id_sampling = params.id_sampling;
 
   if (!id_sampling) {
     throw new Error("Please specify the sampling id");
   }
-  if (!user.accountId) {
+  if (!userId) {
     throw new Error("Please specify the user");
   }
+  if (!deadline) {
+    throw new Error("Please specify the deadline");
+  }
 
-  const criteria = {
-    sampling_list: {
-      $elemMatch: {
-        _id: id_sampling,
-      },
-    },
-  };
-  const projectObj = await Project.findOne(criteria);
-  if (projectObj == null) {
-    throw new Error("No sample found in project");
+  try {
+    const projectObj = await Project.findOne({
+      "sampling_list._id": id_sampling,
+    });
+    if (!projectObj) {
+      throw new Error("No sample found in project");
+    }
+
+    const sampleObj = projectObj.sampling_list.find(
+      (sample) => sample._id == id_sampling
+    );
+
+    // Check if user is already assigned to the sample
+    const isUserAssigned = sampleObj.lab_assigned_to.some((assignee) =>
+      assignee.equals(userId)
+    );
+    if (isUserAssigned) {
+      throw new Error("User already assigned");
+    }
+
+    // Assign user to the sample
+    sampleObj.lab_assigned_to.push(userId);
+    sampleObj.status = "ASSIGNED";
+    sampleObj.deadline = deadline;
+
+    await projectObj.save();
+
+    return { message: "success", result: projectObj };
+  } catch (error) {
+    throw new Error("Failed to assign user to sample: " + error.message);
   }
-  const userObj = await User.findOne({ _id: user.accountId });
-  if (userObj == null) {
-    throw new Error("No user found");
-  }
-  const sampleObj = projectObj.sampling_list.filter(
-    (sample) => sample._id == id_sampling
-  );
-  const duplicateUser = sampleObj[0].lab_assigned_to.filter(
-    (acc) => acc._id == user.accountId
-  );
-  if (duplicateUser.length > 0) {
-    throw new Error("User already assigned");
-  }
-  const update = {
-    $push: { "sampling_list.$.lab_assigned_to": userObj },
-    $set: { "sampling_list.$.status": "ASSIGNED" },
-  };
-  const result = await Project.findOneAndUpdate(criteria, update, {
-    new: true,
-  });
-  if (result == null) {
-    throw new Error("Failed to assign user to sample");
-  }
-  return { message: "success", result };
 };
 
 exports.getSampleByAcc = async function (params, body) {

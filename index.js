@@ -11,6 +11,7 @@ const samplingRoutes = require("./src/routes/Sampling.routes");
 const clientsRoutes = require("./src/routes/Clients.routes");
 const baseSampleRoutes = require("./src/routes/BaseSample.routes");
 const surveyRoutes = require("./src/routes/Survey.routes.js");
+const inventoryRoutes = require("./src/routes/Inventory.routes.js");
 const app = express();
 dotenv.config();
 db.connectDB();
@@ -41,7 +42,7 @@ app.get("/", (req, res) => {
           margin: 0;
           background-color: #f0f0f0;
         }
-    
+
         .container {
           text-align: center;
           padding: 20px;
@@ -49,13 +50,13 @@ app.get("/", (req, res) => {
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
           background-color: #ffffff;
         }
-    
+
         h1 {
           color: #333;
           font-size: 24px;
           margin-bottom: 20px;
         }
-    
+
         p {
           color: #777;
           font-size: 16px;
@@ -73,7 +74,7 @@ app.get("/", (req, res) => {
   res.send(htmlResponse);
 });
 
-// Routes used in the app 
+// Routes used in the app
 app.use("/auth", authRoutes);
 app.use("/sheets", sheetsRoutes);
 app.use("/drive", drivesRoutes);
@@ -83,6 +84,7 @@ app.use("/sampling", samplingRoutes);
 app.use("/clients", clientsRoutes);
 app.use("/base-sample", baseSampleRoutes);
 app.use("/survey", surveyRoutes);
+app.use("/inventory", inventoryRoutes);
 
 const port = process.env.PORT;
 

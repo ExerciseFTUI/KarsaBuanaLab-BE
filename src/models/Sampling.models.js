@@ -22,10 +22,12 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  lab_assigned_to: {
-    type: String,
-    required: false,
-  },
+  lab_assigned_to: [
+    {
+      type: String,
+      required: false,
+    },
+  ],
   status: {
     type: String,
     enum: [
@@ -46,7 +48,7 @@ const samplingSchema = new mongoose.Schema({
     required: false,
   },
   deadline: {
-    type: String,
+    type: { from: String, to: String },
     required: false,
   },
   unit: {
