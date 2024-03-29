@@ -296,7 +296,7 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    
+
     const new_sampling_list = project.sampling_list.map(
       (sample) => sample.sample_name
     );
@@ -843,6 +843,46 @@ exports.getPPLHPDetail = async function (params) {
     });
 
     return { message: "success", project: mapProjectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.LHPAccept = async function (params, body) {
+  try {
+    if (!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if (!projectObj) throw new Error("Project not found");
+    if (projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+
+    projectObj.pplhp_status = "FINISHED";
+    projectObj.current_division = "PPLHP";
+
+    const formattedNotes = body.notes + " - " + new Date().toISOString(); 
+    if(body.notes) projectObj.notes.push(formattedNotes);
+
+    await projectObj.save();
+    return { message: "success", data: projectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.LHPRevision = async function (params, body) {
+  try {
+    if (!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if(!projectObj) throw new Error("Project not found");
+    if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+
+    projectObj.pplhp_status = "DRAFT";
+    const formattedNotes = body.notes + " - " + new Date().toISOString(); 
+    if(body.notes) projectObj.notes.push(formattedNotes);
+
+    await projectObj.save();
+    return { message: "success", data: projectObj };
   } catch (err) {
     throw new Error(err.message);
   }

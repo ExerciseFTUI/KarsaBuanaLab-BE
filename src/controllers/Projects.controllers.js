@@ -261,3 +261,21 @@ exports.getPPLHPDetail = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 }
+
+exports.LHPAccept = async function (req, res) {
+  try {
+    const result = await projectsServices.LHPAccept(req.params, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+exports.LHPRevision = async function (req, res) {
+  try {
+    const result = await projectsServices.LHPRevision(req.params, req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
