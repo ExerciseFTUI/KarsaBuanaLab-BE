@@ -228,17 +228,18 @@ exports.getSamplingDetails = async function (body) {
       sample_name: sampling.sample_name,
     });
 
-    console.log(sampling);
+    console.log(baseSample.param);
+  
 
     const parameterDetails = sampling.param.map((param) => ({
       parameterName: param.param,
       unit:
         baseSample.param.find(
-          (baseParam) => baseParam.param === param.sample_name
+          (baseParam) => baseParam.param.param === param.sample_name
         )?.unit || [],
       method:
         baseSample.param.find(
-          (baseParam) => baseParam.param === param.sample_name
+          (baseParam) => baseParam.param.param === param.sample_name
         )?.method || [],
     }));
 
