@@ -94,12 +94,10 @@ exports.removeAssignedStaff = async function (body) {
 };
 
 exports.submitLab = async function () {
-  const {userId } = body;
-  
-
+  const { userId } = body;
 };
 
-exports.getProjectByLab = async function () {
+exports.getProjectByLab = async function (body) {
   const { projectId, userId } = body;
 
   const labAssignedProjects = []; // Array to hold matching projects
@@ -119,5 +117,5 @@ exports.getProjectByLab = async function () {
     }
   }
 
-  return { message: "Success Getting", result };
+  return { message: "Success Getting", labAssignedProjects };
 };
