@@ -24,5 +24,7 @@ router.post("/change-division", projectsControllers.changeDivision);
 router.get("/get-all-lhp", projectsControllers.getAllLHP);
 router.get("/get-lhp/:id", projectsControllers.getLHP);
 router.post("/set-deadline-lhp", projectsControllers.setDeadlineLHP);
+router.get("/get-all-pphlp-detail", projectsControllers.getAllPPLHPDetail);
+router.get("/get-pphlp-detail/:id", projectsControllers.getPPLHPDetail);
 
 module.exports = router;

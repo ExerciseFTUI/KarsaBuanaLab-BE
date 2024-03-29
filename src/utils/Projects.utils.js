@@ -9,6 +9,7 @@ const { getAuth } = require("../config/driveAuth");
 const drivesServices = require("../services/Drives.services");
 const sheetsServices = require("../services/Sheets.services");
 const fs = require("fs");
+const { Param } = require("../models/Param.models");
 
 exports.copySuratPenawaran = async function copySuratPenawaran(folder_id) {
   const surat_penawaran_id = process.env.SPREADSHEET_SURAT_PENAWARAN;
@@ -74,17 +75,40 @@ exports.copySampleTemplate = async function copySampleTemplate(
           "Error while copying sample template: Base sample not found"
         );
       }
+
       if (!regulation) {
         throw new Error(
           "Error while copying sample template: Regulation not found"
         );
       }
+
+      let paramList = [];
+      param_array_list[index].forEach(async (param) => {
+        paramList.push(param);
+      });
+
+      const paramArray = await Promise.all(paramList.map(async (param) => {
+        const paramObj = await Param.findOne({ param: param }).exec();
+        if (!paramObj) throw new Error("Error while copying sample template: Param not found");
+        const paramObjMap = {
+          param: paramObj.param,
+          method: paramObj.method,
+          unit: paramObj.unit,
+          operator: paramObj.operator,
+          baku_mutu: paramObj.baku_mutu,
+          result: paramObj.result
+        };
+
+        return paramObjMap;
+      }));
+
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
-        param: param_array_list[index],
+        param: paramArray,
         regulation_name: regulation,
       });
+      
       await samplingObj.save();
       return samplingObj;
     })

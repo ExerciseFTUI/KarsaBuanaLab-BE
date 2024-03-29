@@ -10,6 +10,7 @@ const sheetsServices = require("../services/Sheets.services");
 const projectsUtils = require("../utils/Projects.utils");
 const { Regulation } = require("../models/Regulation.models");
 const { notifyEmail } = require("../utils/Mail.utils");
+const { Param } = require("../models/Param.models");
 
 exports.editProject = async function (body) {
   const { ...project } = body;
@@ -295,13 +296,17 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
+    
     const new_sampling_list = project.sampling_list.map(
       (sample) => sample.sample_name
     );
+
     const new_regulation_list = project.sampling_list.map(
       (sample) => sample.regulation_name
     );
+
     const new_param_list = project.sampling_list.map((sample) => sample.param);
+
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
       new_folder.result.id,
@@ -327,7 +332,7 @@ exports.createProjectJSON = async function (body) {
     const fpp_id = create_project.lab_file.find(
       (file) => file.file_name === "FPP"
     ).file_id;
-    
+
     const surat_penawaran_id = create_project.lab_file.find(
       (file) => file.file_name === "Surat Penawaran"
     ).file_id;
@@ -675,6 +680,7 @@ exports.changeToReview = async function (params) {
   const newStatus = "REVIEW";
 
   resultProject.pplhp_status = newStatus;
+  resultProject.current_division = "LAB";
 
   await resultProject.save();
 
@@ -744,7 +750,7 @@ exports.getAllLHP = async function () {
       };
     });
 
-    return { message: "success", projectList: projectListFiltered};
+    return { message: "success", projectList: projectListFiltered };
   } catch (err) {
     throw new Error(err.message);
   }
@@ -793,6 +799,50 @@ exports.setDeadlineLHP = async function (body) {
     await projectObj.save();
 
     return { message: "success", project: projectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.getAllPPLHPDetail = async function () {
+  try {
+    const projectList = await Project.find({ current_division: "PPLHP" });
+    if (projectList == null) {
+      throw new Error("No LHP found");
+    }
+
+    let projectListFiltered = projectList.map((project) => {
+      return {
+        project_name: project.project_name,
+        projectID: project._id,
+        sampling_list: project.sampling_list,
+        lab_files: project.lab_file,
+        deadline_lhp: project.deadline_lhp,
+      };
+    });
+
+    return { message: "success", projectList: projectListFiltered };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.getPPLHPDetail = async function (params) {
+  try {
+    const projectObj = await Project.findById(params.id).exec();
+    if (projectObj === null) throw new Error("Project not found");
+
+    const mapProjectObj = projectObj.map((project) => {
+      return {
+        project_name: project.project_name,
+        projectID: project._id,
+        sampling_list: project.sampling_list,
+        lab_files: project.lab_file,
+        deadline_lhp: project.deadline_lhp,
+      };
+    });
+
+    return { message: "success", project: mapProjectObj };
   } catch (err) {
     throw new Error(err.message);
   }
