@@ -212,7 +212,7 @@ exports.getDashboardSampling = async function () {
 };
 
 exports.getSamplingDetails = async function (body) {
-  const { projectId } = body;
+  const { projectId, userId } = body;
 
   const project = await Project.findById(projectId);
   if (!project) {
@@ -220,34 +220,33 @@ exports.getSamplingDetails = async function (body) {
   }
 
   const samplingList = [];
-
-  // Extract project details
-
-  for (const sampling of project.sampling_list) {
-    const baseSample = await BaseSample.findOne({
-      sample_name: sampling.sample_name,
-    });
-
-    console.log(baseSample.param);
   
+  for (const sampling of project.sampling_list) {
+    if (userId === sampling.lab_assigned_to[0]) {
+      const baseSample = await BaseSample.findOne({
+        sample_name: sampling.sample_name,
+      });
 
-    const parameterDetails = sampling.param.map((param) => ({
-      parameterName: param.param,
-      unit:
-        baseSample.param.find(
-          (baseParam) => baseParam.param.param === param.sample_name
-        )?.unit || [],
-      method:
-        baseSample.param.find(
-          (baseParam) => baseParam.param.param === param.sample_name
-        )?.method || [],
-    }));
+      console.log(baseSample.param);
 
-    samplingList.push({
-      sampleName: sampling.sample_name,
-      assignedTo: sampling.lab_assigned_to,
-      parameters: parameterDetails,
-    });
+      const parameterDetails = sampling.param.map((param) => ({
+        parameterName: param.param,
+        unit:
+          baseSample.param.find(
+            (baseParam) => baseParam.param.param === param.sample_name
+          )?.unit || [],
+        method:
+          baseSample.param.find(
+            (baseParam) => baseParam.param.param === param.sample_name
+          )?.method || [],
+      }));
+
+      samplingList.push({
+        sampleName: sampling.sample_name,
+        assignedTo: sampling.lab_assigned_to,
+        parameters: parameterDetails,
+      });
+    }
   }
 
   const result = {
