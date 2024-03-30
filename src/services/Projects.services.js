@@ -838,7 +838,14 @@ exports.getPPLHPDetail = async function (params) {
       sampling_list: projectObj.sampling_list,
       lab_files: projectObj.lab_file,
       deadline_lhp: projectObj.deadline_lhp,
+      lhp: null,
     }
+
+    mapProjectObj.lhp = {
+      name: "LHP",
+      url: "https://drive.google.com/file/d/" + projectObj.surat_fpp,
+      type: "Result",
+    };
 
     return { message: "success", project: mapProjectObj };
   } catch (err) {
