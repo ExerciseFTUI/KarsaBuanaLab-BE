@@ -94,19 +94,27 @@ exports.editBaseSample = async function (id, body) {
           await oldParam.save();
           return oldParam;
         }
+        param.method.forEach((method) => {
+          if (!search.method.includes(method)) {
+            search.method.push(method);
+          }
+        });
 
-        const newParam = Param.findOneAndUpdate(
-          { _id: search._id },
-          {
-            param: param.param,
-            method: param.method || null,
-            unit: param.unit || null,
-            operator: param.operator || "=",
-            baku_mutu: param.baku_mutu || null,
-          },
-          { new: true }
-        );
-        return newParam;
+        if (typeof search.unit === 'string') {
+          search.unit = [search.unit];
+        }
+
+        if (typeof param.unit === 'string') {
+          param.unit = [param.unit];
+        }
+
+        param.unit.forEach((unit) => {
+          if (!search.unit.includes(unit)) {
+            search.unit.push(unit);
+          }
+        });
+
+        await search.save();
       })
     );
   }
@@ -119,9 +127,9 @@ exports.editBaseSample = async function (id, body) {
     throw new Error("Duplicate regulation found");
   }
 
-  if (setOfParam.size !== arrOfParam.length) {
-    throw new Error("Duplicate param found");
-  }
+  // if (setOfParam.size !== arrOfParam.length) {
+  //   throw new Error("Duplicate param found");
+  // }
 
   const updateFields = {};
   if (regulationObj.sample_name) {
