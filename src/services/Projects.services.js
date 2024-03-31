@@ -370,15 +370,15 @@ exports.createProjectJSON = async function (body) {
 
     await create_project.save();
 
-    // await notifyEmail(create_project.surel, "Project Created", `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`);
-    // return {
-    //   message: "Successfull",
-    //   result: {
-    //     id: new_folder.result.id,
-    //     url: "https://drive.google.com/drive/folders/" + new_folder.result.id,
-    //     project: create_project,
-    //   },
-    // };
+    await notifyEmail(create_project.surel, "Project Created", `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`);
+    return {
+      message: "Successfull",
+      result: {
+        id: new_folder.result.id,
+        url: "https://drive.google.com/drive/folders/" + new_folder.result.id,
+        project: create_project,
+      },
+    };
   } catch (error) {
     throw { message: error.message, new_folder_id: new_folder.result.id };
   }
