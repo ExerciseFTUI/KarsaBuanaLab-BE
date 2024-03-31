@@ -87,7 +87,7 @@ exports.editBaseSample = async function (id, body) {
           const oldParam = new Param({
             param: param.param,
             method: param.method || null,
-            unit: param.unit || null,
+            unit: param.unit || "",
             operator: param.operator || "=",
             baku_mutu: param.baku_mutu || null,
           });
