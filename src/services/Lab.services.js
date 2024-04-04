@@ -119,3 +119,21 @@ exports.getProjectByLab = async function (body) {
 
   return { message: "Success Getting", labAssignedProjects };
 };
+
+exports.changeLabStatus = async function (body) {
+  try {
+    const { projectId, status } = body;
+    if (!projectId) throw new Error("Please specify the project_id");
+    if (!status) throw new Error("Please specify the status");
+
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) throw new Error("Project not found");
+
+    projectObj.lab_status = status;
+    await projectObj.save();
+
+    return { message: "Lab status updated", projectObj };
+  } catch (error) {
+    throw error;
+  }
+};
