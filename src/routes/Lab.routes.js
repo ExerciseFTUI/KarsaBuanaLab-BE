@@ -9,5 +9,6 @@ router.post("/change-status", labControllers.changeSampleStatus);
 router.post("/remove", labControllers.removeAssignedStaff);
 router.post("/submit-lab",labControllers.submitLab)
 router.get("/get-project-by-lab",labControllers.getProjectByLab);
+router.post("/change-lab-status",labControllers.changeLabStatus);
 
 module.exports = router;
