@@ -97,6 +97,8 @@ exports.submitLab = async function (body) {
   const { projectId, samples } = body;
 
   console.log(body);
+  console.log(samples)
+
 
   const project = await Project.findById(projectId);
 
