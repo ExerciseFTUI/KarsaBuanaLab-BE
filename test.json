@@ -1,0 +1,39 @@
+{
+  "projectId": "123123123",
+  "samples": [
+    {
+      "sample_name": "Sample 1",
+      "param": [
+        {
+          "param": "Parameter 1",
+          "result": 10,
+          "unit": "mg/L",
+          "method": "Method A"
+        },
+        {
+          "param": "Parameter 2",
+          "result": 20,
+          "unit": "g/L",
+          "method": "Method B"
+        }
+      ]
+    },
+    {
+      "sample_name": "Sample 2",
+      "param": [
+        {
+          "param": "Parameter 1",
+          "result": 15,
+          "unit": "mg/L",
+          "method": "Method A"
+        },
+        {
+          "param": "Parameter 2",
+          "result": 25,
+          "unit": "g/L",
+          "method": "Method B"
+        }
+      ]
+    }
+  ]
+}
