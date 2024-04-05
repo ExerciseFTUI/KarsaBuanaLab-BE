@@ -59,8 +59,22 @@ exports.getProjectByStatusAndYear = async function (params) {
 };
 
 exports.getProjectByID = async function (params) {
-  const result = await Project.findById(params.ProjectID).exec();
-  return { message: "Success", result };
+  try {
+    const result = await Project.findById(params.ProjectID).exec();
+    if (!result) {
+      throw new Error("Project not found");
+    }
+
+    // Transforming param objects to an array of param names
+    const transformedResult = result.toObject();
+    transformedResult.sampling_list.forEach((sample) => {
+      sample.param = sample.param.map((param) => param.param);
+    });
+
+    return { message: "Success", result: transformedResult };
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 async function getApprovedOffer() {
