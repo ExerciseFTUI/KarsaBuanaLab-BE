@@ -296,7 +296,7 @@ exports.createProjectJSON = async function (body) {
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
     });
-    
+
     const new_sampling_list = project.sampling_list.map(
       (sample) => sample.sample_name
     );
@@ -832,17 +832,60 @@ exports.getPPLHPDetail = async function (params) {
     const projectObj = await Project.findById(params.id).exec();
     if (projectObj === null) throw new Error("Project not found");
 
-    const mapProjectObj = projectObj.map((project) => {
-      return {
-        project_name: project.project_name,
-        projectID: project._id,
-        sampling_list: project.sampling_list,
-        lab_files: project.lab_file,
-        deadline_lhp: project.deadline_lhp,
-      };
-    });
+    const mapProjectObj = {
+      project_name: projectObj.project_name,
+      projectID: projectObj._id,
+      sampling_list: projectObj.sampling_list,
+      lab_files: projectObj.lab_file,
+      deadline_lhp: projectObj.deadline_lhp,
+      lhp: null,
+    }
+
+    mapProjectObj.lhp = {
+      name: "LHP",
+      url: "https://drive.google.com/file/d/" + projectObj.surat_fpp,
+      type: "Result",
+    };
 
     return { message: "success", project: mapProjectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.LHPAccept = async function (params, body) {
+  try {
+    if (!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if (!projectObj) throw new Error("Project not found");
+    if (projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+
+    projectObj.pplhp_status = "FINISHED";
+    projectObj.current_division = "PPLHP";
+
+    if(body.notes) projectObj.notes.push({notes: body.notes, created_at: new Date().toISOString()});
+
+    await projectObj.save();
+    return { message: "success", data: projectObj };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
+
+exports.LHPRevision = async function (params, body) {
+  try {
+    if (!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if(!projectObj) throw new Error("Project not found");
+    if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+
+    projectObj.pplhp_status = "DRAFT";
+    if(body.notes) projectObj.notes.push({notes: body.notes, created_at: new Date().toISOString()});
+
+    await projectObj.save();
+    return { message: "success", data: projectObj };
   } catch (err) {
     throw new Error(err.message);
   }
