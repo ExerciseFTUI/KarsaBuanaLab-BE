@@ -160,7 +160,7 @@ exports.getUser = async function (body) {
 };
 
 exports.getDashboardSampling = async function () {
-  const projects = await Project.find();
+  const projects = await Project.find({ current_division: "SAMPLING" });
 
   const result = await Promise.all(
     projects.map(async (project) => {
