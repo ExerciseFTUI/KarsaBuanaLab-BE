@@ -96,6 +96,8 @@ exports.removeAssignedStaff = async function (body) {
 exports.submitLab = async function (body) {
   const { projectId, samples } = body;
 
+  console.log(body);
+
   const project = await Project.findById(projectId);
 
   // Iterate over the samples
@@ -126,7 +128,6 @@ exports.submitLab = async function (body) {
 
   return { message: "Success Adding", project };
 };
-
 
 exports.getProjectByLab = async function (body) {
   const { projectId, userId } = body;
