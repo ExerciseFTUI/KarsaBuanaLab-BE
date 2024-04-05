@@ -220,17 +220,22 @@ exports.getSamplingDetails = async function (body) {
   }
 
   const samplingList = [];
-  
+
   for (const sampling of project.sampling_list) {
     if (userId === sampling.lab_assigned_to[0]) {
       const baseSample = await BaseSample.findOne({
         sample_name: sampling.sample_name,
       });
 
-      console.log(baseSample.param);
+      sampling.param.map((param) => (
+        console.log(param)
+      ))
 
       const parameterDetails = sampling.param.map((param) => ({
-        parameterName: param.param,
+        name:
+          baseSample.param.find(
+            (baseParam) => baseParam.param.param === param.sample_name
+          )?.param || "Parameter Not Found",
         unit:
           baseSample.param.find(
             (baseParam) => baseParam.param.param === param.sample_name
@@ -261,5 +266,3 @@ exports.getSamplingDetails = async function (body) {
 
   return { message: "success", result };
 };
-
-

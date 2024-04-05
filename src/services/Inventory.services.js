@@ -19,6 +19,12 @@ exports.getAllInventory = async function (body) {
   return { message: "success", items };
 };
 
+exports.createInventory = async function (body) {
+  const newInventory = new Inventory(inventoryData);
+  const createdInventory = await newInventory.save();
+  return { message: "success", createdInventory };
+};
+
 async function fetchAssignedUsers(userIdsArray) {
   try {
     const assignedUsersArray = await Promise.all(
