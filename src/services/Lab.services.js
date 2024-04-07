@@ -171,3 +171,35 @@ exports.changeLabStatus = async function (body) {
     throw error;
   }
 };
+
+// Add notes to project
+exports.addNotes = async function (body) {
+  const { projectId, notes } = body;
+
+  if (!projectId) {
+    throw new Error("Please specify the project_id");
+  }
+  if (!notes) {
+    throw new Error("Please specify the notes");
+  }
+
+  const project = await Project.findById(projectId);
+  if (!project) {
+    throw new Error("Project not found");
+  }
+
+  // I want to add the notes to the project without removing the existing notes array
+  project.notes.push(notes);
+  await project.save();
+
+  return { message: "Notes added to project", project };
+}
+
+// dummy data json to post add notes, the notes has a values of date: Date and context: string
+// {
+//   "projectId": "614d2c6e8d3d2f001f7b9b0d",
+//   "notes": {
+//     "date": "2021-09-24T00:00:00.000Z",
+//     "context": "This is a note"
+//   }
+// }

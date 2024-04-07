@@ -864,7 +864,7 @@ exports.LHPAccept = async function (params, body) {
     projectObj.pplhp_status = "FINISHED";
     projectObj.current_division = "PPLHP";
 
-    if(body.notes) projectObj.notes.push({notes: body.notes, created_at: new Date().toISOString()});
+    if(body.notes) projectObj.notes.push(body.notes);
 
     await projectObj.save();
     return { message: "success", data: projectObj };
@@ -882,7 +882,7 @@ exports.LHPRevision = async function (params, body) {
     if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
 
     projectObj.pplhp_status = "DRAFT";
-    if(body.notes) projectObj.notes.push({notes: body.notes, created_at: new Date().toISOString()});
+    if(body.notes) projectObj.notes.push(body.notes);
 
     await projectObj.save();
     return { message: "success", data: projectObj };
