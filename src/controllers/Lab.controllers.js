@@ -62,3 +62,12 @@ exports.changeLabStatus = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.addNotes = async function (req, res) {
+  try {
+    const result = await labServices.addNotes(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
