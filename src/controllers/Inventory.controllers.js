@@ -19,3 +19,22 @@ exports.createInventory = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.getInventoryItemById = async function (req,res){
+
+    try {
+      const result = await inventoryServices.getInventoryItemById(req.body);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+}
+
+exports.updateInventory = async function (req, res) {
+  try {
+    const result = await inventoryServices.updateInventory(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
