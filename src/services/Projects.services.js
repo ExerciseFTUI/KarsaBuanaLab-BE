@@ -873,17 +873,17 @@ exports.LHPAccept = async function (params, body) {
   }
 }
 
-exports.LHPRevision = async function (params, body) {
+exports.LHPRevision = async function (params, body) { 
   try {
     if (!params.id) throw new Error("Please specify the project ID");
 
     const projectObj = await Project.findById(params.id).exec();
     if(!projectObj) throw new Error("Project not found");
-    if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+    // if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
 
     if (body.from === "ADMIN") {
       projectObj.lab_status = "REVISION" 
-      projectObj.current_division = "LAB" 
+      // projectObj.current_division = "LAB" 
     } else {
       projectObj.pplhp_status = "DRAFT";
     }
