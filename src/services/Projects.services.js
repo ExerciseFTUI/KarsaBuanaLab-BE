@@ -904,6 +904,8 @@ exports.getNotes = async function (params){
     const projectObj = await Project.findById(params.id).exec();
     if(!projectObj) throw new Error("Project not found");
 
+    if(projectObj.notes.length === 0) throw new Error("No notes found");
+
     return { message: "success", data: projectObj.notes };
   } catch (error) {
     throw new Error(error.message);
