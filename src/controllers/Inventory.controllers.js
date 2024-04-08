@@ -23,7 +23,7 @@ exports.createInventory = async function (req, res) {
 exports.getInventoryItemById = async function (req,res){
 
     try {
-      const result = await inventoryServices.getInventoryItemById(req.body);
+      const result = await inventoryServices.getInventoryItemById(req.params);
       res.status(200).json(result);
     } catch (err) {
       res.status(400).json({ message: err.message });
