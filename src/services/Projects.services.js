@@ -881,12 +881,18 @@ exports.LHPRevision = async function (params, body) {
     if(!projectObj) throw new Error("Project not found");
     if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
 
-    projectObj.pplhp_status = "DRAFT";
+    if (body.from === "ADMIN") {
+      projectObj.lab_status = "REVISION" 
+      projectObj.current_division = "LAB" 
+    } else {
+      projectObj.pplhp_status = "DRAFT";
+    }
     if(body.notes) projectObj.notes.push(body.notes);
 
     await projectObj.save();
     return { message: "success", data: projectObj };
   } catch (err) {
+    console.log("error", err);
     throw new Error(err.message);
   }
 }

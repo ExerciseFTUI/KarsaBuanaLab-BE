@@ -194,12 +194,3 @@ exports.addNotes = async function (body) {
 
   return { message: "Notes added to project", project };
 }
-
-// dummy data json to post add notes, the notes has a values of date: Date and context: string
-// {
-//   "projectId": "614d2c6e8d3d2f001f7b9b0d",
-//   "notes": {
-//     "date": "2021-09-24T00:00:00.000Z",
-//     "context": "This is a note"
-//   }
-// }
