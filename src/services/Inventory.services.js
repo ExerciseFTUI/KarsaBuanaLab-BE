@@ -12,12 +12,15 @@ exports.getAllInventory = async function (body) {
       item.maintenance_every
     );
 
-    item.assigned_users = assignedUsersArray;
+    item.assigned_users =
+      assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
+
     item.deadline = deadline;
   }
 
   return { message: "success", items };
 };
+
 
 exports.createInventory = async function (body) {
   const newInventory = new Inventory(inventoryData);
