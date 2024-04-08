@@ -255,7 +255,7 @@ exports.getSamplingDetails = async function (body) {
   const result = {
     judul: project.project_name,
     deadline: project.deadline_lhp,
-    lhp: project.lhp !== null ? project.lhp : "null",
+    lhp: "null",
     dokumen: [
       { judul: "Log Penerimaan Sample", url: null },
       { judul: "Akomodasi Lingkungan", url: null },
