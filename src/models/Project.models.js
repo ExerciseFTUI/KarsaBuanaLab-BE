@@ -86,7 +86,13 @@ const projectSchema = new mongoose.Schema({
   },
   is_survey_filled: { type: Boolean, default: false },
   deadline_lhp: { type: { from: String, to: String }, required: false },
-  notes: [{date: {type: Date, required: false}, content: {type: String, required: false}}],
+  lhp: { type: String, required: false },
+  notes: [
+    {
+      date: { type: Date, required: false },
+      content: { type: String, required: false },
+    },
+  ],
 });
 
 const Project = mongoose.model("Project", projectSchema);
