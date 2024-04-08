@@ -896,3 +896,16 @@ exports.LHPRevision = async function (params, body) {
     throw new Error(err.message);
   }
 }
+
+exports.getNotes = async function (params){
+  try {
+    if(!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if(!projectObj) throw new Error("Project not found");
+
+    return { message: "success", data: projectObj.notes };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
