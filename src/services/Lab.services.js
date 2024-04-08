@@ -124,6 +124,7 @@ exports.submitLab = async function (body) {
       });
     }
   });
+  project.current_division = "PPLHP";
 
   // Save the updated project
   await project.save();
