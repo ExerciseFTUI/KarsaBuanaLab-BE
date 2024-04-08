@@ -227,9 +227,7 @@ exports.getSamplingDetails = async function (body) {
         sample_name: sampling.sample_name,
       });
 
-      sampling.param.map((param) => (
-        console.log(param)
-      ))
+      sampling.param.map((param) => console.log(param));
 
       const parameterDetails = sampling.param.map((param) => ({
         name:
@@ -257,6 +255,7 @@ exports.getSamplingDetails = async function (body) {
   const result = {
     judul: project.project_name,
     deadline: project.deadline_lhp,
+    lhp: project.lhp,
     dokumen: [
       { judul: "Log Penerimaan Sample", url: null },
       { judul: "Akomodasi Lingkungan", url: null },

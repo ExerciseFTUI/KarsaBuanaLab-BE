@@ -25,6 +25,21 @@ exports.createInventory = async function (body) {
   return { message: "success", createdInventory };
 };
 
+exports.getInventoryItemById = async function (body) {
+  const {id} = body;
+  const item = await Inventory.findById(id);
+  if (!item) throw new Error("Inventory item not found");
+  return item;
+}
+
+exports.updateInventory = async function (body) {
+  const {id , updates} = body;
+  const updatedItem = await Inventory.findByIdAndUpdate(id, updates, {
+    new: true,
+  });
+  return updatedItem;
+}
+
 async function fetchAssignedUsers(userIdsArray) {
   try {
     const assignedUsersArray = await Promise.all(
