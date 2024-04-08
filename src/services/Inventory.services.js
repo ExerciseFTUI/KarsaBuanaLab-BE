@@ -12,7 +12,9 @@ exports.getAllInventory = async function (body) {
       item.maintenance_every
     );
 
-    item.assigned_users = assignedUsersArray;
+    item.assigned_users =
+      assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
+
     item.deadline = deadline;
   }
 
@@ -25,20 +27,20 @@ exports.createInventory = async function (body) {
   return { message: "success", createdInventory };
 };
 
-exports.getInventoryItemById = async function (body) {
-  const {id} = body;
+exports.getInventoryItemById = async function (params) {
+  const { id } = params;
   const item = await Inventory.findById(id);
   if (!item) throw new Error("Inventory item not found");
   return item;
-}
+};
 
 exports.updateInventory = async function (body) {
-  const {id , updates} = body;
+  const { id, updates } = body;
   const updatedItem = await Inventory.findByIdAndUpdate(id, updates, {
     new: true,
   });
   return updatedItem;
-}
+};
 
 async function fetchAssignedUsers(userIdsArray) {
   try {
