@@ -806,7 +806,7 @@ exports.setDeadlineLHP = async function (body) {
 
 exports.getAllPPLHPDetail = async function () {
   try {
-    const projectList = await Project.find({ current_division: "PPLHP" });
+    const projectList = await Project.find({ current_division: "PPLHP", pplhp_status: "REVIEW" });
     if (projectList == null) {
       throw new Error("No LHP found");
     }
