@@ -806,7 +806,7 @@ exports.setDeadlineLHP = async function (body) {
 
 exports.getAllPPLHPDetail = async function () {
   try {
-    const projectList = await Project.find({ current_division: "PPLHP" });
+    const projectList = await Project.find({ current_division: "LAB", lab_status: "IN REVIEW BY ADMIN" });
     if (projectList == null) {
       throw new Error("No LHP found");
     }
@@ -873,17 +873,17 @@ exports.LHPAccept = async function (params, body) {
   }
 }
 
-exports.LHPRevision = async function (params, body) {
+exports.LHPRevision = async function (params, body) { 
   try {
     if (!params.id) throw new Error("Please specify the project ID");
 
     const projectObj = await Project.findById(params.id).exec();
     if(!projectObj) throw new Error("Project not found");
-    if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+    // if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
 
     if (body.from === "ADMIN") {
       projectObj.lab_status = "REVISION" 
-      projectObj.current_division = "LAB" 
+      // projectObj.current_division = "LAB" 
     } else {
       projectObj.pplhp_status = "DRAFT";
     }
@@ -894,5 +894,20 @@ exports.LHPRevision = async function (params, body) {
   } catch (err) {
     console.log("error", err);
     throw new Error(err.message);
+  }
+}
+
+exports.getNotes = async function (params){
+  try {
+    if(!params.id) throw new Error("Please specify the project ID");
+
+    const projectObj = await Project.findById(params.id).exec();
+    if(!projectObj) throw new Error("Project not found");
+
+    if(projectObj.notes.length === 0) throw new Error("No notes found");
+
+    return { message: "success", data: projectObj.notes };
+  } catch (error) {
+    throw new Error(error.message);
   }
 }
