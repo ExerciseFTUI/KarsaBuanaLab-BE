@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { fileSchema } = require("./File.models");
 
 const repeatEnum = [
   "1 Month",
@@ -17,9 +18,10 @@ const inventorySchema = new mongoose.Schema({
   last_maintenance: { type: Date, required: false },
   maintenance_history: [{ type: Date, required: false }],
   maintenance_every: { type: String, enum: repeatEnum, required: false },
-  file_id: { type: String, required: false },
   assigned_user: [{ type: String, required: false }],
   category: { type: String, enum: categoryEnum, required: false },
+  folder_id: { type: String, required: false },
+  inventory_file: [fileSchema],
 });
 
 const Inventory = mongoose.model("Inventory", inventorySchema);

@@ -87,20 +87,25 @@ exports.copySampleTemplate = async function copySampleTemplate(
         paramList.push(param);
       });
 
-      const paramArray = await Promise.all(paramList.map(async (param) => {
-        const paramObj = await Param.findOne({ param: param }).exec();
-        if (!paramObj) throw new Error("Error while copying sample template: Param not found");
-        const paramObjMap = {
-          param: paramObj.param,
-          method: paramObj.method,
-          unit: paramObj.unit,
-          operator: paramObj.operator,
-          baku_mutu: paramObj.baku_mutu,
-          result: paramObj.result
-        };
+      const paramArray = await Promise.all(
+        paramList.map(async (param) => {
+          const paramObj = await Param.findOne({ param: param }).exec();
+          if (!paramObj)
+            throw new Error(
+              "Error while copying sample template: Param not found"
+            );
+          const paramObjMap = {
+            param: paramObj.param,
+            method: paramObj.method,
+            unit: paramObj.unit,
+            operator: paramObj.operator,
+            baku_mutu: paramObj.baku_mutu,
+            result: paramObj.result,
+          };
 
-        return paramObjMap;
-      }));
+          return paramObjMap;
+        })
+      );
 
       const samplingObj = new Sampling({
         fileId: result.file_id,
@@ -108,7 +113,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
         param: paramArray,
         regulation_name: regulation,
       });
-      
+
       await samplingObj.save();
       return samplingObj;
     })
@@ -154,7 +159,7 @@ exports.uploadFilesToDrive = async function (files, folderId) {
   const drive = google.drive({ version: "v3", auth });
 
   const fileObj = [];
-
+  
   if (!Array.isArray(files)) {
     files = [files];
   }
@@ -448,11 +453,11 @@ function addLeadingZeros(number, zeros) {
   return zerosString + numberString;
 }
 
-exports.fillSample = async function (
-  file_id,
-  alamat_sampling,
-  sampling_list) {
-  if (!sampling_list) throw new Error("Error while filling sample: Sampling list is not an array");
+exports.fillSample = async function (file_id, alamat_sampling, sampling_list) {
+  if (!sampling_list)
+    throw new Error(
+      "Error while filling sample: Sampling list is not an array"
+    );
   let initial_col = 20;
 
   let data = [];
@@ -461,7 +466,14 @@ exports.fillSample = async function (
   sampling_list.forEach(async (sample, index) => {
     const regulation = `Regulation: ${sample.regulation_name[0].regulation_name}`;
     const param = `Parameter: ${sample.param.join(", ")}`;
-    data.push([index + 1, sample.sample_name, "", "", "", `${regulation}\n${param}`]);
+    data.push([
+      index + 1,
+      sample.sample_name,
+      "",
+      "",
+      "",
+      `${regulation}\n${param}`,
+    ]);
     cellAddress.push(16);
     initial_col += 1;
   });
@@ -472,17 +484,14 @@ exports.fillSample = async function (
     sheetName,
     16,
     16 + sampling_list.length
-  )
+  );
 
-  await exports.insertValuesIntoCells(
-    file_id,
-    [alamat_sampling],
-    sheetName,
-    ["D16"]
-  )
+  await exports.insertValuesIntoCells(file_id, [alamat_sampling], sheetName, [
+    "D16",
+  ]);
 
   return { message: "Data inserted into cells" };
-}
+};
 
 exports.insertValuesIntoRows = async function (
   fileId,
@@ -538,13 +547,45 @@ exports.insertValuesIntoRows = async function (
   } catch (error) {
     return { message: "Error inserting data into row", error: error.message };
   }
-}
+};
 
-exports.fillSuratPenawaran = async function (file_id, no_penawaran, tanggal, nama_client, alamat_client, contact_person, email, nama_proyek, alamat_proyek) {
-  if (!file_id || !no_penawaran || !tanggal || !nama_client || !alamat_client || !contact_person || !email || !nama_proyek || !alamat_proyek) throw new Error("Error while filling surat penawaran: Missing required parameter");
+exports.fillSuratPenawaran = async function (
+  file_id,
+  no_penawaran,
+  tanggal,
+  nama_client,
+  alamat_client,
+  contact_person,
+  email,
+  nama_proyek,
+  alamat_proyek
+) {
+  if (
+    !file_id ||
+    !no_penawaran ||
+    !tanggal ||
+    !nama_client ||
+    !alamat_client ||
+    !contact_person ||
+    !email ||
+    !nama_proyek ||
+    !alamat_proyek
+  )
+    throw new Error(
+      "Error while filling surat penawaran: Missing required parameter"
+    );
   const sheetName = "Surat Penawaran";
   const cellAddress = ["G2", "G4", "G7", "G8", "G11", "G12", "G13", "G15"];
-  const data = [no_penawaran, tanggal, nama_client, alamat_client, contact_person, email, nama_proyek, alamat_proyek];
+  const data = [
+    no_penawaran,
+    tanggal,
+    nama_client,
+    alamat_client,
+    contact_person,
+    email,
+    nama_proyek,
+    alamat_proyek,
+  ];
 
   const result = await exports.insertValuesIntoCells(
     file_id,
@@ -554,4 +595,4 @@ exports.fillSuratPenawaran = async function (file_id, no_penawaran, tanggal, nam
   );
 
   return result;
-}
+};
