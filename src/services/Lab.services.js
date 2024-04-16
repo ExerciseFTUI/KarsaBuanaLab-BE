@@ -96,10 +96,6 @@ exports.removeAssignedStaff = async function (body) {
 exports.submitLab = async function (body) {
   const { projectId, samples } = body;
 
-  console.log(body);
-  console.log(samples)
-
-
   const project = await Project.findById(projectId);
 
   // Iterate over the samples
@@ -125,6 +121,41 @@ exports.submitLab = async function (body) {
     }
   });
   // project.current_division = "PPLHP";
+
+  // Save the updated project
+  await project.save();
+
+  return { message: "Success Adding", project };
+};
+
+exports.submitLab = async function (body) {
+  const { projectId, samples } = body;
+
+  const project = await Project.findById(projectId);
+
+  // Iterate over the samples
+  samples.forEach((sample) => {
+    // Find the sample in the project's sampling_list
+    const foundSample = project.sampling_list.find(
+      (s) => s.sample_name === sample.sample_name
+    );
+
+    // If the sample is found, update its parameters
+    if (foundSample) {
+      sample.param.forEach((param) => {
+        const foundParam = foundSample.param.find(
+          (p) => p.param === param.param
+        );
+        if (foundParam) {
+          // Update parameter values
+          foundParam.result = param.result;
+          foundParam.unit = param.unit;
+          foundParam.method = param.method;
+          // foundParam.status = param.status;
+        }
+      });
+    }
+  });
 
   // Save the updated project
   await project.save();

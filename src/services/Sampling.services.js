@@ -213,7 +213,7 @@ exports.getDashboardSampling = async function () {
 
 exports.getSamplingDetails = async function (body) {
   const { projectId, userId } = body;
-
+  let count = 0;
   const project = await Project.findById(projectId);
   if (!project) {
     return { error: "Project not found" };
@@ -221,13 +221,17 @@ exports.getSamplingDetails = async function (body) {
 
   const samplingList = [];
 
+
   for (const sampling of project.sampling_list) {
-    if (userId === sampling.lab_assigned_to[0]) {
+    // console.log("Pembatas");
+    // console.log(count);
+    count++;
+    if (sampling.lab_assigned_to.includes(userId)) {
       const baseSample = await BaseSample.findOne({
         sample_name: sampling.sample_name,
       });
 
-      sampling.param.map((param) => console.log(param));
+      // sampling.param.map((param) => console.log(param.param));
 
       const parameterDetails = sampling.param.map((param) => ({
         name:
@@ -243,6 +247,8 @@ exports.getSamplingDetails = async function (body) {
             (baseParam) => baseParam.param.param === param.sample_name
           )?.method || [],
       }));
+
+      // console.log(parameterDetails);
 
       samplingList.push({
         sampleName: sampling.sample_name,
