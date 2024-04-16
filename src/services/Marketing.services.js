@@ -89,12 +89,7 @@ async function getTotalProjectPerYear() {
     const resultRunning = await Project.find({ status: "RUNNING" }).exec();
     const resultFinished = await Project.find({ status: "FINISHED" }).exec();
     const result = resultRunning.concat(resultFinished);
-    const projectList = result.map((project) => project.project_name);
-    const projectCount = projectList.reduce(
-      (prev, curr) => ((prev[curr] = ++prev[curr] || 1), prev),
-      {}
-    );
-    const totalProject = Object.keys(projectCount).length;
+    const totalProject = result.length;
     return totalProject;
   } catch (error) {
     console.log(error);
