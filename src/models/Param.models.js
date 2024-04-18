@@ -9,6 +9,12 @@ const paramSchema = new mongoose.Schema({
   operator: { type: String, enum: OperatorEnum, required: false },
   baku_mutu: { type: Number, required: false },
   result: { type: Number, required: false },
+  analysis_status: {
+    type: String,
+    enum: ["WAITING", "SUBMIT", "ACCEPTED", "REVISION"],
+    required: false,
+    default: "WAITING",
+  },
 });
 
 const Param = mongoose.model("Param", paramSchema);

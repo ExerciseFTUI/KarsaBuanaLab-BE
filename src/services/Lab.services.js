@@ -116,46 +116,12 @@ exports.submitLab = async function (body) {
           foundParam.result = param.result;
           foundParam.unit = param.unit;
           foundParam.method = param.method;
+          foundParam.analysis_status = param.analysis_status;
         }
       });
     }
   });
-  // project.current_division = "PPLHP";
-
-  // Save the updated project
-  await project.save();
-
-  return { message: "Success Adding", project };
-};
-
-exports.submitLab = async function (body) {
-  const { projectId, samples } = body;
-
-  const project = await Project.findById(projectId);
-
-  // Iterate over the samples
-  samples.forEach((sample) => {
-    // Find the sample in the project's sampling_list
-    const foundSample = project.sampling_list.find(
-      (s) => s.sample_name === sample.sample_name
-    );
-
-    // If the sample is found, update its parameters
-    if (foundSample) {
-      sample.param.forEach((param) => {
-        const foundParam = foundSample.param.find(
-          (p) => p.param === param.param
-        );
-        if (foundParam) {
-          // Update parameter values
-          foundParam.result = param.result;
-          foundParam.unit = param.unit;
-          foundParam.method = param.method;
-          // foundParam.status = param.status;
-        }
-      });
-    }
-  });
+  project.current_division = "PPLHP";
 
   // Save the updated project
   await project.save();
@@ -225,4 +191,4 @@ exports.addNotes = async function (body) {
   await project.save();
 
   return { message: "Notes added to project", project };
-}
+};
