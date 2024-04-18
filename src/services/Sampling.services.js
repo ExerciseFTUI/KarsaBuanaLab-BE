@@ -221,34 +221,26 @@ exports.getSamplingDetails = async function (body) {
 
   const samplingList = [];
 
-
   for (const sampling of project.sampling_list) {
-    // console.log("Pembatas");
-    // console.log(count);
     count++;
     if (sampling.lab_assigned_to.includes(userId)) {
       const baseSample = await BaseSample.findOne({
         sample_name: sampling.sample_name,
       });
 
-      // sampling.param.map((param) => console.log(param.param));
+      const parameterDetails = [];
 
-      const parameterDetails = sampling.param.map((param) => ({
-        name:
-          baseSample.param.find(
-            (baseParam) => baseParam.param.param === param.sample_name
-          )?.param || "Parameter Not Found",
-        unit:
-          baseSample.param.find(
-            (baseParam) => baseParam.param.param === param.sample_name
-          )?.unit || [],
-        method:
-          baseSample.param.find(
-            (baseParam) => baseParam.param.param === param.sample_name
-          )?.method || [],
-      }));
-
-      // console.log(parameterDetails);
+      for (const param of sampling.param) {
+        const parameter_found = baseSample.param.find(
+          (baseParam) => baseParam.param === param.param
+        );
+        parameterDetails.push({
+          name: parameter_found.param,
+          unit: parameter_found.unit,
+          method: parameter_found.method,
+          analysis_status: param.analysis_status,
+        });
+      }
 
       samplingList.push({
         sampleName: sampling.sample_name,

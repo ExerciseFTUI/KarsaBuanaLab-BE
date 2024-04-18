@@ -19,7 +19,7 @@ exports.getSampleStatus = async function (body) {
   const { projectId } = body;
   const project = await Project.findOne({ _id: projectId });
   if (!project) {
-    throw new Error("Project Not Found"); 
+    throw new Error("Project Not Found");
   }
 
   const sampleStatusArray = project.sampling_list.map((sampling) => ({
@@ -64,6 +64,27 @@ exports.getPaymentStatus = async function (body) {
   return {
     message: "Get Payment Status Successful!",
     result: payment,
+  };
+};
+
+exports.getAllStatus = async function (body) {
+  const { projectId } = body;
+  const project = await Project.findOne({ _id: projectId });
+  if (!project) {
+    throw new Error("Project Not Found");
+  }
+
+  const sampleStatusArray = project.sampling_list.map((sampling) => ({
+    sample_name: sampling.sample_name,
+    parameter: sampling.param,
+    status: sampling.status,
+  }));
+
+  const result = {
+    sample_status: sampleStatusArray,
+    is_paid: project.is_paid,
+    report: "https://drive.google.com/file/d/",
+    is_survey_filled: project.is_survey_filled,
   };
 };
 
