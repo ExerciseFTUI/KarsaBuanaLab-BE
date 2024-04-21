@@ -189,7 +189,6 @@ exports.changeToReview = async function (req, res) {
   }
 };
 
-
 exports.getPplhpByStatus = async function (req, res) {
   try {
     const result = await projectsServices.getPplhpByStatus(req.params);
@@ -215,7 +214,7 @@ exports.changeDivision = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getAllLHP = async function (req, res) {
   try {
@@ -224,7 +223,7 @@ exports.getAllLHP = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getLHP = async function (req, res) {
   try {
@@ -233,7 +232,7 @@ exports.getLHP = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.setDeadlineLHP = async function (req, res) {
   try {
@@ -242,7 +241,7 @@ exports.setDeadlineLHP = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getAllPPLHPDetail = async function (req, res) {
   try {
@@ -251,7 +250,7 @@ exports.getAllPPLHPDetail = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getPPLHPDetail = async function (req, res) {
   try {
@@ -260,7 +259,7 @@ exports.getPPLHPDetail = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.LHPAccept = async function (req, res) {
   try {
@@ -269,7 +268,7 @@ exports.LHPAccept = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.LHPRevision = async function (req, res) {
   try {
@@ -278,7 +277,7 @@ exports.LHPRevision = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getNotes = async function (req, res) {
   try {
@@ -287,4 +286,29 @@ exports.getNotes = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
+
+exports.testLHP = async function (req, res) {
+  try {
+    const result = await projectsServices.testLHP(req.body);
+    res.status(200).json(result);
+  } catch (errorObj) {
+    if (errorObj.file_id == null) {
+      res.status(400).json({
+        message: errorObj.message,
+        result: "Failed to generate LHP file",
+      });
+      return;
+    }
+    const delete_folder = await drivesServices.deleteFile({
+      file_id: errorObj.file_id,
+    });
+    res.status(400).json({
+      message: errorObj.message,
+      result:
+        delete_folder == null
+          ? "Failed to delete LHP file"
+          : "Failed to generate LHP file",
+    });
+  }
+};
