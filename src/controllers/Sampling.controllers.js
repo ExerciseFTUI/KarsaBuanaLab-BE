@@ -55,11 +55,28 @@ exports.getDashboardSampling = async function (req, res) {
 }
 
 exports.getSamplingDetails = async function (req, res) {
-  try {
-    const result = await samplingServices.getSamplingDetails(req.body);
-    res.status(200).json(result);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+    try {
+        const result = await samplingServices.getSamplingDetails(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 };
 
+exports.getSamplingList = async function (req, res) {
+    try {
+        const result = await samplingServices.getSamplingList(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}
+
+exports.getParameter = async function (req, res) {
+    try {
+        const result = await samplingServices.getParameter(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}
