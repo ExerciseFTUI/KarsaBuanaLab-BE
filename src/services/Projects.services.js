@@ -370,7 +370,11 @@ exports.createProjectJSON = async function (body) {
 
     await create_project.save();
 
-    await notifyEmail(create_project.surel, "Project Created", `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`);
+    await notifyEmail(
+      create_project.surel,
+      "Project Created",
+      `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`
+    );
     return {
       message: "Successfull",
       result: {
@@ -558,7 +562,8 @@ exports.assignProject = async function (body) {
     if (userObj === null) throw new Error("User not found");
 
     userObj.jadwal.forEach(async (jadwal) => {
-      if (jadwal.projectID === project.projectId) await userObj.jadwal.pull(jadwal);
+      if (jadwal.projectID === project.projectId)
+        await userObj.jadwal.pull(jadwal);
     });
 
     await userObj.save();
@@ -733,7 +738,7 @@ exports.changeDivision = async function (body) {
   await resultProject.save();
 
   return { message: "Division updated successfully", data: resultProject };
-}
+};
 
 exports.getAllLHP = async function () {
   try {
@@ -785,7 +790,7 @@ exports.getLHP = async function (params) {
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 exports.setDeadlineLHP = async function (body) {
   try {
@@ -802,11 +807,14 @@ exports.setDeadlineLHP = async function (body) {
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 exports.getAllPPLHPDetail = async function () {
   try {
-    const projectList = await Project.find({ current_division: "LAB", lab_status: "IN REVIEW BY ADMIN" });
+    const projectList = await Project.find({
+      current_division: "LAB",
+      lab_status: "IN REVIEW BY ADMIN",
+    });
     if (projectList == null) {
       throw new Error("No LHP found");
     }
@@ -825,7 +833,7 @@ exports.getAllPPLHPDetail = async function () {
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 exports.getPPLHPDetail = async function (params) {
   try {
@@ -839,7 +847,7 @@ exports.getPPLHPDetail = async function (params) {
       lab_files: projectObj.lab_file,
       deadline_lhp: projectObj.deadline_lhp,
       lhp: null,
-    }
+    };
 
     mapProjectObj.lhp = {
       name: "LHP",
@@ -851,7 +859,7 @@ exports.getPPLHPDetail = async function (params) {
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 exports.LHPAccept = async function (params, body) {
   try {
@@ -859,35 +867,36 @@ exports.LHPAccept = async function (params, body) {
 
     const projectObj = await Project.findById(params.id).exec();
     if (!projectObj) throw new Error("Project not found");
-    if (projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
+    if (projectObj.pplhp_status !== "REVIEW")
+      throw new Error("Project is not in REVIEW status");
 
     projectObj.pplhp_status = "FINISHED";
     projectObj.current_division = "PPLHP";
 
-    if(body.notes) projectObj.notes.push(body.notes);
+    if (body.notes) projectObj.notes.push(body.notes);
 
     await projectObj.save();
     return { message: "success", data: projectObj };
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
-exports.LHPRevision = async function (params, body) { 
+exports.LHPRevision = async function (params, body) {
   try {
     if (!params.id) throw new Error("Please specify the project ID");
 
     const projectObj = await Project.findById(params.id).exec();
-    if(!projectObj) throw new Error("Project not found");
+    if (!projectObj) throw new Error("Project not found");
     // if(projectObj.pplhp_status !== "REVIEW") throw new Error("Project is not in REVIEW status");
 
     if (body.from === "ADMIN") {
-      projectObj.lab_status = "REVISION" 
-      // projectObj.current_division = "LAB" 
+      projectObj.lab_status = "REVISION";
+      // projectObj.current_division = "LAB"
     } else {
       projectObj.pplhp_status = "DRAFT";
     }
-    if(body.notes) projectObj.notes.push(body.notes);
+    if (body.notes) projectObj.notes.push(body.notes);
 
     await projectObj.save();
     return { message: "success", data: projectObj };
@@ -895,19 +904,33 @@ exports.LHPRevision = async function (params, body) {
     console.log("error", err);
     throw new Error(err.message);
   }
-}
+};
 
-exports.getNotes = async function (params){
+exports.getNotes = async function (params) {
   try {
-    if(!params.id) throw new Error("Please specify the project ID");
+    if (!params.id) throw new Error("Please specify the project ID");
 
     const projectObj = await Project.findById(params.id).exec();
-    if(!projectObj) throw new Error("Project not found");
+    if (!projectObj) throw new Error("Project not found");
 
-    if(projectObj.notes.length === 0) throw new Error("No notes found");
+    if (projectObj.notes.length === 0) throw new Error("No notes found");
 
     return { message: "success", data: projectObj.notes };
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
+
+exports.testLHP = async function (body) {
+  const { project_id } = body;
+  if (!project_id) throw new Error("Please specify the project id");
+  const projectObj = await Project.findById(project_id);
+  if (!projectObj) throw new Error("Project not found");
+  try {
+    const result = await projectsUtils.fillLHP(projectObj);
+    
+    return { message: "LHP successfully generated", result };
+  } catch (err) {
+    throw { file_id: err.file_id, message: err.message };
+  }
+};
