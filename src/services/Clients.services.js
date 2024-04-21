@@ -86,6 +86,11 @@ exports.getAllStatus = async function (body) {
     report: "https://drive.google.com/file/d/",
     is_survey_filled: project.is_survey_filled,
   };
+
+  return {
+    message : "Get All Status Success",
+    result: result,
+  };
 };
 
 exports.fillSurvey = async function (body) {
