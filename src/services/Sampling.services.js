@@ -3,6 +3,7 @@ const { Project } = require("../models/Project.models");
 const { User } = require("../models/User.models");
 const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
+const { Param } = require("../models/Param.models");
 
 exports.getSampling = async function (params) {
   const sample = await getSample(params);
@@ -262,4 +263,52 @@ exports.getSamplingDetails = async function (body) {
   };
 
   return { message: "success", result };
+};
+
+exports.getSamplingList = async function (body) {
+  try {
+    const { projectId } = body;
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      throw new Error("Project not found");
+    }
+
+    return { message: "success", result: projectObj.sampling_list };
+  } catch (error) {
+    throw new Error("Failed to get sampling list: " + error.message);
+  }
+};
+
+exports.getParameter = async function (body) {
+  try {
+    const { projectId } = body;
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      throw new Error("Project not found");
+    }
+
+    let parameterList = [];
+    for (const sample of projectObj.sampling_list) {
+      for (const param of sample.param) {
+        if (!parameterList.includes(param.param)) {
+          parameterList.push(param.param);
+        }
+      }
+    }
+
+    let result = [];
+    for (const paramName of parameterList) {
+      const tempResult = await Param.findOne({ param: paramName }).exec();
+      const mapTempResult = {
+        param: tempResult.param,
+        unit: tempResult.unit,
+        method: tempResult.method
+      };
+      result.push(mapTempResult);
+    }
+
+    return { message: "success", result: result };
+  } catch (error) {
+    throw new Error("Failed to get parameter: " + error.message);
+  }
 };
