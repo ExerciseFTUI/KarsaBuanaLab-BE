@@ -239,8 +239,10 @@ exports.getSamplingDetails = async function (body) {
           name: parameter_found.param,
           unit: parameter_found.unit,
           method: parameter_found.method,
+          result: param.result,
           analysis_status: param.analysis_status,
         });
+        console.log(parameterDetails);
       }
 
       samplingList.push({
@@ -262,6 +264,8 @@ exports.getSamplingDetails = async function (body) {
     input: samplingList,
   };
 
+  console.log("result: ", result);
+
   return { message: "success", result };
 };
 
@@ -281,17 +285,22 @@ exports.getSamplingList = async function (body) {
 
 exports.getParameter = async function (body) {
   try {
-    const { projectId } = body;
+    const { projectId, userId } = body;
     const projectObj = await Project.findById(projectId).exec();
     if (!projectObj) {
-      throw new Error("Project not found");
+      return { error: "Project not found" };
+    }
+    if (!userId) {
+      return { error: "User not found" };
     }
 
     let parameterList = [];
     for (const sample of projectObj.sampling_list) {
-      for (const param of sample.param) {
-        if (!parameterList.includes(param.param)) {
-          parameterList.push(param.param);
+      if (sample.lab_assigned_to.includes(userId)) {
+        for (const param of sample.param) {
+          if (!parameterList.includes(param.param)) {
+            parameterList.push(param.param);
+          }
         }
       }
     }
