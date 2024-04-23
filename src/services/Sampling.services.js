@@ -236,9 +236,9 @@ exports.getSamplingDetails = async function (body) {
           (baseParam) => baseParam.param === param.param
         );
         parameterDetails.push({
-          name: parameter_found.param,
-          unit: parameter_found.unit,
-          method: parameter_found.method,
+          name: param.param,
+          unit: param.unit,
+          method: param.method,
           result: param.result,
           analysis_status: param.analysis_status,
         });
