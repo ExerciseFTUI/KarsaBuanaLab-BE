@@ -24,7 +24,7 @@ exports.getSampleStatus = async function (body) {
 
   const sampleStatusArray = project.sampling_list.map((sampling) => ({
     sample_name: sampling.sample_name,
-    status: sampling.status === "FINISHED",
+    status: sampling.status,
   }));
 
   return { message: "Get Sample Successful!", result: sampleStatusArray };
@@ -39,8 +39,9 @@ exports.getAnalysisStatus = async function (body) {
 
   const sampleStatusArray = project.sampling_list.map((sampling) => ({
     sample_name: sampling.sample_name,
-    status: sampling.status === "FINISHED",
+    status: sampling.status,
   }));
+
 
   return {
     message: "Get Analysis Sample Successful!",
