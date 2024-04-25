@@ -423,6 +423,12 @@ exports.getProjectByDivision = async function (body) {
         status: status,
       });
     }
+
+    projects = projects.filter((project) => {
+      if(project.valuasi_proyek == 0 || project.valuasi_proyek == null) return false;
+      else return true;
+    })
+    
     return { message: "Success", projects };
   } catch (error) {
     throw { message: error.message };
