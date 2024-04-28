@@ -307,14 +307,6 @@ exports.createProjectJSON = async function (body) {
 
     const new_param_list = project.sampling_list.map((sample) => sample.param);
 
-    project.samplinglist = project.samplinglist.map((sample) => ({
-      ...sample,
-      param: {
-        method: "",
-        unit: "",
-      },
-    }));
-
     const sampling_object_list = await projectsUtils.copySampleTemplate(
       true,
       new_folder.result.id,
@@ -433,11 +425,10 @@ exports.getProjectByDivision = async function (body) {
     }
 
     projects = projects.filter((project) => {
-      if (project.valuasi_proyek == 0 || project.valuasi_proyek == null)
-        return false;
+      if(project.valuasi_proyek == 0 || project.valuasi_proyek == null) return false;
       else return true;
-    });
-
+    })
+    
     return { message: "Success", projects };
   } catch (error) {
     throw { message: error.message };
