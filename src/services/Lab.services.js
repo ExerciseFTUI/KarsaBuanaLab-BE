@@ -30,7 +30,7 @@ exports.assignStaffToSample = async function (body) {
   const result = await Project.findOneAndUpdate(
     { "sampling_list._id": sample.sample_id },
     {
-      $push: {
+      $set: {
         "sampling_list.$.lab_assigned_to": sample.user_id,
       },
       $set: {
