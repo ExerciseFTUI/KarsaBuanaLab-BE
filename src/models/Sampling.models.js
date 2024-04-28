@@ -10,6 +10,11 @@ const samplingParamSchema = new mongoose.Schema({
   operator: { type: String, required: false, enum: ["<", ">", "="] },
   baku_mutu: { type: Number, required: false },
   result: { type: Number, required: false },
+  history_result: [{type: {result: Number, date: Date, count: Number, method: String, unit: String}, required: false}],
+  CRM: { type: String, enum: ["DITERIMA", "DITOLAK"], required: false },
+  CVS: { type: String, enum: ["DITERIMA", "DITOLAK"], required: false },
+  RPD: { type: String, enum: ["DITERIMA", "DITOLAK"], required: false },
+  Recovery: { type: String, enum: ["DITERIMA", "DITOLAK"], required: false },
   analysis_status: {
     type: String,
     enum: ["WAITING", "SUBMIT", "ACCEPTED", "REVISION"],
