@@ -32,10 +32,11 @@ exports.assignStaffToSample = async function (body) {
     {
       $set: {
         "sampling_list.$.lab_assigned_to": sample.user_id,
-      },
-      $set: {
         "sampling_list.$.deadline": sample.deadline,
       },
+      // $set: {
+      //   "sampling_list.$.deadline": sample.deadline,
+      // },
     },
     { new: true }
   );
