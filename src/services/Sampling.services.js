@@ -168,7 +168,8 @@ exports.getDashboardSampling = async function () {
       let person = null;
       if (
         project.project_assigned_to != null ||
-        project.project_assigned_to.length != 0
+        project.project_assigned_to.length != 0 ||
+        project.valuasi_proyek != null
       ) {
         let empty = false;
         person = await Promise.all(
