@@ -15,6 +15,7 @@ const paramSchema = new mongoose.Schema({
     required: false,
     default: "WAITING",
   },
+  qc: [{ type: String, enum: ["CRM", "CVS", "RPD", "Recovery"], required: false }],
 });
 
 const Param = mongoose.model("Param", paramSchema);

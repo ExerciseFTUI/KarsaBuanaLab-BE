@@ -126,8 +126,6 @@ exports.copySampleTemplate = async function copySampleTemplate(
             );
           const paramObjMap = {
             param: paramObj.param,
-            method: paramObj.method,
-            unit: paramObj.unit,
             operator: paramObj.operator,
             baku_mutu: paramObj.baku_mutu,
             result: paramObj.result,
