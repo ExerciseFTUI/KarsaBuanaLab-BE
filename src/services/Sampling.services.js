@@ -238,12 +238,11 @@ exports.getSamplingDetails = async function (body) {
         );
         parameterDetails.push({
           name: param.param,
-          unit: param.unit,
-          method: param.method,
-          result: param.result,
+          unit: param.unit || null,
+          method: param.method || null,
+          result: param.result || null,
           analysis_status: param.analysis_status,
         });
-        console.log(parameterDetails);
       }
 
       samplingList.push({
@@ -265,7 +264,6 @@ exports.getSamplingDetails = async function (body) {
     input: samplingList,
   };
 
-  console.log("result: ", result);
 
   return { message: "success", result };
 };

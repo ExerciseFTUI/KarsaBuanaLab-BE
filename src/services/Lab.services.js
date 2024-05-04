@@ -103,11 +103,15 @@ exports.submitLab = async function (body) {
   samples.forEach((sample) => {
     // Find the sample in the project's sampling_list
     const foundSample = project.sampling_list.find(
-      (s) => s.sample_name === sample.sample_name
+      (s) => s.sample_name === sample.sample_name,
     );
 
+    console.log("foundSample", foundSample);
     // If the sample is found, update its parameters
     if (foundSample) {
+      // change status into "WAITING"
+      foundSample.status = "WAITING";
+
       sample.param.forEach((param) => {
         const foundParam = foundSample.param.find(
           (p) => p.param === param.param
