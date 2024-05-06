@@ -110,7 +110,14 @@ exports.changeSampleStatus = async function (body) {
 
   projectObj.sampling_list.forEach(async (sample) => {
     if (sample._id == sample_id) {
-      sample.status = status;
+      if (status === "REVISION BY SPV") {
+        sample.status = "REVISION";
+      } else {
+        if (status === "ACCEPTED") {
+          projectObj.lab_status = "IN REVIEW BY ADMIN";
+        }
+        sample.status = status;
+      }
     }
   });
 
@@ -168,7 +175,8 @@ exports.getDashboardSampling = async function () {
       let person = null;
       if (
         project.project_assigned_to != null ||
-        project.project_assigned_to.length != 0
+        project.project_assigned_to.length != 0 ||
+        project.valuasi_proyek != null
       ) {
         let empty = false;
         person = await Promise.all(
@@ -237,12 +245,11 @@ exports.getSamplingDetails = async function (body) {
         );
         parameterDetails.push({
           name: param.param,
-          unit: param.unit,
-          method: param.method,
-          result: param.result,
+          unit: param.unit || null,
+          method: param.method || null,
+          result: param.result || null,
           analysis_status: param.analysis_status,
         });
-        console.log(parameterDetails);
       }
 
       samplingList.push({
@@ -264,7 +271,6 @@ exports.getSamplingDetails = async function (body) {
     input: samplingList,
   };
 
-  console.log("result: ", result);
 
   return { message: "success", result };
 };
