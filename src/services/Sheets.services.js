@@ -268,7 +268,6 @@ exports.fillValue = async function (body) {
 
   const data = [new Date(), namaProyek, alamatProyek, cp, surel, alamat];
 
-//   console.log("masuk sini");
   const result = await insertValuesIntoCells(
     fileId,
     data,

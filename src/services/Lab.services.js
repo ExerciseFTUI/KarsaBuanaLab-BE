@@ -106,10 +106,8 @@ exports.submitLab = async function (body) {
       (s) => s.sample_name === sample.sample_name,
     );
 
-    console.log("foundSample", foundSample);
     // If the sample is found, update its parameters
     if (foundSample) {
-      // change status into "WAITING"
       foundSample.status = "WAITING";
 
       sample.param.forEach((param) => {
@@ -127,6 +125,23 @@ exports.submitLab = async function (body) {
     }
   });
   // project.current_division = "PPLHP";
+
+  var status = false;
+  // change lab_status if all sampling_list status is not "SUBMIT"
+  // if sample status is "SUBMIT" or "REVISION" then status is false if all sample status is not "SUBMIT" or "REVISION" then status is true and lab_status is "NEED ANALYZE"
+  project.sampling_list.forEach((sample) => {
+    if (sample.status === "SUBMIT" || sample.status === "REVISION") {
+      status = true;
+    }
+  });
+
+  if (status === false) {
+    project.lab_status = "IN REVIEW BY SPV";
+  }
+
+
+
+
 
   // Save the updated project
   await project.save();

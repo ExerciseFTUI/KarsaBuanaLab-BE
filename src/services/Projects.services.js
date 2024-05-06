@@ -337,7 +337,6 @@ exports.createProjectJSON = async function (body) {
       (file) => file.file_name === "Surat Penawaran"
     ).file_id;
 
-    console.log(fpp_id, surat_penawaran_id);
 
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
@@ -898,7 +897,11 @@ exports.LHPRevision = async function (params, body) {
 
     if (body.from === "ADMIN") {
       projectObj.lab_status = "REVISION";
-      // projectObj.current_division = "LAB"
+
+      projectObj.sampling_list.forEach((sample) => {
+        sample.status = "REVISION";
+      });
+
     } else {
       projectObj.pplhp_status = "DRAFT";
     }

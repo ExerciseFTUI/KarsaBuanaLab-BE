@@ -110,7 +110,14 @@ exports.changeSampleStatus = async function (body) {
 
   projectObj.sampling_list.forEach(async (sample) => {
     if (sample._id == sample_id) {
-      sample.status = status;
+      if (status === "REVISION BY SPV") {
+        sample.status = "REVISION";
+      } else {
+        if (status === "ACCEPTED") {
+          projectObj.lab_status = "IN REVIEW BY ADMIN";
+        }
+        sample.status = status;
+      }
     }
   });
 
