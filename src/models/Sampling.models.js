@@ -5,7 +5,8 @@ const { paramSchema } = require("./Param.models");
 
 const samplingParamSchema = new mongoose.Schema({
   param: { type: String, required: true, unique: true },
-  method: { type: String, required: false },
+// method with value of array of string
+  method: { type: [String], required: false },
   unit: { type: String, required: false },
   operator: { type: String, required: false, enum: ["<", ">", "="] },
   baku_mutu: { type: Number, required: false },

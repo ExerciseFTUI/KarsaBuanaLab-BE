@@ -139,10 +139,6 @@ exports.submitLab = async function (body) {
     project.lab_status = "IN REVIEW BY SPV";
   }
 
-
-
-
-
   // Save the updated project
   await project.save();
 
