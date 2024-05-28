@@ -56,7 +56,11 @@ exports.register = async function (body) {
 
 exports.login = async function (body) {
   const { email, password } = body;
-  const user = await User.findOne({ email });
+  // get user from email or username
+  const user = await User.findOne({
+    $or: [{ email: email }, { username: email }],
+  });
+  
   if (!user) {
     return { message: "User not found" };
   }
