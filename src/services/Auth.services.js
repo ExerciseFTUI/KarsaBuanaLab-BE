@@ -43,6 +43,20 @@ exports.register = async function (body) {
   if (!user.username || !user.password || !user.email) {
     return { message: "Please fill all the fields" };
   }
+
+  // check if the username or email already exists
+  const username
+    = await User.findOne({ username: user.username });
+  if (username) {
+    return { message: "Username already exists" };
+  }
+  const email = await User.findOne({
+    email: user.email,
+  });
+  if (email) {
+    return { message: "Email already exists" };
+  }
+
   if (user.password.length < process.env.PASSWORD_LENGTH) {
     return { message: "Password must be at least 8 characters", result: null };
   }
@@ -56,11 +70,10 @@ exports.register = async function (body) {
 
 exports.login = async function (body) {
   const { email, password } = body;
-  // get user from email or username
   const user = await User.findOne({
     $or: [{ email: email }, { username: email }],
   });
-  
+
   if (!user) {
     return { message: "User not found" };
   }
