@@ -97,7 +97,19 @@ exports.logout = async function (body) {
 };
 
 exports.getAllUser = async function (body) {
-  const result = User.find().sort({ createdAt: -1 });
+  try {
+    const result = await User.find().sort({ createdAt: -1 });
 
-  return { message: "Get All User Success", result: result };
+    // just passed data of id, username, email, password, role, division
+    const data = result.map((account) => {
+      const { _id, username, email, role, division } = account;
+      return { _id, username, email, role, division };
+    })
+
+    return { message: "Get All User Success", result: data };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return { message: "Get All User Failed", error: error.message };
+  }
 };
+
