@@ -262,6 +262,7 @@ exports.getSamplingDetails = async function (body) {
 
   const result = {
     judul: project.project_name,
+    status: project.lab_status,
     deadline: project.deadline_lhp,
     lhp: "null",
     dokumen: [
