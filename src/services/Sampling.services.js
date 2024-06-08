@@ -113,7 +113,7 @@ exports.changeSampleStatus = async function (body) {
       if (status === "REVISION BY SPV") {
         sample.status = "REVISION";
       } else {
-        if (status === "ACCEPTED") {
+        if (status === "ACCEPTED LAB") {
           projectObj.lab_status = "IN REVIEW BY ADMIN";
         }
         sample.status = status;
