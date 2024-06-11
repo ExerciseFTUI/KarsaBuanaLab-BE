@@ -30,14 +30,12 @@ exports.refreshTokens = async function (body) {
 };
 
 exports.getUser = async function (body) {
-  console.log(body);
   const { _id } = body;
   const result = await User.findById(_id);
 
   if (!result) {
     return { message: "User not found", result: null };
   }
-  console.log(result);
   return { message: "User found", result };
 };
 
