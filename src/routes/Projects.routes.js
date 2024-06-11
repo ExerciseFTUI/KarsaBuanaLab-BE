@@ -29,5 +29,6 @@ router.get("/get-pphlp-detail/:id", projectsControllers.getPPLHPDetail);
 router.post("/lhp-accept/:id", projectsControllers.LHPAccept);
 router.post("/lhp-revision/:id", projectsControllers.LHPRevision);
 router.get("/get-notes/:id", projectsControllers.getNotes);
+router.post("/test", projectsControllers.testLHP);
 
 module.exports = router;

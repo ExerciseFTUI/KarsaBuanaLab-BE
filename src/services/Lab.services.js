@@ -30,12 +30,13 @@ exports.assignStaffToSample = async function (body) {
   const result = await Project.findOneAndUpdate(
     { "sampling_list._id": sample.sample_id },
     {
-      $push: {
-        "sampling_list.$.lab_assigned_to": sample.user_id,
-      },
       $set: {
+        "sampling_list.$.lab_assigned_to": sample.user_id,
         "sampling_list.$.deadline": sample.deadline,
       },
+      // $set: {
+      //   "sampling_list.$.deadline": sample.deadline,
+      // },
     },
     { new: true }
   );
@@ -102,11 +103,13 @@ exports.submitLab = async function (body) {
   samples.forEach((sample) => {
     // Find the sample in the project's sampling_list
     const foundSample = project.sampling_list.find(
-      (s) => s.sample_name === sample.sample_name
+      (s) => s.sample_name === sample.sample_name,
     );
 
     // If the sample is found, update its parameters
     if (foundSample) {
+      foundSample.status = "WAITING";
+
       sample.param.forEach((param) => {
         const foundParam = foundSample.param.find(
           (p) => p.param === param.param
@@ -121,7 +124,20 @@ exports.submitLab = async function (body) {
       });
     }
   });
-  project.current_division = "PPLHP";
+  // project.current_division = "PPLHP";
+
+  var status = false;
+  // change lab_status if all sampling_list status is not "SUBMIT"
+  // if sample status is "SUBMIT" or "REVISION" then status is false if all sample status is not "SUBMIT" or "REVISION" then status is true and lab_status is "NEED ANALYZE"
+  project.sampling_list.forEach((sample) => {
+    if (sample.status === "SUBMIT" || sample.status === "REVISION") {
+      status = true;
+    }
+  });
+
+  if (status === false) {
+    project.lab_status = "IN REVIEW BY SPV";
+  }
 
   // Save the updated project
   await project.save();

@@ -41,6 +41,36 @@ exports.copySuratPenawaran = async function copySuratPenawaran(folder_id) {
   return copiedFileId;
 };
 
+exports.copyLHP = async function copyLHP(folder_id, nama_project) {
+  const lhp_id = process.env.SPREADSHEET_LHP;
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  // Create a copy of the file on Google Drive
+  const copiedFile = await drive.files.copy({
+    fileId: lhp_id,
+    requestBody: {
+      name: "LHP " + nama_project,
+      parents: [folder_id],
+    },
+  });
+
+  // Construct the shareable URL for the copied file
+  const copiedFileId = copiedFile.data.id;
+
+  await drive.permissions.create({
+    fileId: copiedFileId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
+
+  return copiedFileId;
+};
+
 exports.copySampleTemplate = async function copySampleTemplate(
   is_new,
   folder_id,
@@ -96,8 +126,6 @@ exports.copySampleTemplate = async function copySampleTemplate(
             );
           const paramObjMap = {
             param: paramObj.param,
-            method: paramObj.method,
-            unit: paramObj.unit,
             operator: paramObj.operator,
             baku_mutu: paramObj.baku_mutu,
             result: paramObj.result,
@@ -159,7 +187,7 @@ exports.uploadFilesToDrive = async function (files, folderId) {
   const drive = google.drive({ version: "v3", auth });
 
   const fileObj = [];
-  
+
   if (!Array.isArray(files)) {
     files = [files];
   }
@@ -360,6 +388,99 @@ exports.insertValuesIntoCells = async function (
   } catch (error) {
     return { message: "Error inserting data into cells", error: error.message };
   }
+};
+
+const cellAddressObj = {
+  sheet_name: "Sample Inf",
+  cells: [
+    {
+      range: "Sample Inf!E3:E3",
+      cell_address: ["tanggal"],
+    },
+    {
+      range: "Sample Inf!C5:C10",
+      cell_address: [
+        "no_sampling",
+        "client_name",
+        "alamat_kantor",
+        "project_name",
+        "alamat_sampling",
+        "project_assigned_to",
+      ],
+    },
+    {
+      range: "Sample Inf!B22:J44",
+      cell_address: [
+        "kode_sampel",
+        "keterangan_sampel",
+        "matriks_sampel",
+        "tanggal_sampling",
+        "waktu_sampling",
+        "tanggal_diterima",
+        "waktu_analisis",
+        "latitude",
+        "longitude",
+      ],
+    },
+  ],
+};
+
+exports.insertValuesIntoLHP = async function (fileId, project, cellAddressObj) {
+  const auth = getAuth("https://www.googleapis.com/auth/spreadsheets");
+
+  const client = await auth.getClient();
+  const sheets = google.sheets({ version: "v4", auth: client });
+  const range_date = cellAddressObj.cells[0].range;
+  const values_date = [[new Date().toLocaleDateString("en-GB")]];
+  await sheets.spreadsheets.values.update({
+    auth,
+    spreadsheetId: fileId,
+    range: range_date,
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      values: values_date,
+    },
+  });
+  const range_header = cellAddressObj.cells[1].range;
+  const values_header = cellAddressObj.cells[1].cell_address.map((val) => {
+    if (project[val].length === 0) return [" "];
+    return [project[val]];
+  });
+  await sheets.spreadsheets.values.update({
+    auth,
+    spreadsheetId: fileId,
+    range: range_header,
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      values: values_header,
+    },
+  });
+
+  const range_sample = cellAddressObj.cells[2].range;
+  const values_sample = project.sampling_list.map((val, index) => {
+    return [
+      `${project.no_penawaran}/${index + 1}`,
+      val.regulation_name[0].regulation_name,
+      val.sample_name,
+      `${val.deadline.from} - ${val.deadline.to}`,
+      " ",
+      addDays(val.deadline.to, 1),
+      " ",
+      " ",
+      " ",
+    ];
+  });
+  await sheets.spreadsheets.values.update({
+    auth,
+    spreadsheetId: fileId,
+    range: range_sample,
+    valueInputOption: "USER_ENTERED",
+    resource: {
+      values: values_sample,
+    },
+  });
+
+  return `https://docs.google.com/spreadsheets/d/${fileId}`;
 };
 
 exports.getFolderIdByName = async function (folder_name, parent_id) {
@@ -596,3 +717,40 @@ exports.fillSuratPenawaran = async function (
 
   return result;
 };
+
+exports.fillLHP = async function (project) {
+  if (!project)
+    throw new Error(
+      "Error while filling surat penawaran: Missing required project (object)"
+    );
+  let copiedFileId = null;
+  try {
+    copiedFileId = await exports.copyLHP(
+      project.folder_id,
+      project.project_name
+    );
+
+    const result = await exports.insertValuesIntoLHP(
+      copiedFileId,
+      project,
+      cellAddressObj
+    );
+    return result;
+  } catch (err) {
+    throw { file_id: copiedFileId, message: err.message };
+  }
+};
+
+function addDays(date_string, days) {
+  const dateString = String(date_string);
+  const parts = dateString.split("-");
+  const year = parseInt(parts[2], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[0], 10);
+
+  const date = new Date(year, month, day);
+
+  date.setDate(date.getDate() + days);
+
+  return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+}

@@ -110,7 +110,14 @@ exports.changeSampleStatus = async function (body) {
 
   projectObj.sampling_list.forEach(async (sample) => {
     if (sample._id == sample_id) {
-      sample.status = status;
+      if (status === "REVISION BY SPV") {
+        sample.status = "REVISION";
+      } else {
+        if (status === "ACCEPTED LAB") {
+          projectObj.lab_status = "IN REVIEW BY ADMIN";
+        }
+        sample.status = status;
+      }
     }
   });
 
@@ -168,7 +175,8 @@ exports.getDashboardSampling = async function () {
       let person = null;
       if (
         project.project_assigned_to != null ||
-        project.project_assigned_to.length != 0
+        project.project_assigned_to.length != 0 ||
+        project.valuasi_proyek != null
       ) {
         let empty = false;
         person = await Promise.all(
@@ -236,9 +244,10 @@ exports.getSamplingDetails = async function (body) {
           (baseParam) => baseParam.param === param.param
         );
         parameterDetails.push({
-          name: parameter_found.param,
-          unit: parameter_found.unit,
-          method: parameter_found.method,
+          name: param.param,
+          unit: param.unit || null,
+          method: param.method || null,
+          result: param.result || null,
           analysis_status: param.analysis_status,
         });
       }
@@ -253,6 +262,7 @@ exports.getSamplingDetails = async function (body) {
 
   const result = {
     judul: project.project_name,
+    status: project.lab_status,
     deadline: project.deadline_lhp,
     lhp: "null",
     dokumen: [
@@ -261,6 +271,7 @@ exports.getSamplingDetails = async function (body) {
     ],
     input: samplingList,
   };
+
 
   return { message: "success", result };
 };
@@ -281,17 +292,22 @@ exports.getSamplingList = async function (body) {
 
 exports.getParameter = async function (body) {
   try {
-    const { projectId } = body;
+    const { projectId, userId } = body;
     const projectObj = await Project.findById(projectId).exec();
     if (!projectObj) {
-      throw new Error("Project not found");
+      return { error: "Project not found" };
+    }
+    if (!userId) {
+      return { error: "User not found" };
     }
 
     let parameterList = [];
     for (const sample of projectObj.sampling_list) {
-      for (const param of sample.param) {
-        if (!parameterList.includes(param.param)) {
-          parameterList.push(param.param);
+      if (sample.lab_assigned_to.includes(userId)) {
+        for (const param of sample.param) {
+          if (!parameterList.includes(param.param)) {
+            parameterList.push(param.param);
+          }
         }
       }
     }
