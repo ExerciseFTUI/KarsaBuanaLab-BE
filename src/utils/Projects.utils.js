@@ -586,7 +586,8 @@ exports.fillSample = async function (file_id, alamat_sampling, sampling_list) {
   const sheetName = "FPP";
   sampling_list.forEach(async (sample, index) => {
     const regulation = `Regulation: ${sample.regulation_name[0].regulation_name}`;
-    const param = `Parameter: ${sample.param.join(", ")}`;
+    // const param = `Parameter: ${sample.param.join(", ")}`;
+    const param = sample.param.map(p => p.param).join(", ");
     data.push([
       index + 1,
       sample.sample_name,
