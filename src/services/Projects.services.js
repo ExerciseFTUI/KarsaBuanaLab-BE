@@ -22,7 +22,6 @@ exports.editProject = async function (body) {
     throw new Error("Only project _id is being passed");
   }
 
-  // find the project
   let projectFind = await Project.findOne({ _id: project._id });
 
   if (project.is_paid && projectFind.pplhp_status === "FINISHED") {
