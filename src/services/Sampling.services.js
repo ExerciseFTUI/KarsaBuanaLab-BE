@@ -113,7 +113,7 @@ exports.changeSampleStatus = async function (body) {
       if (status === "REVISION BY SPV") {
         sample.status = "REVISION";
       } else {
-        if (status === "ACCEPTED") {
+        if (status === "ACCEPTED LAB") {
           projectObj.lab_status = "IN REVIEW BY ADMIN";
         }
         sample.status = status;
@@ -262,6 +262,7 @@ exports.getSamplingDetails = async function (body) {
 
   const result = {
     judul: project.project_name,
+    status: project.lab_status,
     deadline: project.deadline_lhp,
     lhp: "null",
     dokumen: [

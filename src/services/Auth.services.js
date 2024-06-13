@@ -32,17 +32,72 @@ exports.refreshTokens = async function (body) {
 exports.getUser = async function (body) {
   const { _id } = body;
   const result = await User.findById(_id);
+
   if (!result) {
     return { message: "User not found", result: null };
   }
   return { message: "User found", result };
 };
 
+exports.updateUser = async function (body) {
+  const { _id, user } = body;
+  const result = await User.findById(_id);
+  if (!result) {
+    return { message: "User not found", result: null };
+  }
+
+  // check username or email already exists exept the current user
+  const username = await User.findOne({
+    username: user.username,
+    _id: { $ne: _id },
+  });
+  if (username) {
+    return { message: "Username already exists", result: null };
+  }
+
+  const email = await User.findOne({
+    email: user.email,
+    _id: { $ne: _id },
+  });
+  if (email) {
+    return { message: "Email already exists", result: null };
+  }
+
+  if (user.password) {
+    if (user.password.length < process.env.PASSWORD_LENGTH) {
+      return { message: "Password must be at least 8 characters", result: null };
+    }
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+
+  await User.updateOne({
+    _id,
+  }, {
+    $set: user,
+  });
+
+  return { message: "User updated", result: user };
+}
+
 exports.register = async function (body) {
   const { ...user } = body;
   if (!user.username || !user.password || !user.email) {
     return { message: "Please fill all the fields" };
   }
+
+  // check if the username or email already exists
+  const username
+    = await User.findOne({ username: user.username });
+  if (username) {
+    throw new Error("Username already exists");
+  }
+  const email = await User.findOne({
+    email: user.email,
+  });
+  if (email) {
+    throw new Error("Email already exists");
+  }
+
   if (user.password.length < process.env.PASSWORD_LENGTH) {
     return { message: "Password must be at least 8 characters", result: null };
   }
@@ -56,7 +111,10 @@ exports.register = async function (body) {
 
 exports.login = async function (body) {
   const { email, password } = body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({
+    $or: [{ email: email }, { username: email }],
+  });
+
   if (!user) {
     return { message: "User not found" };
   }
@@ -80,7 +138,19 @@ exports.logout = async function (body) {
 };
 
 exports.getAllUser = async function (body) {
-  const result = User.find().sort({ createdAt: -1 });
+  try {
+    const result = await User.find().sort({ createdAt: -1 });
 
-  return { message: "Get All User Success", result: result };
+    // just passed data of id, username, email, password, role, division
+    const data = result.map((account) => {
+      const { _id, username, email, role, division } = account;
+      return { _id, username, email, role, division };
+    })
+
+    return { message: "Get All User Success", result: data };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return { message: "Get All User Failed", error: error.message };
+  }
 };
+

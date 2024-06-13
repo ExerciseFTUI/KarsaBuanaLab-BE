@@ -11,5 +11,5 @@ exports.connectDB = async function () {
   mongoose
     .connect(URI, connectionParams)
     .then(() => console.info("Connection established"))
-    .catch((err) => console.error("Error" + err.message));
+    .catch((err) => console.error("Error " + err.message));
 };

@@ -21,6 +21,16 @@ exports.editProject = async function (body) {
   if (Object.keys(project).length == 1) {
     throw new Error("Only project _id is being passed");
   }
+
+  // find the project
+  let projectFind = await Project.findOne({ _id: project._id });
+
+  if (project.is_paid && projectFind.pplhp_status === "FINISHED") {
+    projectFind.status = "FINISHED";
+    // save projectFind.status
+    await projectFind.save();
+  }
+  
   let result = await Project.findOneAndUpdate(
     { _id: project._id },
     { ...project },
@@ -877,6 +887,10 @@ exports.LHPAccept = async function (params, body) {
 
     projectObj.pplhp_status = "FINISHED";
     projectObj.current_division = "PPLHP";
+
+    if (projectObj.is_paid && projectObj.pplhp_status === "FINISHED") {
+      projectObj.status = "FINISHED";
+    }
 
     if (body.notes) projectObj.notes.push(body.notes);
 
