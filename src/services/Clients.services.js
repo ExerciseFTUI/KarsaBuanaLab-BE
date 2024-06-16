@@ -10,7 +10,14 @@ exports.login = async function (body) {
   }
 
   if (password === project.password) {
-    return { message: "Login Successful!", result: project.current_division };
+    const projectReturn = {
+      project_name: project.project_name,
+      client_name: project.client_name,
+      contact_person: project.contact_person,
+      status: project.status,
+      current_division: project.current_division,
+    };
+    return { message: "Login Successful!", result: projectReturn };
   } else {
     throw new Error("Incorrect Password");
   }
