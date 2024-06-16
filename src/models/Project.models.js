@@ -33,8 +33,8 @@ const projectSchema = new mongoose.Schema({
   current_division: {
     type: String,
     required: false,
-    default: "SAMPLING",
-    enum: ["LAB", "SAMPLING", "PPLHP"],
+    default: "MARKETING",
+    enum: ["MARKETING", "LAB", "SAMPLING", "PPLHP"],
   },
   folder_id: { type: String, required: false },
   password: { type: String, required: false, default: generatePass() },
@@ -78,7 +78,14 @@ const projectSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: "RECEIVE",
-    enum: ["RECEIVE", "NEED ANALYZE", "IN REVIEW BY SPV", "REVISION BY SPV", "IN REVIEW BY ADMIN", "REVISION"],
+    enum: [
+      "RECEIVE",
+      "NEED ANALYZE",
+      "IN REVIEW BY SPV",
+      "REVISION BY SPV",
+      "IN REVIEW BY ADMIN",
+      "REVISION",
+    ],
     // "RECEIVE", IS DEFAULT VALUE WHEN PROJECT IS MOVED FROM PPLHP (after create DRAFT LHP) TO LAB
     // "NEED ANALYZE", IS VALUE WHEN SPV HAS ASSIGNED THE PROJECT TO ANALYZER AND WAITING SPV TO REVIEW THE RESULT
     // "IN REVIEW BY ADMIN", IS VALUE WHEN SPV HAS REVIEWED THE RESULT AND WAITING ADMIN TO REVIEW THE RESULT
