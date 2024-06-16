@@ -53,3 +53,12 @@ exports.getAllStatus = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.resendEmail = async function (req, res) {
+  try {
+    const result = await clientsServices.resendEmail(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
