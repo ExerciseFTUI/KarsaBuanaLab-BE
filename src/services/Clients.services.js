@@ -17,7 +17,6 @@ exports.login = async function (body) {
       status: project.status,
       current_division: project.current_division,
     };
-    console.log(projectReturn);
     return { message: "Login Successful!", result: projectReturn };
   } else {
     throw new Error("Incorrect Password");
