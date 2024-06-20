@@ -20,7 +20,7 @@ db.connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morganMiddlewares);
+if(process.env.LOGGER === 'true') app.use(morganMiddlewares);
 app.use(
   cors({
     methods: "GET,POST,PUT,DELETE",
