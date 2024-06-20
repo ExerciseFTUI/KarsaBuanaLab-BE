@@ -29,7 +29,7 @@ exports.editProject = async function (body) {
     // save projectFind.status
     await projectFind.save();
   }
-  
+
   let result = await Project.findOneAndUpdate(
     { _id: project._id },
     { ...project },
@@ -346,7 +346,6 @@ exports.createProjectJSON = async function (body) {
       (file) => file.file_name === "Surat Penawaran"
     ).file_id;
 
-
     const fillFPP = await projectsUtils.fillFPPFile(
       fpp_id,
       no_penawaran,
@@ -381,7 +380,13 @@ exports.createProjectJSON = async function (body) {
     await notifyEmail(
       create_project.surel,
       "Project Created",
-      `Your project ${create_project.project_name} has been created.\nProject ID: ${create_project.id}\nPassword: ${create_project.password}`
+      `Your project ${create_project.project_name} has been created.
+      \nProject ID: ${create_project.id}
+      \nPassword: ${create_project.password}
+      \nYou can access your project using this information in our <a href=${process.env.DOMAIN_NAME}>website</a>.
+
+      \n\nPlease keep this information safe.
+      \nThank you.`
     );
     return {
       message: "Successfull",
@@ -433,10 +438,11 @@ exports.getProjectByDivision = async function (body) {
     }
 
     projects = projects.filter((project) => {
-      if(project.valuasi_proyek == 0 || project.valuasi_proyek == null) return false;
+      if (project.valuasi_proyek == 0 || project.valuasi_proyek == null)
+        return false;
       else return true;
-    })
-    
+    });
+
     return { message: "Success", projects };
   } catch (error) {
     throw { message: error.message };
@@ -914,7 +920,6 @@ exports.LHPRevision = async function (params, body) {
       projectObj.sampling_list.forEach((sample) => {
         sample.status = "REVISION";
       });
-
     } else {
       projectObj.pplhp_status = "DRAFT";
     }

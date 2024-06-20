@@ -1,4 +1,5 @@
 const { Project } = require("../models/Project.models");
+const { notifyEmail } = require("../utils/Mail.utils");
 
 exports.login = async function (body) {
   const { projectId, password } = body;
@@ -9,7 +10,14 @@ exports.login = async function (body) {
   }
 
   if (password === project.password) {
-    return { message: "Login Successful!", result: project.current_division };
+    const projectReturn = {
+      project_name: project.project_name,
+      client_name: project.client_name,
+      contact_person: project.contact_person,
+      status: project.status,
+      current_division: project.current_division,
+    };
+    return { message: "Login Successful!", result: projectReturn };
   } else {
     throw new Error("Incorrect Password");
   }
@@ -41,7 +49,6 @@ exports.getAnalysisStatus = async function (body) {
     sample_name: sampling.sample_name,
     status: sampling.status,
   }));
-
 
   return {
     message: "Get Analysis Sample Successful!",
@@ -89,7 +96,7 @@ exports.getAllStatus = async function (body) {
   };
 
   return {
-    message : "Get All Status Success",
+    message: "Get All Status Success",
     result: result,
   };
 };
@@ -108,5 +115,29 @@ exports.fillSurvey = async function (body) {
   return {
     message: "Survey Is Filled",
     result: project.is_survey_filled,
+  };
+};
+
+exports.resendEmail = async function (body) {
+  const { projectId } = body;
+  const project = await Project.findOne({ _id: projectId });
+  if (!project) {
+    throw new Error("Project Not Found");
+  }
+
+  await notifyEmail(
+    project.surel,
+    "Check out your project",
+    `Your project ${project.project_name} has been created.
+    \nProject ID: ${project.id}
+    \nPassword: ${project.password}
+    \nYou can access your project using this information in our <a href=${process.env.DOMAIN_NAME}>website</a>.
+
+    \n\nPlease keep this information safe.
+    \nThank you.`
+  );
+
+  return {
+    message: "Email Sent",
   };
 };

@@ -19,15 +19,17 @@ const userSchema = new mongoose.Schema({
     enum: ["Marketing", "Sampling", "Lab", "PPLHP"],
   },
   createdAt: { type: Date, default: Date.now },
-  jadwal: [{
-    type: {
-      projectID: String,
-      projectName: String,
-      from: String,
-      to: String,
+  jadwal: [
+    {
+      type: {
+        projectID: String,
+        projectName: String,
+        from: String,
+        to: String,
+      },
+      required: false,
     },
-    required: false,
-  }]
+  ],
 });
 
 const User = mongoose.model("User", userSchema);

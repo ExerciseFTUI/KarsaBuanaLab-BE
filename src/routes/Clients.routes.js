@@ -9,6 +9,6 @@ router.get("/get-analysis-status", clientsControllers.getAnalysisStatus);
 router.get("/get-payment-status", clientsControllers.getPaymentStatus);
 router.get("/get-all-status", clientsControllers.getAllStatus);
 router.post("/fill-survey", clientsControllers.fillSurvey);
-
+router.post("/resend-email", clientsControllers.resendEmail);
 
 module.exports = router;
