@@ -1,3 +1,4 @@
+const { LD } = require("../models/LembarData.models");
 const { Project } = require("../models/Project.models");
 const { Sampling } = require("../models/Sampling.models");
 const { User } = require("../models/User.models");
@@ -208,3 +209,20 @@ exports.addNotes = async function (body) {
 
   return { message: "Notes added to project", project };
 };
+
+exports.getLD = async function () {
+  const result = await LD.find().exec();
+  if (!result) throw new Error("Lembar Data not found");
+
+  if (result.length === 0) return { message: "Lembar Data not found", result };
+
+  return { message: "Lembar Data found", result };
+}
+
+exports.assignLD =  async function (body) {
+  const { projectId, samplingId, paramId, LDId } = body;
+  if(!projectId) throw new Error("Please specify the project_id");
+  if(!samplingId) throw new Error("Please specify the sampling_id");
+  if(!paramId) throw new Error("Please specify the param_id");
+  if(!LDId) throw new Error("Please specify the LD_id");
+}
