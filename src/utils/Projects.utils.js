@@ -71,6 +71,36 @@ exports.copyLHP = async function copyLHP(folder_id, nama_project) {
   return copiedFileId;
 };
 
+exports.copyKUPTK = async function copyKUPTK(folder_id) {
+  const kuptk_id = process.env.SPREADSHEET_KUPTK;
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  // Create a copy of the file on Google Drive
+  const copiedFile = await drive.files.copy({
+    fileId: kuptk_id,
+    requestBody: {
+      name: "KUPTK",
+      parents: [folder_id],
+    },
+  });
+
+  // Construct the shareable URL for the copied file
+  const copiedFileId = copiedFile.data.id;
+
+  await drive.permissions.create({
+    fileId: copiedFileId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
+
+  return copiedFileId;
+};
+
 exports.copySampleTemplate = async function copySampleTemplate(
   is_new,
   folder_id,
@@ -587,7 +617,7 @@ exports.fillSample = async function (file_id, alamat_sampling, sampling_list) {
   sampling_list.forEach(async (sample, index) => {
     const regulation = `Regulation: ${sample.regulation_name[0].regulation_name}`;
     // const param = `Parameter: ${sample.param.join(", ")}`;
-    const param = sample.param.map(p => p.param).join(", ");
+    const param = sample.param.map((p) => p.param).join(", ");
     data.push([
       index + 1,
       sample.sample_name,

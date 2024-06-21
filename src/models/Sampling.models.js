@@ -5,6 +5,8 @@ const { paramSchema } = require("./Param.models");
 
 const samplingParamSchema = new mongoose.Schema({
   param: { type: String, required: true, unique: true },
+  ld_file_id : { type: String, required: false},
+  ld_name : { type: String, required: false},
 // method with value of array of string
   method: { type: [String], required: false },
   unit: { type: String, required: false },

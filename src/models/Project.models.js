@@ -42,6 +42,7 @@ const projectSchema = new mongoose.Schema({
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
   surat_fpp: { type: String, required: false },
+  kuptk_file: { type: String, required: false },
   jadwal_sampling: { type: { from: String, to: String }, required: false },
   desc_failed: {
     type: String,
@@ -100,6 +101,7 @@ const projectSchema = new mongoose.Schema({
       content: { type: String, required: false },
     },
   ],
+  is_acc_by_mt: { type: Boolean, default: false, required: false }, // is accepted by manager teknis
 });
 
 const Project = mongoose.model("Project", projectSchema);

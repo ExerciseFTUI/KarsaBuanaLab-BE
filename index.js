@@ -13,12 +13,14 @@ const baseSampleRoutes = require("./src/routes/BaseSample.routes");
 const surveyRoutes = require("./src/routes/Survey.routes.js");
 const labRoutes = require("./src/routes/Lab.routes");
 const inventoryRoutes = require("./src/routes/Inventory.routes.js");
+const morganMiddlewares = require('./src/middlewares/Logger.middlewares.js');
 const app = express();
 dotenv.config();
 db.connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+if(process.env.LOGGER === 'true') app.use(morganMiddlewares);
 app.use(
   cors({
     methods: "GET,POST,PUT,DELETE",

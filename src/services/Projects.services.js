@@ -22,7 +22,6 @@ exports.editProject = async function (body) {
     throw new Error("Only project _id is being passed");
   }
 
-  // find the project
   let projectFind = await Project.findOne({ _id: project._id });
 
   if (project.is_paid && projectFind.pplhp_status === "FINISHED") {
@@ -230,6 +229,10 @@ exports.createProject = async function (files, body) {
       new_folder.result.id
     );
 
+    const kuptk_file_object_list = await projectsUtils.copyKUPTK(
+      new_folder.result.id
+    );
+
     const fpp_id = create_project.lab_file.find(
       (file) => file.file_name === "FPP"
     ).file_id;
@@ -253,6 +256,7 @@ exports.createProject = async function (files, body) {
       sampling_list: sampling_object_list,
       file: files_object_list,
       lab_file: lab_file_object_list,
+      kuptk_file: kuptk_file_object_list,
     });
 
     const fillFPPSample = await projectsUtils.fillSample(
@@ -330,6 +334,10 @@ exports.createProjectJSON = async function (body) {
       new_folder.result.id
     );
 
+    const kuptk_file_object_list = await projectsUtils.copyKUPTK(
+      new_folder.result.id
+    );
+
     const create_project = new Project({
       ...project,
       no_penawaran,
@@ -337,6 +345,7 @@ exports.createProjectJSON = async function (body) {
       folder_id: new_folder.result.id,
       sampling_list: sampling_object_list,
       lab_file: lab_file_object_list,
+      kuptk_file: kuptk_file_object_list,
     });
 
     const fpp_id = create_project.lab_file.find(
