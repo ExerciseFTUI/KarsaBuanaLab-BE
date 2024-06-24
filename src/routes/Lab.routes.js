@@ -12,5 +12,6 @@ router.get("/get-project-by-lab",labControllers.getProjectByLab);
 router.post("/change-lab-status",labControllers.changeLabStatus);
 router.post("/add-notes",labControllers.addNotes);
 router.get("/get-ld", labControllers.getLD);
+router.post("/add-ld", labControllers.assignLD);
 
 module.exports = router;

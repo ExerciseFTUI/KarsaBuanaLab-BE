@@ -8,5 +8,6 @@ router.post("/", drivesControllers.getDrive);
 router.post("/rename",authMiddleware.authenticateToken, drivesControllers.renameFile);
 router.post("/create-folder", drivesControllers.createFolder);
 router.post("/delete", drivesControllers.deleteFile);
+router.post("/get-folder-details", drivesControllers.getFolderDetails);
 
 module.exports = router;

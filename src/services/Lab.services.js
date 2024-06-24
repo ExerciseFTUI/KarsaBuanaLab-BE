@@ -1,6 +1,8 @@
+const { google } = require("googleapis");
+const { getAuth } = require("../config/driveAuth");
 const { LD } = require("../models/LembarData.models");
 const { Project } = require("../models/Project.models");
-const { Sampling } = require("../models/Sampling.models");
+const { Sampling, samplingParam } = require("../models/Sampling.models");
 const { User } = require("../models/User.models");
 
 exports.getProjectInLab = async function (body) {
@@ -221,8 +223,87 @@ exports.getLD = async function () {
 
 exports.assignLD =  async function (body) {
   const { projectId, samplingId, paramId, LDId } = body;
-  if(!projectId) throw new Error("Please specify the project_id");
-  if(!samplingId) throw new Error("Please specify the sampling_id");
-  if(!paramId) throw new Error("Please specify the param_id");
-  if(!LDId) throw new Error("Please specify the LD_id");
+  if(!projectId || !samplingId || !paramId || !LDId) throw new Error("Please specify the project_id, sampling_id, param_id, and LD_id");
+  
+  let analisis_folder_id, sample_folder_id;
+  const projectObj = await Project.findById(projectId).exec();
+  if(!projectObj) throw new Error("Project not found");
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+  const drive = google.drive({ version: "v3", auth });
+  const result = await drive.files.list({
+    q: `name = 'Analisis' and '${projectObj.folder_id}' in parents`,
+    fields: "files(id, name)",
+  });
+
+  analisis_folder_id = result.data.files[0].id;
+
+  if(result.data.files.length === 0) {
+    const newFolder = await drive.files.create({
+      requestBody: {
+        name: "Analisis",
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [projectObj.folder_id],
+      },
+      fields: "id",
+    });
+    analisis_folder_id = newFolder.data.id;
+    projectObj.analisis_folder_id = newFolder.data.id;
+    await projectObj.save();
+  }
+
+  const samplingObj = await Sampling.findById(samplingId).exec();
+  if(!samplingObj) throw new Error("Sampling not found");
+
+  const result2 = await drive.files.list({
+    q: `name = '${samplingObj.sample_name}' and '${analisis_folder_id}' in parents`,
+    fields: "files(id, name)",
+  });
+
+  sample_folder_id = result2.data.files[0].id;
+
+  if(result2.data.files.length === 0) {
+    const newFolder = await drive.files.create({
+      requestBody: {
+        name: samplingObj.sample_name,
+        mimeType: "application/vnd.google-apps.folder",
+        parents: [analisis_folder_id],
+      },
+      fields: "id",
+    });
+    sample_folder_id = newFolder.data.id;
+  }
+
+  const samplingParamObj = projectObj.sampling_list.id(samplingId).param.id(paramId);
+  if(!samplingParamObj) throw new Error("Sampling Param not found");
+
+  console.log(samplingParamObj);
+
+  const LDObj = await LD.findById(LDId).exec();
+  if(!LDObj) throw new Error("Lembar Data not found");
+
+  const result3 = await drive.files.list({
+    q: `name = '${samplingParamObj.param} - LD' and '${sample_folder_id}' in parents`,
+    fields: "files(id, name)",
+  });
+
+  if(result3.data.files.length === 0) {
+    await drive.files.copy({
+      fileId: LDObj.base_ld_file_id,
+      requestBody: {
+        name: `${samplingParamObj.param} - LD`,
+        parents: [sample_folder_id],
+      },
+      fields: "id",
+    });
+  }
+
+  samplingParamObj.ld_file_id = result3.data.files[0].id;
+  samplingParamObj.ld_name = `${samplingParamObj.param} - LD`;
+  await projectObj.save();
+  
+  projectObj.analisis_folder_id = analisis_folder_id;
+  await projectObj.save();
+
+  return { message: "Success Assigning", projectObj };
 }
