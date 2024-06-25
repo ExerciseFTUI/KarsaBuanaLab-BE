@@ -993,7 +993,7 @@ exports.changeTMStatus = async function (body) {
 
     return { message: "Status Successfully Changed"};
   } catch (err) {
-    console.log(error)
+    console.log(err.message)
     throw {message: err.message };
   }
 };
