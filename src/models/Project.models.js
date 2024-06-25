@@ -102,6 +102,7 @@ const projectSchema = new mongoose.Schema({
     },
   ],
   is_acc_by_mt: { type: Boolean, default: false, required: false }, // is accepted by manager teknis
+  analisis_folder_id: { type: String, required: false },
 });
 
 const Project = mongoose.model("Project", projectSchema);

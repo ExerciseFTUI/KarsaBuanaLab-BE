@@ -77,3 +77,18 @@ exports.deleteFile = async function (body) {
 
   return { message: "File deleted", result };
 };
+
+exports.getFolderDetails = async function (body) {
+  const { folder_id } = body;
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  const result = await drive.files.list({
+    q: `'${folder_id}' in parents`,
+    fields: "files(id, name, webViewLink)",
+  });
+  
+  return { message: "Folder contents retrieved", result };
+}

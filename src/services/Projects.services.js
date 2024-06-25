@@ -971,3 +971,27 @@ exports.testLHP = async function (body) {
     throw { file_id: err.file_id, message: err.message };
   }
 };
+
+exports.changeTMStatus = async function (body) {
+  const { project_id, status, notes } = body;
+
+  if (!status) throw new Error("Please specify the status");
+  if (!project_id) throw new Error("Please specify the project id");
+
+  const projectObj = await Project.findById(project_id);
+  if (!projectObj) throw new Error("Project not found");
+
+  const validStatuses = ["WAITING", "ACCEPTED", "REVISE"];
+  if (!validStatuses.includes(status)) throw new Error("Invalid status");
+
+  try {
+    projectObj.TM_status = status;
+    projectObj.TM_note = notes || '';
+
+    await projectObj.save();
+
+    return { message: "Status Successfully Changed", projectObj };
+  } catch (err) {
+    throw { file_id: err.file_id, message: err.message };
+  }
+};
