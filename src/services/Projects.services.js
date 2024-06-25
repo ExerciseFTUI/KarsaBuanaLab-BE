@@ -1004,7 +1004,7 @@ exports.changeTMStatus = async function (body) {
 
     await projectObj.save();
 
-    return { message: "Status Successfully Changed"};
+    return { message: "Status Successfully Changed", success : true};
   } catch (err) {
     console.log(err)
     throw {message: err.message };
