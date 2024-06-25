@@ -985,7 +985,7 @@ exports.changeTMStatus = async function (body) {
   if (!validStatuses.includes(status)) throw new Error("Invalid status");
 
   try {
-
+    console.log(projectObj)
     projectObj.TM_status = status;
     projectObj.TM_note = notes || '';
 
@@ -993,7 +993,7 @@ exports.changeTMStatus = async function (body) {
 
     return { message: "Status Successfully Changed"};
   } catch (err) {
-    console.log(err.message)
+    console.log(err)
     throw {message: err.message };
   }
 };
