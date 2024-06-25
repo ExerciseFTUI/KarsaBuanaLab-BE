@@ -974,6 +974,7 @@ exports.testLHP = async function (body) {
 
 exports.changeTMStatus = async function (body) {
   const { project_id, status, notes } = body;
+  console.log(status)
   if (!status) throw new Error("Please specify the status");
   if (!project_id) throw new Error("Please specify the project id");
 
