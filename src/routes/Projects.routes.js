@@ -30,5 +30,6 @@ router.post("/lhp-accept/:id", projectsControllers.LHPAccept);
 router.post("/lhp-revision/:id", projectsControllers.LHPRevision);
 router.get("/get-notes/:id", projectsControllers.getNotes);
 router.post("/test", projectsControllers.testLHP);
+router.post("/change-TM-status", projectsControllers.changeTMStatus);
 
 module.exports = router;
