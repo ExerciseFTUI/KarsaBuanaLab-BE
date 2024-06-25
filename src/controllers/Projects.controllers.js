@@ -287,6 +287,15 @@ exports.getNotes = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+exports.changeTMStatus = async function (req, res) {
+  try {
+    const result = await projectsServices.changeTMStatus(req.params);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 
 exports.testLHP = async function (req, res) {
   try {
