@@ -31,5 +31,6 @@ router.post("/lhp-revision/:id", projectsControllers.LHPRevision);
 router.get("/get-notes/:id", projectsControllers.getNotes);
 router.post("/test", projectsControllers.testLHP);
 router.post("/change-TM-status", projectsControllers.changeTMStatus);
+router.post("/deal",projectsControllers.deal);
 
 module.exports = router;

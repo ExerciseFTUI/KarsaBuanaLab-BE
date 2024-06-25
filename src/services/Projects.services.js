@@ -958,6 +958,19 @@ exports.getNotes = async function (params) {
   }
 };
 
+exports.deal = async function (body) {
+  const { project_id } = body;
+  if (!project_id) throw new Error("Please specify the project id");
+  const projectObj = await Project.findById(project_id);
+  if (!projectObj) throw new Error("Project not found");
+  try {
+    projectObj.current_division = "SAMPLING";
+    return { message: "success", success : true};
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 exports.testLHP = async function (body) {
   const { project_id } = body;
   if (!project_id) throw new Error("Please specify the project id");
