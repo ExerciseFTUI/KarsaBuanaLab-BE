@@ -437,11 +437,10 @@ exports.getProjectByDivision = async function (body) {
     let projects = null;
     if (!division) throw new Error("Please specify the division");
     if (!status) {
-      console.log(division)
       projects = await Project.find({
         current_division: division.toUpperCase(),
       });
-      console.log(projects)
+
     } else {
       projects = await Project.find({
         current_division: division.toUpperCase(),
@@ -969,6 +968,7 @@ exports.deal = async function (body) {
   if (!projectObj) throw new Error("Project not found");
   try {
     projectObj.current_division = "SAMPLING";
+    projectObj.save();
     return { message: "success", success : true};
   } catch (error) {
     throw new Error(error.message);
