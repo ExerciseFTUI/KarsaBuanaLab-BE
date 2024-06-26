@@ -841,6 +841,16 @@ exports.setDeadlineLHP = async function (body) {
 
 exports.getAllPPLHPDetail = async function () {
   try {
+
+    /*
+    TODO:
+    1. Cek di FE pake ini atau tidak
+    2. Kalau misalnya pake, ganti current_division ke "SAMPLING" dan pplhp_status "RECEIVE"
+    3. Bukan mapping per project, berdasarkan sample
+    4. Sample status-nya harus "ACCEPTED"
+    5. Filter dari mongodb langsung
+    6.. NAMBAH ENDPOINT BARU AJA JADINYA
+    */
     const projectList = await Project.find({
       current_division: "LAB",
       lab_status: "IN REVIEW BY ADMIN",
@@ -859,6 +869,7 @@ exports.getAllPPLHPDetail = async function () {
       };
     });
 
+    // TODO: Ganti return value-nya (CEK FIGMA)
     return { message: "success", projectList: projectListFiltered };
   } catch (err) {
     throw new Error(err.message);
@@ -971,3 +982,20 @@ exports.testLHP = async function (body) {
     throw { file_id: err.file_id, message: err.message };
   }
 };
+
+exports.getAllPPLHP = async function () {
+  try {
+    const sampleList = await Sampling.find({ status: "ACCEPTED", current_division: "SAMPLING", pplhp_status: "RECEIVE" }).exec();
+    if (sampleList === null) throw new Error("No sample found");
+
+    let projectList = [];
+    for (let i = 0; i < sampleList.length; i++) {
+      const project = await Project.findById(sampleList[i].project_id).exec();
+      projectList.push(project);
+  }
+
+    return { message: "success", projectList };
+  } catch (err) {
+    throw new Error(err.message);
+  }
+}
