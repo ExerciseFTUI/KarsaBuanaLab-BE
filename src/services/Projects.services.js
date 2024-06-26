@@ -437,9 +437,11 @@ exports.getProjectByDivision = async function (body) {
     let projects = null;
     if (!division) throw new Error("Please specify the division");
     if (!status) {
+      console.log(division)
       projects = await Project.find({
         current_division: division.toUpperCase(),
       });
+      console.log(projects)
     } else {
       projects = await Project.find({
         current_division: division.toUpperCase(),
