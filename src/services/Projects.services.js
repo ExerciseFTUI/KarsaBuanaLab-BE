@@ -969,6 +969,19 @@ exports.getNotes = async function (params) {
   }
 };
 
+exports.deal = async function (body) {
+  const { project_id } = body;
+  if (!project_id) throw new Error("Please specify the project id");
+  const projectObj = await Project.findById(project_id);
+  if (!projectObj) throw new Error("Project not found");
+  try {
+    projectObj.current_division = "SAMPLING";
+    return { message: "success", success : true};
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 exports.testLHP = async function (body) {
   const { project_id } = body;
   if (!project_id) throw new Error("Please specify the project id");
@@ -983,6 +996,31 @@ exports.testLHP = async function (body) {
   }
 };
 
+exports.changeTMStatus = async function (body) {
+  const { project_id, status, notes } = body;
+  console.log(status)
+  if (!status) throw new Error("Please specify the status");
+  if (!project_id) throw new Error("Please specify the project id");
+
+  const projectObj = await Project.findById(project_id);
+  if (!projectObj) throw new Error("Project not found");
+
+  const validStatuses = ["WAITING", "ACCEPTED", "REVISE"];
+  if (!validStatuses.includes(status)) throw new Error("Invalid status");
+
+  try {
+    console.log(projectObj)
+    projectObj.TM_status = status;
+    projectObj.TM_note = notes || '';
+
+    await projectObj.save();
+
+    return { message: "Status Successfully Changed", success : true};
+  } catch (err) {
+    console.log(err)
+    throw {message: err.message };
+  }
+};
 exports.getAllPPLHP = async function () {
   try {
     const sampleList = await Sampling.find({ status: "ACCEPTED", current_division: "SAMPLING", pplhp_status: "RECEIVE" }).exec();
