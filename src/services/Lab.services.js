@@ -307,3 +307,84 @@ exports.assignLD =  async function (body) {
 
   return { message: "Success Assigning", projectObj };
 }
+
+exports.getSPVDashboard = async function () {
+  try{
+    // Find Project with Either "SAMPLING or "LAB"
+    const projects = await Project.find({
+      current_division: { $in: ["SAMPLING", "LAB"] }
+    }).exec();
+
+    // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
+    let result = [];
+
+    projects.forEach(project => {
+      project.sampling_list.forEach(sample => {
+        if (sample.status === "ACCEPTED") {
+
+          let sampleIdentifier;
+          if (sample.sample_number) {
+            sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
+          } else {
+            sampleIdentifier = `${project.no_sampling}.${counter}`;
+            counter++;
+          }
+          // Step 3: Collect the necessary details for each accepted sample
+          result.push({
+            sample_number : sampleIdentifier,
+            sample_name: sample.sample_name,
+            status: sample.status,
+            deadline: sample.deadline
+          });
+        }
+      });
+    });
+
+    return { message: "Success Fetching SPV Dashboard", success : true, result };
+
+  } catch (error) {
+    console.error("Error fetching SPV dashboard data:",error);
+  }
+
+}
+
+
+exports.getStaffDashboard = async function () {
+  try{
+    // Find Project with Either "SAMPLING or "LAB"
+    const projects = await Project.find({
+      current_division: { $in: ["SAMPLING", "LAB"] }
+    }).exec();
+
+    // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
+    let result = [];
+
+    projects.forEach(project => {
+      project.sampling_list.forEach(sample => {
+        if (sample.status === "ACCEPTED") {
+
+          let sampleIdentifier;
+          if (sample.sample_number) {
+            sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
+          } else {
+            sampleIdentifier = `${project.no_sampling}.${counter}`;
+            counter++;
+          }
+          // Step 3: Collect the necessary details for each accepted sample
+          result.push({
+            sample_number : sampleIdentifier,
+            sample_name: sample.sample_name,
+            status: sample.status,
+            deadline: sample.deadline
+          });
+        }
+      });
+    });
+
+    return { message: "Success Fetching staff Dashboard", success : true, result };
+
+  } catch (error) {
+    console.error("Error fetching SPV dashboard data:",error);
+  }
+  return { message: "Lembar Data found", success : true, result };
+}

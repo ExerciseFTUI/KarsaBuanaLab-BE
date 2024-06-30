@@ -33,6 +33,10 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sample_number: {
+    type: Number,
+    required: false,
+  },
   harga: {
     type: String,
     required: false,
