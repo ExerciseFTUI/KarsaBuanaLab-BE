@@ -26,12 +26,14 @@ exports.getAllInventory = async function (body) {
 exports.createInventory = async function (body) {
   const {
     tools_name,
+    vendor,
+    current_vendor,
     description,
     last_maintenance,
     maintenance_history,
     maintenance_every,
     assigned_user,
-    category,
+    condition,
     folder_id,
     inventory_file,
   } = body;
@@ -40,29 +42,29 @@ exports.createInventory = async function (body) {
   if (!tools_name) {
     throw new Error("Tools name is required");
   }
-  if (!description) {
-    throw new Error("Description is required");
-  }
   if (!last_maintenance) {
     throw new Error("Last maintenance date is required");
   }
   if (!maintenance_every) {
     throw new Error("Maintenance frequency is required");
   }
-  if (!category) {
-    throw new Error("Category is required");
+  if (!condition) {
+    throw new Error("Condition is required");
   }
+
   // Create a new inventory instance
   const newInventory = new Inventory({
     tools_name,
-    description,
     last_maintenance,
-    maintenance_history,
     maintenance_every,
-    assigned_user,
-    category,
-    folder_id,
-    inventory_file,
+    condition,
+    ...(vendor && { vendor }),
+    ...(current_vendor && { current_vendor }),
+    ...(description && { description }),
+    ...(maintenance_history && { maintenance_history }),
+    ...(assigned_user && { assigned_user }),
+    ...(folder_id && { folder_id }),
+    ...(inventory_file && { inventory_file }),
   });
 
   // Save the new inventory to the database
