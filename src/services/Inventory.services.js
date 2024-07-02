@@ -185,7 +185,6 @@ exports.getVendor = async function () {
   }catch(error){
     console.log(error)
   }
-
 };
 
 async function fetchAssignedUsers(userIdsArray) {

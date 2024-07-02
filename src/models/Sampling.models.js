@@ -77,6 +77,10 @@ const samplingSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  receive_date:{
+    type: Date,
+    required: false,
+  },
   deadline: {
     type: { from: String, to: String },
     required: false,
