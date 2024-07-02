@@ -14,6 +14,8 @@ router.post("/delete-file", inventoryControllers.deleteFileFromInventory);
 router.get("/get-users", inventoryControllers.getUsers);
 router.get("/get-vendor", inventoryControllers.getVendor);
 router.post("/create-vendor", inventoryControllers.createVendor);
+router.delete("/delete-vendor", inventoryControllers.deleteVendor);
+router.get("/deleteall",inventoryControllers.deleteAllInventory)
 
 router.post(
   "/add-file",

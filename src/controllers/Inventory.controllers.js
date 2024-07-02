@@ -63,6 +63,24 @@ exports.createVendor = async function (req, res) {
   }
 };
 
+exports.deleteVendor = async function (req, res) {
+  try {
+    const result = await inventoryServices.deleteVendor(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.deleteAllInventory = async function (req, res) {
+  try {
+    const result = await inventoryServices.deleteAllInventory(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 exports.addFile = async function (req, res) {
   try {
     const result = await inventoryServices.addFile(req.files, req.body);

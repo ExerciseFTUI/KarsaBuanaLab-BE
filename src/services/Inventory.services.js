@@ -174,6 +174,49 @@ exports.createVendor = async function (body) {
   }
 };
 
+exports.deleteVendor = async function (body) {
+  try {
+    const { vendor_id, vendor_name } = body;
+
+    if (!vendor_id && !vendor_name) {
+      return {
+        success: false,
+        message: "Vendor ID or Vendor name is required",
+      };
+    }
+
+    let deletedVendor;
+    if (vendor_id) {
+      deletedVendor = await Vendor.findByIdAndDelete(vendor_id);
+    } else if (vendor_name) {
+      deletedVendor = await Vendor.findOneAndDelete({ vendor_name });
+    }
+
+    if (!deletedVendor) {
+      return {
+        success: false,
+        message: "Vendor not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Success Deleting Vendor",
+      result: deletedVendor,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Deleting Vendor",
+      error: error.message,
+    };
+  }
+};
+
+
+
+
 exports.getVendor = async function () {
   try{
     const vendor = await Vendor.find().lean();
@@ -186,6 +229,26 @@ exports.getVendor = async function () {
     console.log(error)
   }
 };
+
+exports.deleteAllInventory = async function () {
+  try {
+    const result = await Inventory.deleteMany({});
+
+    return {
+      success: true,
+      message: "Success Deleting All Inventory",
+      deletedCount: result.deletedCount,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Deleting All Inventory",
+      error: error.message,
+    };
+  }
+};
+
 
 async function fetchAssignedUsers(userIdsArray) {
   try {
