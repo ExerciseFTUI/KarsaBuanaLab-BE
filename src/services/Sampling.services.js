@@ -331,8 +331,8 @@ exports.getParameter = async function (body) {
 
 exports.getDetailsPPLHP = async function (body) {
   try {
-    const { projectId } = body;
-    const project = await Project.findById(projectId).exec();
+    const { project_id } = body;
+    const project = await Project.findById(project_id).exec();
     if (!project) {
       throw new Error("Project not found");
     }
