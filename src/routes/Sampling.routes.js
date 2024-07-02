@@ -11,6 +11,6 @@ router.get("/get-dashboard-sampling/", samplingController.getDashboardSampling);
 router.get("/get-sampling-details",samplingController.getSamplingDetails);
 router.get("/get-sampling-list",samplingController.getSamplingList);
 router.get("/get-parameter", samplingController.getParameter);
-router.get("/get-details-pplhp",samplingController.getDetailsPPLHP);
+router.get("/get-details-pplhp/:project_id",samplingController.getDetailsPPLHP);
 
 module.exports = router;
