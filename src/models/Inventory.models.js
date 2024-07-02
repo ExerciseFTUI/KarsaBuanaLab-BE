@@ -20,7 +20,6 @@ const maintenanceHistorySchema = new mongoose.Schema({
 
 const inventorySchema = new mongoose.Schema({
   tools_name: { type: String, required: true },
-  vendor: [{ type: String, required: false }],
   current_vendor : { type: String, required: false },
   description: { type: String, required: false },
   last_maintenance: { type: Date, required: false },
@@ -32,9 +31,16 @@ const inventorySchema = new mongoose.Schema({
   inventory_file: [fileSchema],
 });
 
+const vendorSchema = new mongoose.Schema({
+  vendor_name: { type: String, required: true },
+}); 
+
 const Inventory = mongoose.model("Inventory", inventorySchema);
+const Vendor = mongoose.model("Vendor",vendorSchema)
 
 module.exports = {
+  vendorSchema,
+  Vendor,
   inventorySchema,
   Inventory,
 };

@@ -1,4 +1,4 @@
-const { Inventory } = require("../models/Inventory.models");
+const { Inventory, Vendor } = require("../models/Inventory.models");
 const { User } = require("../models/User.models");
 const drivesServices = require("../services/Drives.services");
 const projectsUtils = require("../utils/Projects.utils");
@@ -26,7 +26,6 @@ exports.getAllInventory = async function (body) {
 exports.createInventory = async function (body) {
   const {
     tools_name,
-    vendor,
     current_vendor,
     description,
     last_maintenance,
@@ -58,7 +57,6 @@ exports.createInventory = async function (body) {
     last_maintenance,
     maintenance_every,
     condition,
-    ...(vendor && { vendor }),
     ...(current_vendor && { current_vendor }),
     ...(description && { description }),
     ...(maintenance_history && { maintenance_history }),
@@ -80,8 +78,7 @@ exports.getInventoryItemById = async function (params) {
   const { id } = params;
   const item = await Inventory.findById(id);
   if (!item) throw new Error("Inventory item not found");
-  return item;
-};
+  return item;};
 
 exports.updateInventory = async function (body) {
   const { id, updates } = body;
@@ -159,6 +156,36 @@ exports.deleteFileFromInventory = async function (body) {
   await inventory.save();
 
   return { message: "File deleted successfully" };
+};
+
+exports.createVendor = async function (body) {
+  try{
+    const { vendor_name } = body;
+    const newVendor = new Vendor({vendor_name});
+    const savedVendor = await newVendor.save();
+  
+    return {
+      success : true,
+      message : "Success Creating Vendor",
+      vendor : savedVendor
+    }  
+  }catch (error){
+    console.log(error)
+  }
+};
+
+exports.getVendor = async function (body) {
+  try{
+    const vendor = await Vendor.find().lean();
+    return { 
+          message: "success",
+          success:true, 
+          vendor 
+      };
+  }catch(error){
+    console.log(error)
+  }
+
 };
 
 async function fetchAssignedUsers(userIdsArray) {

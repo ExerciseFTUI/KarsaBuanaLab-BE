@@ -12,6 +12,9 @@ router.get(
 router.post("/update-inventory", inventoryControllers.updateInventory);
 router.post("/delete-file", inventoryControllers.deleteFileFromInventory);
 router.get("/get-users", inventoryControllers.getUsers);
+router.get("/get-vendor", inventoryControllers.getVendor);
+router.post("/create-vendor", inventoryControllers.createVendor);
+
 router.post(
   "/add-file",
   projectMiddleware.uploadFiles,

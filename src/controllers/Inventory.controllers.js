@@ -45,6 +45,24 @@ exports.getUsers = async function (req, res) {
   }
 };
 
+exports.getVendor = async function (req, res) {
+  try {
+    const result = await inventoryServices.getVendor();
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.createVendor = async function (req, res) {
+  try {
+    const result = await inventoryServices.createVendor();
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 exports.addFile = async function (req, res) {
   try {
     const result = await inventoryServices.addFile(req.files, req.body);
