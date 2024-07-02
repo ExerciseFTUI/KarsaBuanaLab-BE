@@ -174,7 +174,7 @@ exports.createVendor = async function (body) {
   }
 };
 
-exports.getVendor = async function (body) {
+exports.getVendor = async function () {
   try{
     const vendor = await Vendor.find().lean();
     return { 

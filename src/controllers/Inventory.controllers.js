@@ -56,7 +56,7 @@ exports.getVendor = async function (req, res) {
 
 exports.createVendor = async function (req, res) {
   try {
-    const result = await inventoryServices.createVendor();
+    const result = await inventoryServices.createVendor(req.body);
     res.status(200).json(result);
   } catch (err) {
     res.status(400).json({ message: err.message });
