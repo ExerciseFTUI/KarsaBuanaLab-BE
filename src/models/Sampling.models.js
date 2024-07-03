@@ -68,6 +68,9 @@ const samplingSchema = new mongoose.Schema({
       "WAITING",
       "ACCEPTED",
       "REVISION",
+      "LAB_RECEIVE",
+      "LAB_ASSIGNED",
+      "LAB_DONE"
     ],
     required: false,
     default: "NOT ASSIGNED",
