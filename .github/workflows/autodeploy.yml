@@ -2,10 +2,10 @@ name: Auto deploy
 on:
   push:
     branches:
-      -  prod
+      -  main
   pull_request:
     branches:
-      - prod
+      - main
 
 jobs:
   build:
