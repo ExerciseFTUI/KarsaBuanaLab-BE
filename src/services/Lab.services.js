@@ -320,7 +320,7 @@ exports.getSPVDashboard = async function () {
 
     projects.forEach(project => {
       project.sampling_list.forEach(sample => {
-        if (sample.status === "ACCEPTED") {
+        if (sample.status === "LAB_RECEIVE") {
 
           let sampleIdentifier;
           if (sample.sample_number) {
@@ -331,6 +331,7 @@ exports.getSPVDashboard = async function () {
           }
           // Step 3: Collect the necessary details for each accepted sample
           result.push({
+            id : sample._id,
             sample_number : sampleIdentifier,
             sample_name: sample.sample_name,
             status: sample.status,
@@ -361,7 +362,7 @@ exports.getStaffDashboard = async function () {
 
     projects.forEach(project => {
       project.sampling_list.forEach(sample => {
-        if (sample.status === "ACCEPTED") {
+        if (sample.status === "LAB_RECEIVE") {
 
           let sampleIdentifier;
           if (sample.sample_number) {
