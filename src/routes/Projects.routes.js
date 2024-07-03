@@ -33,5 +33,6 @@ router.post("/test", projectsControllers.testLHP);
 router.post("/change-TM-status", projectsControllers.changeTMStatus);
 router.post("/deal",projectsControllers.deal);
 router.get("/get-all-pplhp", projectsControllers.getAllPPLHP);
+router.post("/submit-sample", projectsControllers.submitSample);
 
 module.exports = router;

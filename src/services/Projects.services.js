@@ -1025,6 +1025,7 @@ exports.changeTMStatus = async function (body) {
     throw {message: err.message };
   }
 };
+
 exports.getAllPPLHP = async function () {
   try {
     const sampleList = await Sampling.find({ status: "ACCEPTED", current_division: "SAMPLING", pplhp_status: "RECEIVE" }).exec();
@@ -1039,5 +1040,29 @@ exports.getAllPPLHP = async function () {
     return { message: "success", projectList };
   } catch (err) {
     throw new Error(err.message);
+  }
+}
+
+exports.submitSample = async function (body) {
+  try  {
+    const { sampleId, projectId, receive_date } = body;
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) throw new Error("Project not found");
+
+    const sample = projectObj.sampling_list.find(s => s._id == sampleId);
+    if (!sample) throw new Error("Sample not found");
+
+    sample.receive_date = receive_date;
+    sample.status = "LAB_RECEIVE";
+
+    await projectObj.save();
+    const sampleObj = await Sampling.findById(sampleId).exec();
+    sampleObj.receive_date = receive_date;
+    sampleObj.status = "LAB_RECEIVE";
+    await sampleObj.save();
+
+    return { message: "success", project: projectObj };
+  } catch (error) {
+    throw new Error(error.message);
   }
 }

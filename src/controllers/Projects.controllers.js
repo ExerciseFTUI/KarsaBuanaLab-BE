@@ -339,3 +339,12 @@ exports.getAllPPLHP = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 }
+
+exports.submitSample = async function (req, res) {
+  try {
+    const result = await projectsServices.submitSample(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
