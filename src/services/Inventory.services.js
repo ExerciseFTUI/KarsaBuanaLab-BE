@@ -249,6 +249,44 @@ exports.deleteAllInventory = async function () {
   }
 };
 
+exports.getInventoryByPIC = async function (params) {
+  try {
+    const {id} = params
+    if (!id) {
+      return {
+        success: false,
+        message: "User ID is required",
+        results : null
+      };
+    }
+
+    const inventoryItems = await Inventory.find({ assigned_user: id });
+
+    if (!inventoryItems.length) {
+      return {
+        success: false,
+        message: "No inventory items found for the given user ID",
+        results : null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Success Finding Inventory Items",
+      inventory: inventoryItems,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Finding Inventory Items",
+      error: error.message,
+    };
+  }
+
+}
+
+
 
 async function fetchAssignedUsers(userIdsArray) {
   try {
@@ -289,3 +327,5 @@ function calculateDeadline(lastMaintenance, maintenanceFrequency) {
 
   return nextMaintenanceDate;
 }
+
+

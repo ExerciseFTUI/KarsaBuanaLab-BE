@@ -98,3 +98,13 @@ exports.deleteFileFromInventory = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 };
+
+exports.getInventoryByPIC = async function (req, res) {
+  try {
+    const result = await inventoryServices.getInventoryByPIC(req.params);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
