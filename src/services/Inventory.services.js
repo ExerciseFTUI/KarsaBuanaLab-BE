@@ -1,4 +1,4 @@
-const { Inventory } = require("../models/Inventory.models");
+const { Inventory, Vendor } = require("../models/Inventory.models");
 const { User } = require("../models/User.models");
 const drivesServices = require("../services/Drives.services");
 const projectsUtils = require("../utils/Projects.utils");
@@ -26,12 +26,13 @@ exports.getAllInventory = async function (body) {
 exports.createInventory = async function (body) {
   const {
     tools_name,
+    current_vendor,
     description,
     last_maintenance,
     maintenance_history,
     maintenance_every,
     assigned_user,
-    category,
+    condition,
     folder_id,
     inventory_file,
   } = body;
@@ -40,29 +41,28 @@ exports.createInventory = async function (body) {
   if (!tools_name) {
     throw new Error("Tools name is required");
   }
-  if (!description) {
-    throw new Error("Description is required");
-  }
   if (!last_maintenance) {
     throw new Error("Last maintenance date is required");
   }
   if (!maintenance_every) {
     throw new Error("Maintenance frequency is required");
   }
-  if (!category) {
-    throw new Error("Category is required");
+  if (!condition) {
+    throw new Error("Condition is required");
   }
+
   // Create a new inventory instance
   const newInventory = new Inventory({
     tools_name,
-    description,
     last_maintenance,
-    maintenance_history,
     maintenance_every,
-    assigned_user,
-    category,
-    folder_id,
-    inventory_file,
+    condition,
+    ...(current_vendor && { current_vendor }),
+    ...(description && { description }),
+    ...(maintenance_history && { maintenance_history }),
+    ...(assigned_user && { assigned_user }),
+    ...(folder_id && { folder_id }),
+    ...(inventory_file && { inventory_file }),
   });
 
   // Save the new inventory to the database
@@ -78,8 +78,7 @@ exports.getInventoryItemById = async function (params) {
   const { id } = params;
   const item = await Inventory.findById(id);
   if (!item) throw new Error("Inventory item not found");
-  return item;
-};
+  return item;};
 
 exports.updateInventory = async function (body) {
   const { id, updates } = body;
@@ -159,6 +158,136 @@ exports.deleteFileFromInventory = async function (body) {
   return { message: "File deleted successfully" };
 };
 
+exports.createVendor = async function (body) {
+  try{
+    const { vendor_name } = body;
+    const newVendor = new Vendor({vendor_name});
+    const savedVendor = await newVendor.save();
+  
+    return {
+      success : true,
+      message : "Success Creating Vendor",
+      vendor : savedVendor
+    }  
+  }catch (error){
+    console.log(error)
+  }
+};
+
+exports.deleteVendor = async function (body) {
+  try {
+    const { vendor_id, vendor_name } = body;
+
+    if (!vendor_id && !vendor_name) {
+      return {
+        success: false,
+        message: "Vendor ID or Vendor name is required",
+      };
+    }
+
+    let deletedVendor;
+    if (vendor_id) {
+      deletedVendor = await Vendor.findByIdAndDelete(vendor_id);
+    } else if (vendor_name) {
+      deletedVendor = await Vendor.findOneAndDelete({ vendor_name });
+    }
+
+    if (!deletedVendor) {
+      return {
+        success: false,
+        message: "Vendor not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Success Deleting Vendor",
+      result: deletedVendor,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Deleting Vendor",
+      error: error.message,
+    };
+  }
+};
+
+
+
+
+exports.getVendor = async function () {
+  try{
+    const vendor = await Vendor.find().lean();
+    return { 
+          message: "success",
+          success:true, 
+          vendor 
+      };
+  }catch(error){
+    console.log(error)
+  }
+};
+
+exports.deleteAllInventory = async function () {
+  try {
+    const result = await Inventory.deleteMany({});
+
+    return {
+      success: true,
+      message: "Success Deleting All Inventory",
+      deletedCount: result.deletedCount,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Deleting All Inventory",
+      error: error.message,
+    };
+  }
+};
+
+exports.getInventoryByPIC = async function (params) {
+  try {
+    const {id} = params
+    if (!id) {
+      return {
+        success: false,
+        message: "User ID is required",
+        results : null
+      };
+    }
+
+    const inventoryItems = await Inventory.find({ assigned_user: id });
+
+    if (!inventoryItems.length) {
+      return {
+        success: false,
+        message: "No inventory items found for the given user ID",
+        results : null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Success Finding Inventory Items",
+      inventory: inventoryItems,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Error Finding Inventory Items",
+      error: error.message,
+    };
+  }
+
+}
+
+
+
 async function fetchAssignedUsers(userIdsArray) {
   try {
     const assignedUsersArray = await Promise.all(
@@ -198,3 +327,5 @@ function calculateDeadline(lastMaintenance, maintenanceFrequency) {
 
   return nextMaintenanceDate;
 }
+
+

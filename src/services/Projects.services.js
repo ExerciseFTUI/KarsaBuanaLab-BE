@@ -440,18 +440,21 @@ exports.getProjectByDivision = async function (body) {
       projects = await Project.find({
         current_division: division.toUpperCase(),
       });
+
     } else {
       projects = await Project.find({
         current_division: division.toUpperCase(),
         status: status,
       });
     }
-
-    projects = projects.filter((project) => {
-      if (project.valuasi_proyek == 0 || project.valuasi_proyek == null)
-        return false;
-      else return true;
-    });
+    if(!(division.toUpperCase() === "MARKETING")){
+      projects = projects.filter((project) => {
+        if (project.valuasi_proyek == 0 || project.valuasi_proyek == null)
+          return false;
+        else return true;
+      });
+    }
+    
 
     return { message: "Success", projects };
   } catch (error) {
@@ -976,6 +979,7 @@ exports.deal = async function (body) {
   if (!projectObj) throw new Error("Project not found");
   try {
     projectObj.current_division = "SAMPLING";
+    projectObj.save();
     return { message: "success", success : true};
   } catch (error) {
     throw new Error(error.message);

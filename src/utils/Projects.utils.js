@@ -109,6 +109,12 @@ exports.copySampleTemplate = async function copySampleTemplate(
   regulation_list,
   param_array_list
 ) {
+  let sampleCounter = 0;
+
+  function generateSampleNumber() {
+    sampleCounter += 1;
+    return sampleCounter;
+  }
   const auth = getAuth("https://www.googleapis.com/auth/drive");
 
   const drive = google.drive({ version: "v3", auth });
@@ -168,6 +174,7 @@ exports.copySampleTemplate = async function copySampleTemplate(
       const samplingObj = new Sampling({
         fileId: result.file_id,
         sample_name: result.sample_name,
+        sample_number: generateSampleNumber(),
         param: paramArray,
         regulation_name: regulation,
       });

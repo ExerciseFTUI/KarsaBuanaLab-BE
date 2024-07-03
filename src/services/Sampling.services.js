@@ -328,3 +328,28 @@ exports.getParameter = async function (body) {
     throw new Error("Failed to get parameter: " + error.message);
   }
 };
+
+exports.getDetailsPPLHP = async function (body) {
+  try {
+    const { project_id } = body;
+    const project = await Project.findById(project_id).exec();
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+  
+    const result = {
+      project_name: project.project_name,
+      sampling: project.sampling_list,
+      logbook_internal: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_INTERNAL}`,
+      logbook_external: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_EXTERNAL}`,
+      files: [
+        { judul: `Surat Penawaran`, url: `https://docs.google.com/spreadsheets/d/${project.surat_penawaran}` }
+      ],
+    }
+
+    return { message: "success get Receive Details",success: true, result: result };
+  } catch (error) {
+    throw new Error("Failed to get sampling list: " + error.message);
+  }
+};
