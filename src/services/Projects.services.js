@@ -1053,10 +1053,7 @@ exports.submitSample = async function (body) {
     const sample = projectObj.sampling_list.find(s => s._id == sampleId);
     if (!sample) throw new Error("Sample not found");
 
-    // cast receive_date to date format
-    receive_date = new Date(receive_date);
-
-    sample.receive_date = receive_date;
+    sample.receive_date = new Date(receive_date);
     sample.status = "LAB_RECEIVE";
 
     await projectObj.save();
