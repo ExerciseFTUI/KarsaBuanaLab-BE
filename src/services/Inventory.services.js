@@ -78,6 +78,9 @@ exports.getInventoryItemById = async function (params) {
   const { id } = params;
   const item = await Inventory.findById(id);
   if (!item) throw new Error("Inventory item not found");
+  item.assigned_users = await fetchAssignedUsers(item.assigned_user);
+  item.assigned_users =
+      assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
   return item;};
 
 exports.updateInventory = async function (body) {
@@ -261,7 +264,8 @@ exports.getInventoryByPIC = async function (params) {
     }
 
     const inventoryItems = await Inventory.find({ assigned_user: id });
-
+    inventoryItems.assigned_users = await fetchAssignedUsers(inventoryItems.assigned_user);
+    item.assigned_users = assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
     if (!inventoryItems.length) {
       return {
         success: false,
