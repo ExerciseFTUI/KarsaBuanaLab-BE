@@ -1046,11 +1046,15 @@ exports.getAllPPLHP = async function () {
 exports.submitSample = async function (body) {
   try  {
     const { sampleId, projectId, receive_date } = body;
+    if(!sampleId || !projectId || !receive_date) throw new Error("Please specify the sampleId, projectId, and receive_date");
     const projectObj = await Project.findById(projectId).exec();
     if (!projectObj) throw new Error("Project not found");
 
     const sample = projectObj.sampling_list.find(s => s._id == sampleId);
     if (!sample) throw new Error("Sample not found");
+
+    // cast receive_date to date format
+    receive_date = new Date(receive_date);
 
     sample.receive_date = receive_date;
     sample.status = "LAB_RECEIVE";
