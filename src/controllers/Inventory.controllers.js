@@ -2,6 +2,7 @@ const inventoryServices = require("../services/Inventory.services");
 
 exports.getAllInventory = async function (req, res) {
   try {
+    console.log("Masuk")
     const result = await inventoryServices.getAllInventory(req.body);
     res.status(200).json(result);
   } catch (err) {
@@ -101,6 +102,7 @@ exports.deleteFileFromInventory = async function (req, res) {
 
 exports.getInventoryByPIC = async function (req, res) {
   try {
+    console.log("Masuk")
     const result = await inventoryServices.getInventoryByPIC(req.params);
     res.status(200).json(result);
   } catch (err) {

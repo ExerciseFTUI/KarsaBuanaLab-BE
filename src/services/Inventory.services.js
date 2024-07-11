@@ -262,10 +262,8 @@ exports.getInventoryByPIC = async function (params) {
         results : null
       };
     }
-
+    console.log("Sini");
     const inventoryItems = await Inventory.find({ assigned_user: id });
-    inventoryItems.assigned_users = await fetchAssignedUsers(inventoryItems.assigned_user);
-    item.assigned_users = assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
     if (!inventoryItems.length) {
       return {
         success: false,
@@ -274,17 +272,25 @@ exports.getInventoryByPIC = async function (params) {
       };
     }
 
+    const updatedInventoryItems = await Promise.all(
+      inventoryItems.map(async (item) => {
+        const users = await fetchAssignedUsers(item.assigned_user);
+        const assignedUsers = users.length > 0 ? users[0] : [];
+        return { ...item._doc, assigned_users: assignedUsers };
+      })
+    );
+
     return {
       success: true,
       message: "Success Finding Inventory Items",
-      inventory: inventoryItems,
+      inventory: updatedInventoryItems,
     };
   } catch (error) {
     console.log(error);
     return {
       success: false,
       message: "Error Finding Inventory Items",
-      error: error.message,
+      error: error,
     };
   }
 
