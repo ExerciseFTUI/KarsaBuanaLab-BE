@@ -80,7 +80,7 @@ exports.getInventoryItemById = async function (params) {
   if (!item) throw new Error("Inventory item not found");
   item.assigned_users = await fetchAssignedUsers(item.assigned_user);
   item.assigned_users =
-      assignedUsersArray.length > 0 ? assignedUsersArray[0] : [];
+      item.assigned_users.length > 0 ? item.assigned_users : [];
   return item;};
 
 exports.updateInventory = async function (body) {
