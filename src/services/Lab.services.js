@@ -310,6 +310,7 @@ exports.assignLD =  async function (body) {
 
 exports.getSPVDashboard = async function () {
   try{
+    console.log()
     // Find Project with Either "SAMPLING or "LAB"
     const projects = await Project.find({
       current_division: { $in: ["SAMPLING", "LAB"] }
@@ -317,11 +318,12 @@ exports.getSPVDashboard = async function () {
 
     // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
     let result = [];
+    let counter = 0;
 
     projects.forEach(project => {
       project.sampling_list.forEach(sample => {
         if (sample.status === "LAB_RECEIVE") {
-
+          
           let sampleIdentifier;
           if (sample.sample_number) {
             sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
