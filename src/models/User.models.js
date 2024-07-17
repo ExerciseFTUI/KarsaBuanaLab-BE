@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   division: {
     type: String,
     required: false,
-    enum: ["Marketing", "Sampling", "Lab", "PPLHP"],
+    enum: ["Marketing", "Sampling", "Lab", "PPLHP", "Admin"],
   },
   createdAt: { type: Date, default: Date.now },
   jadwal: [
