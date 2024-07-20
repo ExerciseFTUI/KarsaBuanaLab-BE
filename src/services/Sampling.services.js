@@ -375,6 +375,7 @@ exports.getInputSamplingForLab = async function (body) {
   const sampling = await Project.findOne({
     "sampling_list._id": sampleId,
   }).exec();
+  console.log("data sampling: ", sampling);
 
   // return the array of parameters that includes name, unit, method and analysis_status
   const parameters = sampling.param.map((param) => ({
