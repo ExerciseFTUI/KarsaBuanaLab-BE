@@ -379,7 +379,19 @@ exports.getInputSamplingForLab = async function (body) {
     analysis_status: param.analysis_status,
   }));
 
-  return { message: "success", result: parameters };
+  // return like this
+  // export type InputDocumentType = {
+  //   sampleName: string;
+  //   // asignedTo: string;
+  //   parameters: parameters;
+  // };
+
+  const result = {
+    sampleName: sampling.sample_name,
+    parameters,
+  };
+
+  return { message: "success", result: result };
 
   // const samplingList = [];
 
