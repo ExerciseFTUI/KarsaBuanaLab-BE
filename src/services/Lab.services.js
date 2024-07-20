@@ -416,13 +416,21 @@ exports.submitLabRev = async function (body) {
     throw new Error("Project not found");
   }
 
+  // samples just only contain 1 sampleAnswer not array of sampleAnswer
+  // we can get the samplingList using the sampleId
   const sample = project.sampling_list.id(sampleId);
   if (!sample) {
     throw new Error("Sample not found");
   }
 
-  // save the sample data from samples to project.sampling_list with id sampleId
-  sample.param = samples;
+  samples.param.forEach((param) => {
+    const foundParam = sample.param.find((p) => p.param === param.param);
+    if (foundParam) {
+      // Update parameter values
+      foundParam.unit = param.unit;
+      foundParam.method = param.method;
+    }
+  });
 
   // submitLabRev means API Revision of submitLab not for revision of sample
   // so the status of the sample is still "SUBMIT"
@@ -432,7 +440,6 @@ exports.submitLabRev = async function (body) {
   await project.save();
 
   return { message: "Success Submitting", project };
-
 
   // // Iterate over the samples
   // samples.forEach((sample) => {
