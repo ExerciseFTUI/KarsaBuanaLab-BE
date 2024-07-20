@@ -379,64 +379,12 @@ exports.getInputSamplingForLab = async function (body) {
     analysis_status: param.analysis_status,
   }));
 
-  // return like this
-  // export type InputDocumentType = {
-  //   sampleName: string;
-  //   // asignedTo: string;
-  //   parameters: parameters;
-  // };
-
   const result = {
     sampleName: sampling.sample_name,
     parameters,
   };
 
   return { message: "success", result: result };
-
-  // const samplingList = [];
-
-  // for (const sampling of project.sampling_list) {
-  // if (sampling.lab_assigned_to.includes(userId)) {
-  //   const baseSample = await BaseSample.findOne({
-  //     sample_name: sampling.sample_name,
-  //   });
-
-  //     const parameterDetails = [];
-
-  //     for (const param of sampling.param) {
-  //       const parameter_found = baseSample.param.find(
-  //         (baseParam) => baseParam.param === param.param
-  //       );
-  //       parameterDetails.push({
-  //         name: param.param,
-  //         unit: param.unit || null,
-  //         method: param.method || null,
-  //         result: param.result || null,
-  //         analysis_status: param.analysis_status,
-  //       });
-  //     }
-
-  //     samplingList.push({
-  //       sampleName: sampling.sample_name,
-  //       assignedTo: sampling.lab_assigned_to,
-  //       parameters: parameterDetails,
-  //     });
-  //   }
-  // }
-
-  // const result = {
-  //   judul: project.project_name,
-  //   status: project.lab_status,
-  //   deadline: project.deadline_lhp,
-  //   lhp: "null",
-  //   dokumen: [
-  //     { judul: "Log Penerimaan Sample", url: null },
-  //     { judul: "Akomodasi Lingkungan", url: null },
-  //   ],
-  //   input: samplingList,
-  // };
-
-  // return { message: "success", result };
 };
 
 exports.getParameterRev = async function (body) {
@@ -474,30 +422,6 @@ exports.getParameterRev = async function (body) {
     }
 
     return { message: "success", result: result };
-
-    // let parameterList = [];
-    // for (const sample of projectObj.sampling_list) {
-    //   if (sample.lab_assigned_to.includes(userId)) {
-    //     for (const param of sample.param) {
-    //       if (!parameterList.includes(param.param)) {
-    //         parameterList.push(param.param);
-    //       }
-    //     }
-    //   }
-    // }
-
-    // let result = [];
-    // for (const paramName of parameterList) {
-    //   const tempResult = await Param.findOne({ param: paramName }).exec();
-    //   const mapTempResult = {
-    //     param: tempResult.param,
-    //     unit: tempResult.unit,
-    //     method: tempResult.method,
-    //   };
-    //   result.push(mapTempResult);
-    // }
-
-    // return { message: "success", result: result };
   } catch (error) {
     throw new Error("Failed to get parameter: " + error.message);
   }

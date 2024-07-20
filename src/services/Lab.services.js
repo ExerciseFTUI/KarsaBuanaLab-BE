@@ -432,57 +432,7 @@ exports.submitLabRev = async function (body) {
     }
   });
 
-  // submitLabRev means API Revision of submitLab not for revision of sample
-  // so the status of the sample is still "SUBMIT"
-  // sample.status = "SUBMIT";
-
-  // save the project
   await project.save();
 
   return { message: "Success Submitting", project };
-
-  // // Iterate over the samples
-  // samples.forEach((sample) => {
-  //   // Find the sample in the project's sampling_list
-  //   const foundSample = project.sampling_list.find(
-  //     (s) => s.sample_name === sample.sample_name
-  //   );
-
-  //   // If the sample is found, update its parameters
-  //   if (foundSample) {
-  //     foundSample.status = "WAITING";
-
-  //     sample.param.forEach((param) => {
-  //       const foundParam = foundSample.param.find(
-  //         (p) => p.param === param.param
-  //       );
-  //       if (foundParam) {
-  //         // Update parameter values
-  //         foundParam.result = param.result;
-  //         foundParam.unit = param.unit;
-  //         foundParam.method = param.method;
-  //         foundParam.analysis_status = param.analysis_status;
-  //       }
-  //     });
-  //   }
-  // });
-  // // project.current_division = "PPLHP";
-
-  // var status = false;
-  // // change lab_status if all sampling_list status is not "SUBMIT"
-  // // if sample status is "SUBMIT" or "REVISION" then status is false if all sample status is not "SUBMIT" or "REVISION" then status is true and lab_status is "NEED ANALYZE"
-  // project.sampling_list.forEach((sample) => {
-  //   if (sample.status === "SUBMIT" || sample.status === "REVISION") {
-  //     status = true;
-  //   }
-  // });
-
-  // if (status === false) {
-  //   project.lab_status = "IN REVIEW BY SPV";
-  // }
-
-  // // Save the updated project
-  // await project.save();
-
-  // return { message: "Success Adding", project };
 };
