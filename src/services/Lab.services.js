@@ -341,7 +341,7 @@ exports.getSPVDashboard = async function () {
             sample_number: sampleIdentifier,
             sample_name: sample.sample_name,
             status: sample.status,
-            deadline: sample.deadline,
+            deadline: sample.deadline || "haven't set deadline yet",
           });
         }
       });
