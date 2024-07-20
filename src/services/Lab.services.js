@@ -410,8 +410,8 @@ exports.getDocsAndNotesLab = async function (body) {
 };
 
 exports.submitLabRev = async function (body) {
-  const { projectId, sampleId, samples } = body;
-  const project = await Project.findById(projectId);
+  const { sampleId, samples } = body;
+  const project = await Project.findOne({ "sampling_list._id": sampleId });
   if (!project) {
     throw new Error("Project not found");
   }

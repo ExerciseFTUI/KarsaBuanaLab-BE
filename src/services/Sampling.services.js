@@ -404,8 +404,10 @@ exports.getInputSamplingForLab = async function (body) {
 
 exports.getParameterRev = async function (body) {
   try {
-    const { projectId, sampleId } = body;
-    const projectObj = await Project.findById(projectId).exec();
+    const { sampleId } = body;
+    const projectObj = await Project.findOne({
+      "sampling_list._id": sampleId,
+    }).exec();
     if (!projectObj) {
       return { error: "Project not found" };
     }
