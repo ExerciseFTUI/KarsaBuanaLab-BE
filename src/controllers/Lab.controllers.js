@@ -45,6 +45,15 @@ exports.submitLab = async function (req, res) {
   }
 };
 
+exports.submitLabRev = async function (req, res) {
+  try {
+    const result = await labServices.submitLabRev(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 exports.getProjectByLab = async function (req, res) {
   try {
     const result = await labServices.getProjectByLab(req.body);
