@@ -362,6 +362,7 @@ exports.getStaffDashboard = async function () {
 
     // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
     let result = [];
+    let counter = 0;
 
     projects.forEach((project) => {
       project.sampling_list.forEach((sample) => {
