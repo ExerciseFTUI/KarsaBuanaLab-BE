@@ -372,10 +372,19 @@ exports.getInputSamplingForLab = async function (body) {
   // }
 
   // get data in project.sampling_list._id by sampleId
-  const sampling = await Project.findOne({
+  const project = await Project.findOne({
     "sampling_list._id": sampleId,
   }).exec();
-  console.log("data sampling: ", sampling);
+  if (!project) {
+    return { error: "Project not found" };
+  }
+
+  const sampling = project.sampling_list.find(
+    (sample) => sample._id == sampleId
+  );
+  if (!sampling) {
+    return { error: "Sample not found" };
+  }
 
   // return the array of parameters that includes name, unit, method and analysis_status
   const parameters = sampling.param.map((param) => ({
