@@ -86,7 +86,6 @@ const samplingSchema = new mongoose.Schema({
     required: false,
     default: "NOT ASSIGNED",
   },
-
   jadwal: {
     type: Date,
     required: false,
@@ -107,6 +106,12 @@ const samplingSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  notes: [
+    {
+      date: { type: Date, required: false },
+      content: { type: String, required: false },
+    },
+  ],
 });
 
 const Sampling = mongoose.model("Sampling", samplingSchema);

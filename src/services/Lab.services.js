@@ -398,3 +398,13 @@ exports.getStaffDashboard = async function () {
   }
   return { message: "Lembar Data found", success: true, result };
 };
+
+exports.getDocsAndNotesLab = async function (body) {
+  const { samplingId } = body;
+  if (!samplingId) throw new Error("Please specify the sampling_id");
+
+  const sampling = await Project.findOne({ "sampling_list._id": samplingId });
+  if (!sampling) throw new Error("Sampling not found");
+
+  // return surat penawaran block, and notes
+};

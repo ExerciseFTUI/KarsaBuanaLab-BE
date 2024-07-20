@@ -222,7 +222,6 @@ exports.getDashboardSampling = async function () {
 
 exports.getSamplingDetails = async function (body) {
   const { projectId, userId } = body;
-  let count = 0;
   const project = await Project.findById(projectId);
   if (!project) {
     return { error: "Project not found" };
@@ -231,7 +230,6 @@ exports.getSamplingDetails = async function (body) {
   const samplingList = [];
 
   for (const sampling of project.sampling_list) {
-    count++;
     if (sampling.lab_assigned_to.includes(userId)) {
       const baseSample = await BaseSample.findOne({
         sample_name: sampling.sample_name,
@@ -271,7 +269,6 @@ exports.getSamplingDetails = async function (body) {
     ],
     input: samplingList,
   };
-
 
   return { message: "success", result };
 };
@@ -318,7 +315,7 @@ exports.getParameter = async function (body) {
       const mapTempResult = {
         param: tempResult.param,
         unit: tempResult.unit,
-        method: tempResult.method
+        method: tempResult.method,
       };
       result.push(mapTempResult);
     }
@@ -337,19 +334,95 @@ exports.getDetailsPPLHP = async function (body) {
       throw new Error("Project not found");
     }
 
-  
     const result = {
       project_name: project.project_name,
       sampling: project.sampling_list,
       logbook_internal: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_INTERNAL}`,
       logbook_external: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_EXTERNAL}`,
       files: [
-        { judul: `Surat Penawaran`, url: `https://docs.google.com/spreadsheets/d/${project.surat_penawaran}` }
+        {
+          judul: `Surat Penawaran`,
+          url: `https://docs.google.com/spreadsheets/d/${project.surat_penawaran}`,
+        },
       ],
-    }
+    };
 
-    return { message: "success get Receive Details",success: true, result: result };
+    return {
+      message: "success get Receive Details",
+      success: true,
+      result: result,
+    };
   } catch (error) {
     throw new Error("Failed to get sampling list: " + error.message);
   }
+};
+
+exports.getInputSamplingForLab = async function (body) {
+  const { projectId, sampleId } = body;
+  const project = await Project.findById(projectId);
+  if (!project) {
+    return { error: "Project not found" };
+  }
+
+  const sampling = project.sampling_list.find(
+    (sample) => sample._id == sampleId
+  );
+  if (!sampling) {
+    return { error: "Sample not found" };
+  }
+
+  // return the array of parameters that includes name, unit, method and analysis_status
+  const parameters = sampling.param.map((param) => ({
+    name: param.param,
+    unit: param.unit || null,
+    method: param.method || null,
+    analysis_status: param.analysis_status,
+  }));
+
+  return { message: "success", result: parameters };
+
+  // const samplingList = [];
+
+  // for (const sampling of project.sampling_list) {
+  // if (sampling.lab_assigned_to.includes(userId)) {
+  //   const baseSample = await BaseSample.findOne({
+  //     sample_name: sampling.sample_name,
+  //   });
+
+  //     const parameterDetails = [];
+
+  //     for (const param of sampling.param) {
+  //       const parameter_found = baseSample.param.find(
+  //         (baseParam) => baseParam.param === param.param
+  //       );
+  //       parameterDetails.push({
+  //         name: param.param,
+  //         unit: param.unit || null,
+  //         method: param.method || null,
+  //         result: param.result || null,
+  //         analysis_status: param.analysis_status,
+  //       });
+  //     }
+
+  //     samplingList.push({
+  //       sampleName: sampling.sample_name,
+  //       assignedTo: sampling.lab_assigned_to,
+  //       parameters: parameterDetails,
+  //     });
+  //   }
+  // }
+
+  // const result = {
+  //   judul: project.project_name,
+  //   status: project.lab_status,
+  //   deadline: project.deadline_lhp,
+  //   lhp: "null",
+  //   dokumen: [
+  //     { judul: "Log Penerimaan Sample", url: null },
+  //     { judul: "Akomodasi Lingkungan", url: null },
+  //   ],
+  //   input: samplingList,
+  // };
+
+  // return { message: "success", result };
 };
