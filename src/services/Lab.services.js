@@ -106,7 +106,7 @@ exports.submitLab = async function (body) {
   samples.forEach((sample) => {
     // Find the sample in the project's sampling_list
     const foundSample = project.sampling_list.find(
-      (s) => s.sample_name === sample.sample_name,
+      (s) => s.sample_name === sample.sample_name
     );
 
     // If the sample is found, update its parameters
@@ -219,15 +219,18 @@ exports.getLD = async function () {
   if (result.length === 0) return { message: "Lembar Data not found", result };
 
   return { message: "Lembar Data found", result };
-}
+};
 
-exports.assignLD =  async function (body) {
+exports.assignLD = async function (body) {
   const { projectId, samplingId, paramId, LDId } = body;
-  if(!projectId || !samplingId || !paramId || !LDId) throw new Error("Please specify the project_id, sampling_id, param_id, and LD_id");
-  
+  if (!projectId || !samplingId || !paramId || !LDId)
+    throw new Error(
+      "Please specify the project_id, sampling_id, param_id, and LD_id"
+    );
+
   let analisis_folder_id, sample_folder_id;
   const projectObj = await Project.findById(projectId).exec();
-  if(!projectObj) throw new Error("Project not found");
+  if (!projectObj) throw new Error("Project not found");
 
   const auth = getAuth("https://www.googleapis.com/auth/drive");
   const drive = google.drive({ version: "v3", auth });
@@ -238,7 +241,7 @@ exports.assignLD =  async function (body) {
 
   analisis_folder_id = result.data.files[0].id;
 
-  if(result.data.files.length === 0) {
+  if (result.data.files.length === 0) {
     const newFolder = await drive.files.create({
       requestBody: {
         name: "Analisis",
@@ -253,7 +256,7 @@ exports.assignLD =  async function (body) {
   }
 
   const samplingObj = await Sampling.findById(samplingId).exec();
-  if(!samplingObj) throw new Error("Sampling not found");
+  if (!samplingObj) throw new Error("Sampling not found");
 
   const result2 = await drive.files.list({
     q: `name = '${samplingObj.sample_name}' and '${analisis_folder_id}' in parents`,
@@ -262,7 +265,7 @@ exports.assignLD =  async function (body) {
 
   sample_folder_id = result2.data.files[0].id;
 
-  if(result2.data.files.length === 0) {
+  if (result2.data.files.length === 0) {
     const newFolder = await drive.files.create({
       requestBody: {
         name: samplingObj.sample_name,
@@ -274,20 +277,22 @@ exports.assignLD =  async function (body) {
     sample_folder_id = newFolder.data.id;
   }
 
-  const samplingParamObj = projectObj.sampling_list.id(samplingId).param.id(paramId);
-  if(!samplingParamObj) throw new Error("Sampling Param not found");
+  const samplingParamObj = projectObj.sampling_list
+    .id(samplingId)
+    .param.id(paramId);
+  if (!samplingParamObj) throw new Error("Sampling Param not found");
 
   console.log(samplingParamObj);
 
   const LDObj = await LD.findById(LDId).exec();
-  if(!LDObj) throw new Error("Lembar Data not found");
+  if (!LDObj) throw new Error("Lembar Data not found");
 
   const result3 = await drive.files.list({
     q: `name = '${samplingParamObj.param} - LD' and '${sample_folder_id}' in parents`,
     fields: "files(id, name)",
   });
 
-  if(result3.data.files.length === 0) {
+  if (result3.data.files.length === 0) {
     await drive.files.copy({
       fileId: LDObj.base_ld_file_id,
       requestBody: {
@@ -301,29 +306,28 @@ exports.assignLD =  async function (body) {
   samplingParamObj.ld_file_id = result3.data.files[0].id;
   samplingParamObj.ld_name = `${samplingParamObj.param} - LD`;
   await projectObj.save();
-  
+
   projectObj.analisis_folder_id = analisis_folder_id;
   await projectObj.save();
 
   return { message: "Success Assigning", projectObj };
-}
+};
 
 exports.getSPVDashboard = async function () {
-  try{
-    console.log()
+  try {
+    console.log();
     // Find Project with Either "SAMPLING or "LAB"
     const projects = await Project.find({
-      current_division: { $in: ["SAMPLING", "LAB"] }
+      current_division: { $in: ["SAMPLING", "LAB"] },
     }).exec();
 
     // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
     let result = [];
     let counter = 0;
 
-    projects.forEach(project => {
-      project.sampling_list.forEach(sample => {
+    projects.forEach((project) => {
+      project.sampling_list.forEach((sample) => {
         if (sample.status === "LAB_RECEIVE") {
-          
           let sampleIdentifier;
           if (sample.sample_number) {
             sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
@@ -333,39 +337,35 @@ exports.getSPVDashboard = async function () {
           }
           // Step 3: Collect the necessary details for each accepted sample
           result.push({
-            id : sample._id,
-            sample_number : sampleIdentifier,
+            _id: sample._id,
+            sample_number: sampleIdentifier,
             sample_name: sample.sample_name,
             status: sample.status,
-            deadline: sample.deadline
+            deadline: sample.deadline,
           });
         }
       });
     });
 
-    return { message: "Success Fetching SPV Dashboard", success : true, result };
-
+    return { message: "Success Fetching SPV Dashboard", success: true, result };
   } catch (error) {
-    console.error("Error fetching SPV dashboard data:",error);
+    console.error("Error fetching SPV dashboard data:", error);
   }
-
-}
-
+};
 
 exports.getStaffDashboard = async function () {
-  try{
+  try {
     // Find Project with Either "SAMPLING or "LAB"
     const projects = await Project.find({
-      current_division: { $in: ["SAMPLING", "LAB"] }
+      current_division: { $in: ["SAMPLING", "LAB"] },
     }).exec();
 
     // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
     let result = [];
 
-    projects.forEach(project => {
-      project.sampling_list.forEach(sample => {
+    projects.forEach((project) => {
+      project.sampling_list.forEach((sample) => {
         if (sample.status === "LAB_RECEIVE") {
-
           let sampleIdentifier;
           if (sample.sample_number) {
             sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
@@ -375,19 +375,22 @@ exports.getStaffDashboard = async function () {
           }
           // Step 3: Collect the necessary details for each accepted sample
           result.push({
-            sample_number : sampleIdentifier,
+            sample_number: sampleIdentifier,
             sample_name: sample.sample_name,
             status: sample.status,
-            deadline: sample.deadline
+            deadline: sample.deadline,
           });
         }
       });
     });
 
-    return { message: "Success Fetching staff Dashboard", success : true, result };
-
+    return {
+      message: "Success Fetching staff Dashboard",
+      success: true,
+      result,
+    };
   } catch (error) {
-    console.error("Error fetching SPV dashboard data:",error);
+    console.error("Error fetching SPV dashboard data:", error);
   }
-  return { message: "Lembar Data found", success : true, result };
-}
+  return { message: "Lembar Data found", success: true, result };
+};
