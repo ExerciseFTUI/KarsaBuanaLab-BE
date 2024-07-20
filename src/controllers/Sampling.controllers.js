@@ -84,6 +84,15 @@ exports.getParameter = async function (req, res) {
   }
 };
 
+exports.getParameterRev = async function (req, res) {
+  try {
+    const result = await samplingServices.getParameterRev(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
 exports.getDetailsPPLHP = async function (req, res) {
   try {
     const result = await samplingServices.getDetailsPPLHP(req.params);
