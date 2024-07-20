@@ -434,7 +434,7 @@ exports.submitLabRev = async function (body) {
 
   // submitLabRev means API Revision of submitLab not for revision of sample
   // so the status of the sample is still "SUBMIT"
-  sample.status = "SUBMIT";
+  // sample.status = "SUBMIT";
 
   // save the project
   await project.save();
