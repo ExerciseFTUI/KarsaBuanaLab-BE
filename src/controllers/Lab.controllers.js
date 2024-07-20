@@ -79,7 +79,7 @@ exports.getLD = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.assignLD = async function (req, res) {
   try {
@@ -88,7 +88,7 @@ exports.assignLD = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.getSPVDashboard = async function (req, res) {
   try {
@@ -97,5 +97,13 @@ exports.getSPVDashboard = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
+exports.getStaffDashboard = async function (req, res) {
+  try {
+    const result = await labServices.getStaffDashboard(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
