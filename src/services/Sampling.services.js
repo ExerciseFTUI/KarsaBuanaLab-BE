@@ -438,3 +438,67 @@ exports.getInputSamplingForLab = async function (body) {
 
   // return { message: "success", result };
 };
+
+exports.getParameterRev = async function (body) {
+  try {
+    const { projectId, sampleId } = body;
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    const sampleObj = projectObj.sampling_list.find(
+      (sample) => sample._id == sampleId
+    );
+    if (!sampleObj) {
+      return { error: "Sample not found" };
+    }
+
+    let parameterList = [];
+    for (const param of sampleObj.param) {
+      if (!parameterList.includes(param.param)) {
+        parameterList.push(param.param);
+      }
+    }
+
+    let result = [];
+
+    for (const paramName of parameterList) {
+      const tempResult = await Param.findOne({ param: paramName }).exec();
+      const mapTempResult = {
+        param: tempResult.param,
+        unit: tempResult.unit,
+        method: tempResult.method,
+      };
+      result.push(mapTempResult);
+    }
+
+    return { message: "success", result: result };
+
+    // let parameterList = [];
+    // for (const sample of projectObj.sampling_list) {
+    //   if (sample.lab_assigned_to.includes(userId)) {
+    //     for (const param of sample.param) {
+    //       if (!parameterList.includes(param.param)) {
+    //         parameterList.push(param.param);
+    //       }
+    //     }
+    //   }
+    // }
+
+    // let result = [];
+    // for (const paramName of parameterList) {
+    //   const tempResult = await Param.findOne({ param: paramName }).exec();
+    //   const mapTempResult = {
+    //     param: tempResult.param,
+    //     unit: tempResult.unit,
+    //     method: tempResult.method,
+    //   };
+    //   result.push(mapTempResult);
+    // }
+
+    // return { message: "success", result: result };
+  } catch (error) {
+    throw new Error("Failed to get parameter: " + error.message);
+  }
+};
