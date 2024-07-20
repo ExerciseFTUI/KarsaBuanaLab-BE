@@ -376,10 +376,11 @@ exports.getStaffDashboard = async function () {
           }
           // Step 3: Collect the necessary details for each accepted sample
           result.push({
+            _id: sample._id,
             sample_number: sampleIdentifier,
             sample_name: sample.sample_name,
             status: sample.status,
-            deadline: sample.deadline,
+            deadline: sample.deadline || "haven't set deadline yet",
           });
         }
       });
