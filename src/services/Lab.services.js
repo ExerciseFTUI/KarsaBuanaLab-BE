@@ -376,6 +376,7 @@ exports.getStaffDashboard = async function () {
           }
           // Step 3: Collect the necessary details for each accepted sample
           result.push({
+            project_id: project._id,
             _id: sample._id,
             sample_number: sampleIdentifier,
             sample_name: sample.sample_name,
