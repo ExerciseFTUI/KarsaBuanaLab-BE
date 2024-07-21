@@ -354,9 +354,10 @@ exports.getSPVDashboard = async function () {
   }
 };
 
-exports.getStaffDashboard = async function () {
+exports.getStaffDashboard = async function (body) {
   try {
     // Find Project with Either "SAMPLING or "LAB"
+    const { staffID } = body;
     const projects = await Project.find({
       current_division: { $in: ["SAMPLING", "LAB"] },
     }).exec();
@@ -367,7 +368,7 @@ exports.getStaffDashboard = async function () {
 
     projects.forEach((project) => {
       project.sampling_list.forEach((sample) => {
-        if (sample.status === "LAB_RECEIVE") {
+        if (sample.status === "LAB_RECEIVE" && sample.lab_assigned_to.includes(staffID)) {
           let sampleIdentifier;
           if (sample.sample_number) {
             sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
