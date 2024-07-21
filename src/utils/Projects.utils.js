@@ -41,6 +41,59 @@ exports.copySuratPenawaran = async function copySuratPenawaran(folder_id) {
   return copiedFileId;
 };
 
+exports.copySuratPenawaranCensored = async function copySuratPenawaranCensored(folder_id,surat_penawaran_id) {
+  const surat_penawaran_id = surat_penawaran_id;
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  // Create a copy of the file on Google Drive
+  const copiedFile = await drive.files.copy({
+    fileId: surat_penawaran_id,
+    requestBody: {
+      name: "Surat Penawaran",
+      parents: [folder_id],
+    },
+  });
+
+  // Construct the shareable URL for the copied file
+  const copiedFileId = copiedFile.data.id;
+
+  await drive.permissions.create({
+    fileId: copiedFileId,
+    requestBody: {
+      role: "writer",
+      type: "anyone",
+    },
+  });
+
+  const sheets = google.sheets({ version: "v4", auth });
+  const spreadsheetId = copiedFileId;
+
+  const requests = [
+    {
+      deleteDimension: {
+        range: {
+          sheetId: 0, // Adjust if necessary
+          dimension: "COLUMNS",
+          startIndex: 7, // Column H (0-based index)
+          endIndex: 9, // Column I (exclusive, so endIndex is 9)
+        },
+      },
+    },
+  ];
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: requests,
+    },
+  });
+
+  return copiedFileId;
+};
+
 exports.copyLHP = async function copyLHP(folder_id, nama_project) {
   const lhp_id = process.env.SPREADSHEET_LHP;
 

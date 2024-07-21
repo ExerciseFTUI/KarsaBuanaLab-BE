@@ -41,6 +41,7 @@ const projectSchema = new mongoose.Schema({
   jumlah_revisi: { type: Number, required: false, default: 0 },
   valuasi_proyek: { type: Number, required: false },
   surat_penawaran: { type: String, required: false },
+  surat_penawaran_censored: { type: String, required: false },
   surat_fpp: { type: String, required: false },
   jadwal_sampling: { type: { from: String, to: String }, required: false },
   desc_failed: {
