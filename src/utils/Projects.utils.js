@@ -41,8 +41,8 @@ exports.copySuratPenawaran = async function copySuratPenawaran(folder_id) {
   return copiedFileId;
 };
 
-exports.copySuratPenawaranCensored = async function copySuratPenawaranCensored(folder_id,surat_penawaran_id) {
-  const surat_penawaran_id = surat_penawaran_id;
+exports.copySuratPenawaranCensored = async function copySuratPenawaranCensored(folder_id,surat_penawaran_id_receive) {
+  const surat_penawaran_id = surat_penawaran_id_receive;
 
   const auth = getAuth("https://www.googleapis.com/auth/drive");
 
