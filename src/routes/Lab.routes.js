@@ -13,7 +13,7 @@ router.post("/change-lab-status", labControllers.changeLabStatus);
 router.post("/add-notes", labControllers.addNotes);
 router.get("/get-ld", labControllers.getLD);
 router.get("/get-spv-dashboard", labControllers.getSPVDashboard);
-router.get("/get-staff-dashboard", labControllers.getStaffDashboard);
+router.post("/get-staff-dashboard", labControllers.getStaffDashboard);
 router.post("/add-ld", labControllers.assignLD);
 
 module.exports = router;

@@ -368,7 +368,10 @@ exports.getStaffDashboard = async function (body) {
 
     projects.forEach((project) => {
       project.sampling_list.forEach((sample) => {
-        if (sample.status === "LAB_RECEIVE" && sample.lab_assigned_to.includes(staffID)) {
+        if (
+          sample.status === "LAB_RECEIVE" &&
+          sample.lab_assigned_to.includes(staffID)
+        ) {
           let sampleIdentifier;
           if (sample.sample_number) {
             sampleIdentifier = `${project.no_sampling}.${sample.sample_number}`;
