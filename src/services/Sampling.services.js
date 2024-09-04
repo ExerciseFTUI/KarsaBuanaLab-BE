@@ -371,7 +371,6 @@ exports.getInputSamplingForLab = async function (body) {
   //   return { error: "Sample not found" };
   // }
 
-  // get data in project.sampling_list._id by sampleId
   const project = await Project.findOne({
     "sampling_list._id": sampleId,
   }).exec();
@@ -392,6 +391,8 @@ exports.getInputSamplingForLab = async function (body) {
     unit: param.unit || null,
     method: param.method || null,
     analysis_status: param.analysis_status,
+    ld_name: param.ld_name || null,
+    ld_file_id: param.ld_file_id || null,
   }));
 
   const result = {
