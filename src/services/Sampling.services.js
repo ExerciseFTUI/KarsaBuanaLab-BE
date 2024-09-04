@@ -391,8 +391,10 @@ exports.getInputSamplingForLab = async function (body) {
     unit: param.unit || null,
     method: param.method || null,
     analysis_status: param.analysis_status,
-    ld_name: param.ld_name || null,
-    ld_file_id: param.ld_file_id || null,
+    lembar_data: {
+      ld_name: param.ld_name || null,
+      ld_file_id: param.ld_file_id || null,
+    },
   }));
 
   const result = {
