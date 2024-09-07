@@ -414,7 +414,7 @@ exports.getDocsAndNotesLab = async function (body) {
 };
 
 exports.submitLabRev = async function (body) {
-  const { sampleId, samples } = body;
+  const { sampleId, samples, LDId, LDName } = body;
   const project = await Project.findOne({ "sampling_list._id": sampleId });
   if (!project) {
     throw new Error("Project not found");
@@ -434,6 +434,9 @@ exports.submitLabRev = async function (body) {
       foundParam.unit = param.unit;
       foundParam.method = param.method;
     }
+
+    if(LDId) foundParam.ld_file_id = LDId;
+    if(LDName) foundParam.ld_name = LDName;
   });
 
   await project.save();
