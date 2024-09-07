@@ -123,7 +123,7 @@ exports.changeSampleStatus = async function (body) {
 
   await projectObj.save();
 
-  return { message: "Success update status", projectObj };
+  return { message: "Success update status", result: projectObj };
 };
 
 async function getSample(params) {
