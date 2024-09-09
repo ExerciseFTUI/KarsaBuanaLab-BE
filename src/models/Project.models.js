@@ -24,6 +24,11 @@ const projectSchema = new mongoose.Schema({
   alamat_sampling: { type: String, required: true },
   surel: { type: String, required: true },
   contact_person: { type: String, required: true },
+  project_type: {
+    type: String,
+    required: true,
+    enum: ["Internal, External"],
+  },
   status: {
     type: String,
     required: false,
@@ -101,8 +106,13 @@ const projectSchema = new mongoose.Schema({
       content: { type: String, required: false },
     },
   ],
-  TM_status:{ type: String, required: false, default: "WAITING",enum: ["WAITING", "ACCEPTED", "REVISE"], },
-  
+  TM_status: {
+    type: String,
+    required: false,
+    default: "WAITING",
+    enum: ["WAITING", "ACCEPTED", "REVISE"],
+  },
+
   TM_note: { type: String, required: false },
 });
 
