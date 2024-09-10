@@ -482,3 +482,76 @@ exports.getReceiveDashboard = async function (body) {
     throw new Error("Failed to get receive dashboard: " + error.message);
   }
 };
+
+exports.getProjectSampleDetails = async function (body) {
+  try {
+    const { projectId, samplingId } = body;
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    // Find the specific sample in the sampling_list by its ID
+    const sampleObj = projectObj.sampling_list.find(
+      (sample) => sample._id == samplingId
+    );
+    if (!sampleObj) {
+      return { error: "Sample not found" };
+    }
+
+    // Get the logbook details from environment variables
+    const baseUrl = "https://docs.google.com/spreadsheets/d/";
+    const logbook_internal = baseUrl + process.env.LOGBOOK_INTERNAL;
+    const logbook_external = baseUrl + process.env.LOGBOOK_EXTERNAL;
+
+    // Return the required details including all parameters (paramSchema)
+    return {
+      message: "success",
+      surat_penawaran: projectObj.surat_penawaran, // Assuming surat_penawaran exists in the project schema
+      sample_name: sampleObj.sample_name,
+      paramSchema: sampleObj.param, // Return all params
+      logbook_internal,
+      logbook_external,
+    };
+
+  } catch (error) {
+    throw new Error("Failed to get project sample details: " + error.message);
+  }
+};
+
+exports.updateSampleStatusAndDate = async function (body) {
+  try {
+    const { projectId, samplingId, receiveDate } = body;
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    // Find the specific sample in the sampling_list by its ID
+    const sampleObj = projectObj.sampling_list.find(
+      (sample) => sample._id == samplingId
+    );
+    if (!sampleObj) {
+      return { error: "Sample not found" };
+    }
+
+    // Update the status to 'ACCEPTED' and the receive date
+    sampleObj.status = "ACCEPTED";
+    sampleObj.receive_date = receiveDate;
+
+    // Save the project with updated sample data
+    await projectObj.save();
+
+    return {
+      message: "Sample status and receive date updated successfully",
+      sample: sampleObj,
+    };
+
+  } catch (error) {
+    throw new Error("Failed to update sample status and receive date: " + error.message);
+  }
+};
