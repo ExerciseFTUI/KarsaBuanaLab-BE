@@ -466,11 +466,15 @@ exports.getReceiveDashboard = async function (body) {
         if (sample.status === "SUBMIT") {
 
           submittedSamples.push({
+            project_id: project.id,
+            project_name: project.project_name,
+            sample_id: sample.id,
             sample_name: sample.sample_name,
-            sample_number: sample.sample_number,
-            location: sample.location,
+            sample_number: sample.sample_number ? sample.sample_number : "",
+            location: project.alamat_sampling,
             project_contact_person: project.contact_person, // Assuming this field exists in the project schema
-          });
+        });
+        
         }
       }
     }
