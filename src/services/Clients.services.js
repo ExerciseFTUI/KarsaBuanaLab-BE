@@ -124,7 +124,6 @@ exports.resendEmail = async function (body) {
   if (!project) {
     throw new Error("Project Not Found");
   }
-
   await notifyEmail(
     project.surel,
     "Check out your project",
