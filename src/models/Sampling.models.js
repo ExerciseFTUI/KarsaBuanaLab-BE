@@ -112,6 +112,7 @@ const samplingSchema = new mongoose.Schema({
       content: { type: String, required: false },
     },
   ],
+  sampling_entry_date: { type: Date, required: false },
 });
 
 const Sampling = mongoose.model("Sampling", samplingSchema);

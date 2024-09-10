@@ -446,3 +446,40 @@ exports.getParameterRev = async function (body) {
     throw new Error("Failed to get parameter: " + error.message);
   }
 };
+
+
+exports.getReceiveDashboard = async function (body) {
+  try {
+    // Step 1: Find all projects with status RUNNING
+    const runningProjects = await Project.find({ status: "RUNNING" });
+
+    if (!runningProjects || runningProjects.length === 0) {
+      return { message: "No RUNNING projects found" };
+    }
+
+    // Array to store the result
+    let submittedSamples = [];
+
+    // Step 2: Iterate through all RUNNING projects
+    for (const project of runningProjects) {
+      // Step 3: Iterate through each sample in sampling_list
+      for (const sample of project.sampling_list) {
+        if (sample.status === "SUBMIT") {
+          // Step 4: Collect the required fields from the sample and project
+          submittedSamples.push({
+            sample_name: sample.sample_name,
+            sample_number: sample.sample_number,
+            location: sample.location,
+            project_contact_person: project.contact_person, // Assuming this field exists in the project schema
+          });
+        }
+      }
+    }
+
+    // Return the array with all the collected samples
+    return { message: "success", result: submittedSamples };
+
+  } catch (error) {
+    throw new Error("Failed to get receive dashboard: " + error.message);
+  }
+};
