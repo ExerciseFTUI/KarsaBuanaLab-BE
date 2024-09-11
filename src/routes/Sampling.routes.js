@@ -17,6 +17,7 @@ router.get("/get-input-sample-for-lab", samplingController.getInputSampleForLab)
 router.get("/get-receive-dashboard", samplingController.getReceiveDashboard);
 router.post("/get-project-sample-details",samplingController.getProjectSampleDetails);
 router.post("/update-samplestatus-and-date",samplingController.updateSampleStatusAndDate);
+router.post("/update-project-ttd-type",samplingController.updateProjectTtdType);
 
 
 

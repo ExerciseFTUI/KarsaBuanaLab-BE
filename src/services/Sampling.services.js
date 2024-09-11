@@ -576,3 +576,35 @@ exports.updateSampleStatusAndDate = async function (body) {
     throw new Error("Failed to update sample status and receive date: " + error.message);
   }
 };
+
+exports.updateProjectTtdType = async function (body) {
+  try {
+    const { projectId, ttd_type } = body;
+
+    // Validate ttd_type input
+    const validTypes = ["DIRECTOR", "TM"];
+    if (!validTypes.includes(ttd_type)) {
+      return { error: "Invalid ttd_type value" };
+    }
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    // Update the ttd_type in the project
+    projectObj.ttd_type = ttd_type;
+
+    // Save the project with updated ttd_type
+    await projectObj.save();
+
+    return {
+      message: "ttd_type updated successfully",
+      project: projectObj,
+    };
+
+  } catch (error) {
+    throw new Error("Failed to update ttd_type: " + error.message);
+  }
+};
