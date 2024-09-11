@@ -531,7 +531,7 @@ exports.getProjectSampleDetails = async function (body) {
           judul: 'Surat Penawaran',
           url : baseUrl + projectObj.surat_penawaran 
         }
-      ]
+      ],
       logbook_internal,
       logbook_external,
     };
