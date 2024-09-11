@@ -513,9 +513,25 @@ exports.getProjectSampleDetails = async function (body) {
     // Return the required details including all parameters (paramSchema)
     return {
       message: "success",
-      surat_penawaran: projectObj.surat_penawaran, // Assuming surat_penawaran exists in the project schema
-      sample_name: sampleObj.sample_name,
-      paramSchema: sampleObj.param, // Return all params
+      result: {
+        project_name : projectObj.project_name,
+        sampling : {
+          sample_name : sampleObj.sample_name,
+          sample_number : sampleObj.sample_number ? sampleObj.sample_number : "",
+          param: sampleObj.param,
+          regulation_name: sampleObj.regulation_name,
+          lab_assigned_to: sampleObj.lab_assigned_to,
+          status: sampleObj.status,
+          notes: sampleObj.notes,
+          id: sampleObj.id
+        }
+      },
+      files: [
+        {
+          judul: 'Surat Penawaran',
+          url : baseUrl + projectObj.surat_penawaran 
+        }
+      ]
       logbook_internal,
       logbook_external,
     };
@@ -527,7 +543,7 @@ exports.getProjectSampleDetails = async function (body) {
 
 exports.updateSampleStatusAndDate = async function (body) {
   try {
-    const { projectId, samplingId, receiveDate } = body;
+    const { projectId, samplingId, receiveDate, param } = body;
 
     // Find the project by its ID
     const projectObj = await Project.findById(projectId).exec();
@@ -546,6 +562,7 @@ exports.updateSampleStatusAndDate = async function (body) {
     // Update the status to 'ACCEPTED' and the receive date
     sampleObj.status = "ACCEPTED";
     sampleObj.receive_date = receiveDate;
+    sampleObj.param = param;
 
     // Save the project with updated sample data
     await projectObj.save();
