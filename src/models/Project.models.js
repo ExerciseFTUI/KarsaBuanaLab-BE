@@ -112,8 +112,13 @@ const projectSchema = new mongoose.Schema({
     default: "WAITING",
     enum: ["WAITING", "ACCEPTED", "REVISE"],
   },
-
   TM_note: { type: String, required: false },
+  ttd_type: {
+    type: String,
+    required: false,
+    default: "TM",
+    enum: ["DIRECTOR", "TM"],
+  },
 });
 
 const Project = mongoose.model("Project", projectSchema);
