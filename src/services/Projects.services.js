@@ -888,6 +888,7 @@ exports.getPPLHPDetail = async function (params) {
       lab_files: projectObj.lab_file,
       deadline_lhp: projectObj.deadline_lhp,
       lhp: null,
+      ttd_type: projectObj.ttd_type === null ? "TM" : projectObj.ttd_type
     };
 
     mapProjectObj.lhp = {
