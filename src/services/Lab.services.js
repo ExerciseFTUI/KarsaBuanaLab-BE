@@ -318,7 +318,7 @@ exports.getSPVDashboard = async function () {
     console.log();
     // Find Project with Either "SAMPLING or "LAB"
     const projects = await Project.find({
-      current_division: { $in: ["SAMPLING", "LAB"] },
+      current_division: { $in: ["SAMPLING", "PPLHP", "LAB"] },
     }).exec();
 
     // Step 2: Iterate through the samples of these projects to find those with the status "ACCEPTED"
@@ -435,8 +435,8 @@ exports.submitLabRev = async function (body) {
       foundParam.method = param.method;
     }
 
-    if(LDId) foundParam.ld_file_id = LDId;
-    if(LDName) foundParam.ld_name = LDName;
+    if (LDId) foundParam.ld_file_id = LDId;
+    if (LDName) foundParam.ld_name = LDName;
   });
 
   await project.save();
