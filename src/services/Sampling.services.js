@@ -537,6 +537,19 @@ exports.updateSampleStatusAndDate = async function (body) {
     // Update all samples with the same samplingId in the sampling_list
     projectObj.sampling_list = projectObj.sampling_list.map((sample) => {
       if (sample._id == samplingId) {
+        // check all of the sampling_list, if all of the status is LAB_RECEIVE
+        // change the projectObj.current_divion to LAB
+        let allLabReceive = true;
+        for (const sample of projectObj.sampling_list) {
+          if (sample.status !== "LAB_RECEIVE") {
+            allLabReceive = false;
+            break;
+          }
+        }
+        if (allLabReceive) {
+          projectObj.current_division = "LAB";
+        }
+
         // Replace the entire sample with the new data
         return { ...sample, ...fixedSampling };
       }
