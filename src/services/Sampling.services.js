@@ -466,7 +466,8 @@ exports.getReceiveDashboard = async function (body) {
             project_name: project.project_name,
             sample_id: sample.id,
             sample_name: sample.sample_name,
-            sample_number: sample.sample_number ? sample.sample_number : "",
+            project_type: project.project_type ?? null,
+            sample_number: sample.sample_number ?? "",
             location: project.alamat_sampling,
             project_contact_person: project.contact_person, // Assuming this field exists in the project schema
           });
