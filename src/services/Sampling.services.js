@@ -525,38 +525,33 @@ exports.getProjectSampleDetails = async function (body) {
 
 exports.updateSampleStatusAndDate = async function (body) {
   try {
-    const { projectId, samplingId, receiveDate, param } = body;
+    const { projectId, samplingId, sampling } = body;
 
     // Find the project by its ID
     const projectObj = await Project.findById(projectId).exec();
     if (!projectObj) {
       return { error: "Project not found" };
     }
+    const fixedSampling = sampling.sampling;
 
-    // Find the specific sample in the sampling_list by its ID
-    const sampleObj = projectObj.sampling_list.find(
-      (sample) => sample._id == samplingId
-    );
-    if (!sampleObj) {
-      return { error: "Sample not found" };
-    }
+    // Update all samples with the same samplingId in the sampling_list
+    projectObj.sampling_list = projectObj.sampling_list.map((sample) => {
+      if (sample._id == samplingId) {
+        // Replace the entire sample with the new data
+        return { ...sample, ...fixedSampling };
+      }
+      return sample;
+    });
 
-    // Update the status to 'ACCEPTED' and the receive date
-    sampleObj.status = "ACCEPTED";
-    sampleObj.receive_date = receiveDate;
-    sampleObj.param = param;
-
-    // Save the project with updated sample data
+    // Save the project with the updated sample data
     await projectObj.save();
 
     return {
-      message: "Sample status and receive date updated successfully",
-      sample: sampleObj,
+      message: "Sample(s) updated successfully",
+      sampling_list: projectObj.sampling_list,
     };
   } catch (error) {
-    throw new Error(
-      "Failed to update sample status and receive date: " + error.message
-    );
+    throw new Error("Failed to update sample(s): " + error.message);
   }
 };
 
