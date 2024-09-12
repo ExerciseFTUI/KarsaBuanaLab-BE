@@ -328,6 +328,7 @@ exports.getParameter = async function (body) {
 
 exports.getDetailsPPLHP = async function (body) {
   try {
+    console.log("body", body);
     const { project_id } = body;
     const project = await Project.findById(project_id).exec();
     if (!project) {
@@ -337,7 +338,6 @@ exports.getDetailsPPLHP = async function (body) {
     const result = {
       project_name: project.project_name,
       sampling: project.sampling_list,
-      project_type: project.project_type,
       logbook_internal: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_INTERNAL}`,
       logbook_external: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_EXTERNAL}`,
       files: [
@@ -515,6 +515,7 @@ exports.getProjectSampleDetails = async function (body) {
             url: baseUrl + projectObj.surat_penawaran,
           },
         ],
+        project_type: projectObj.project_type || null,
         logbook_internal,
         logbook_external,
       },
