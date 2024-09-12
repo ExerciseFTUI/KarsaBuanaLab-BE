@@ -551,6 +551,7 @@ exports.updateSampleStatusAndDate = async function (body) {
       sampling_list: projectObj.sampling_list,
     };
   } catch (error) {
+    console.log(error);
     throw new Error("Failed to update sample(s): " + error.message);
   }
 };
