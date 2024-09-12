@@ -26,7 +26,7 @@ const projectSchema = new mongoose.Schema({
   contact_person: { type: String, required: true },
   project_type: {
     type: String,
-    required: true,
+    required: false,
     enum: ["Internal", "External"],
   },
   status: {
