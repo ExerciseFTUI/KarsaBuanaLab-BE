@@ -337,6 +337,7 @@ exports.getDetailsPPLHP = async function (body) {
     const result = {
       project_name: project.project_name,
       sampling: project.sampling_list,
+      project_type: project.project_type,
       logbook_internal: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_INTERNAL}`,
       logbook_external: `https://docs.google.com/spreadsheets/d/${process.env.LOGBOOK_EXTERNAL}`,
       files: [
