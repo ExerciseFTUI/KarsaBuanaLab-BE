@@ -447,24 +447,19 @@ exports.getParameterRev = async function (body) {
   }
 };
 
-
 exports.getReceiveDashboard = async function (body) {
   try {
-
     const runningProjects = await Project.find({ status: "RUNNING" });
 
     if (!runningProjects || runningProjects.length === 0) {
       return { message: "No RUNNING projects found" };
     }
 
-
     let submittedSamples = [];
 
     for (const project of runningProjects) {
-
       for (const sample of project.sampling_list) {
         if (sample.status === "SUBMIT") {
-
           submittedSamples.push({
             project_id: project.id,
             project_name: project.project_name,
@@ -473,15 +468,12 @@ exports.getReceiveDashboard = async function (body) {
             sample_number: sample.sample_number ? sample.sample_number : "",
             location: project.alamat_sampling,
             project_contact_person: project.contact_person, // Assuming this field exists in the project schema
-        });
-        
+          });
         }
       }
     }
 
-
     return { message: "success", result: submittedSamples };
-
   } catch (error) {
     throw new Error("Failed to get receive dashboard: " + error.message);
   }
@@ -514,28 +506,27 @@ exports.getProjectSampleDetails = async function (body) {
     return {
       message: "success",
       result: {
-        project_name : projectObj.project_name,
-        sampling : {
-          sample_name : sampleObj.sample_name,
-          sample_number : sampleObj.sample_number ? sampleObj.sample_number : "",
+        project_name: projectObj.project_name,
+        sampling: {
+          sample_name: sampleObj.sample_name,
+          sample_number: sampleObj.sample_number ? sampleObj.sample_number : "",
           param: sampleObj.param,
           regulation_name: sampleObj.regulation_name,
           lab_assigned_to: sampleObj.lab_assigned_to,
           status: sampleObj.status,
           notes: sampleObj.notes,
-          id: sampleObj.id
-        }
+          id: sampleObj.id,
+        },
+        files: [
+          {
+            judul: "Surat Penawaran",
+            url: baseUrl + projectObj.surat_penawaran,
+          },
+        ],
+        logbook_internal,
+        logbook_external,
       },
-      files: [
-        {
-          judul: 'Surat Penawaran',
-          url : baseUrl + projectObj.surat_penawaran 
-        }
-      ],
-      logbook_internal,
-      logbook_external,
     };
-
   } catch (error) {
     throw new Error("Failed to get project sample details: " + error.message);
   }
@@ -571,9 +562,10 @@ exports.updateSampleStatusAndDate = async function (body) {
       message: "Sample status and receive date updated successfully",
       sample: sampleObj,
     };
-
   } catch (error) {
-    throw new Error("Failed to update sample status and receive date: " + error.message);
+    throw new Error(
+      "Failed to update sample status and receive date: " + error.message
+    );
   }
 };
 
@@ -603,7 +595,6 @@ exports.updateProjectTtdType = async function (body) {
       message: "ttd_type updated successfully",
       project: projectObj,
     };
-
   } catch (error) {
     throw new Error("Failed to update ttd_type: " + error.message);
   }
