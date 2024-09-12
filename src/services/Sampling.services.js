@@ -507,16 +507,7 @@ exports.getProjectSampleDetails = async function (body) {
       message: "success",
       result: {
         project_name: projectObj.project_name,
-        sampling: {
-          sample_name: sampleObj.sample_name,
-          sample_number: sampleObj.sample_number ? sampleObj.sample_number : "",
-          param: sampleObj.param,
-          regulation_name: sampleObj.regulation_name,
-          lab_assigned_to: sampleObj.lab_assigned_to,
-          status: sampleObj.status,
-          notes: sampleObj.notes,
-          id: sampleObj.id,
-        },
+        sampling: sampleObj,
         files: [
           {
             judul: "Surat Penawaran",
