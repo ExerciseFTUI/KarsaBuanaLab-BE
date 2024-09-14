@@ -593,84 +593,6 @@ exports.updateProjectTtdType = async function (body) {
   }
 };
 
-// exports.editProjectSamples = async function (project_id, body) {
-//   if (!project_id || project_id == null) {
-//     throw new Error("Please specify the project_id");
-//   }
-//   if (!body || body == null) {
-//     throw new Error("Request body is empty");
-//   }
-
-//   let result = await Project.findOne({ _id: project_id });
-//   if (!result) {
-//     throw new Error("Project not found");
-//   }
-//   let new_sampling_list = [];
-//   let new_regulation_list = [];
-//   let new_param_list = [];
-//   let sampling_object_list = [];
-//   body.forEach((sample, index) => {
-//     const indexOfValue = result.sampling_list.findIndex(
-//       (res) => res.sample_name === sample.sample_name
-//     );
-//     if (indexOfValue !== -1) {
-//       if (
-//         result.sampling_list[indexOfValue].regulation_name[0].regulation_name ==
-//         body[index].regulation_name
-//       ) {
-//         if (
-//           result.sampling_list[indexOfValue].param.toString() ===
-//           sample.param.toString()
-//         ) {
-//           sampling_object_list.push(result.sampling_list[indexOfValue]);
-//         } else {
-//           new_sampling_list.push(sample.sample_name);
-//           new_regulation_list.push(body[index].regulation_name);
-//           new_param_list.push(body[index].param);
-//         }
-//       } else {
-//         new_sampling_list.push(sample.sample_name);
-//         new_regulation_list.push(body[index].regulation_name);
-//         new_param_list.push(body[index].param);
-//       }
-//     } else {
-//       new_sampling_list.push(sample.sample_name);
-//       new_regulation_list.push(body[index].regulation_name);
-//       new_param_list.push(body[index].param);
-//     }
-//   });
-
-//   if (
-//     new_sampling_list.length ||
-//     new_regulation_list.length ||
-//     new_param_list.length
-//   ) {
-//     const folder_sample_id = await projectsUtils.getFolderIdByName(
-//       "Folder Sampel",
-//       result.folder_id
-//     );
-
-//     const new_sampling_obj = await projectsUtils.copySampleTemplate(
-//       false,
-//       folder_sample_id,
-//       new_sampling_list,
-//       result.project_name,
-//       new_regulation_list,
-//       new_param_list
-//     );
-
-//     sampling_object_list = sampling_object_list.concat(new_sampling_obj);
-//   }
-
-//   result = await Project.findOneAndUpdate(
-//     { _id: project_id },
-//     { sampling_list: sampling_object_list },
-//     { new: true }
-//   );
-
-//   return { message: "Successfully edited project samples", result };
-// };
-
 // update sample with like above function but with params project id and sample id as params, and body as new sample data
 exports.updateSampleWithId = async function (params, body) {
   const { project_id, sample_id } = params;
@@ -717,17 +639,6 @@ exports.updateSampleWithId = async function (params, body) {
     new_regulation_list.push(body.regulation_name);
     new_param_list.push(body.param);
   }
-  // console.log("before", result.sampling_list);
-
-  // // update the sample with the new data, with the same sample_id
-  // result.sampling_list = result.sampling_list.map((sample) => {
-  //   if (sample._id == sample_id) {
-  //     return { ...sample, ...body };
-  //   }
-  //   return sample;
-  // });
-
-  // console.log("result", result.sampling_list);
 
   if (
     new_sampling_list.length ||
