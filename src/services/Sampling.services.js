@@ -596,10 +596,6 @@ exports.updateProjectTtdType = async function (body) {
 // update sample with like above function but with params project id and sample id as params, and body as new sample data
 exports.updateSampleWithId = async function (params, body) {
   const { project_id, sample_id } = params;
-  console.log("hadir");
-  console.log("project_id", project_id);
-  console.log("sample_id", sample_id);
-  console.log("body", body);
 
   if (!body || Object.keys(body).length === 0) {
     throw new Error("Request body is empty");
