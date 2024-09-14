@@ -120,7 +120,6 @@ exports.getReceiveDashboard = async function (req, res) {
   }
 };
 
-
 exports.getProjectSampleDetails = async function (req, res) {
   try {
     const result = await samplingServices.getProjectSampleDetails(req.body);
@@ -144,6 +143,22 @@ exports.updateProjectTtdType = async function (req, res) {
   try {
     // Call the service function and pass the request body
     const result = await samplingServices.updateProjectTtdType(req.body);
+
+    // Return the result to the client
+    res.status(200).json(result);
+  } catch (err) {
+    // Handle errors and send a response
+    res.status(400).json({ message: err.message });
+  }
+};
+
+exports.updateSampleWithId = async function (req, res) {
+  try {
+    // Call the service function and pass the request
+    const result = await samplingServices.updateSampleWithId(
+      req.params,
+      req.body
+    );
 
     // Return the result to the client
     res.status(200).json(result);
