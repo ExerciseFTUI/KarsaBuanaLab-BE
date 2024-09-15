@@ -329,7 +329,6 @@ exports.getParameter = async function (body) {
 
 exports.getDetailsPPLHP = async function (body) {
   try {
-    console.log("body", body);
     const { project_id } = body;
     const project = await Project.findById(project_id).exec();
     if (!project) {
@@ -557,7 +556,6 @@ exports.updateSampleStatusAndDate = async function (body) {
       sampling_list: projectObj.sampling_list,
     };
   } catch (error) {
-    console.log(error);
     throw new Error("Failed to update sample(s): " + error.message);
   }
 };
