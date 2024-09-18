@@ -1,6 +1,7 @@
 const { Sampling } = require("../models/Sampling.models");
 const { Project } = require("../models/Project.models");
 const { User } = require("../models/User.models");
+const { LD } = require("../models/LembarData.models");
 const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
 const { Param } = require("../models/Param.models");
@@ -398,6 +399,8 @@ exports.getInputSamplingForLab = async function (body) {
 exports.getParameterRev = async function (body) {
   try {
     const { sampleId } = body;
+
+    // Fetch the project object
     const projectObj = await Project.findOne({
       "sampling_list._id": sampleId,
     }).exec();
@@ -405,6 +408,7 @@ exports.getParameterRev = async function (body) {
       return { error: "Project not found" };
     }
 
+    // Find the sample object
     const sampleObj = projectObj.sampling_list.find(
       (sample) => sample._id == sampleId
     );
@@ -412,6 +416,7 @@ exports.getParameterRev = async function (body) {
       return { error: "Sample not found" };
     }
 
+    // Create a list of unique parameters
     let parameterList = [];
     for (const param of sampleObj.param) {
       if (!parameterList.includes(param.param)) {
@@ -419,19 +424,25 @@ exports.getParameterRev = async function (body) {
       }
     }
 
+    // Fetch parameter details and store the result
     let result = [];
-
     for (const paramName of parameterList) {
       const tempResult = await Param.findOne({ param: paramName }).exec();
-      const mapTempResult = {
-        param: tempResult.param,
-        unit: tempResult.unit,
-        method: tempResult.method,
-      };
-      result.push(mapTempResult);
+      if (tempResult) {
+        const mapTempResult = {
+          param: tempResult.param,
+          unit: tempResult.unit,
+          method: tempResult.method,
+        };
+        result.push(mapTempResult);
+      }
     }
 
-    return { message: "success", result: result };
+    // Fetch all LD entries from the database
+    const ldList = await LD.find().exec();
+
+    // Return the final result along with LD entries
+    return { message: "success", result: result, ldData: ldList };
   } catch (error) {
     throw new Error("Failed to get parameter: " + error.message);
   }
