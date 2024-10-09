@@ -204,6 +204,13 @@ exports.createProject = async function (files, body) {
   if (!project.param_list) {
     throw new Error("Please specify the param_list or pass an empty array");
   }
+  if(!project.tipe_project) {
+    throw new Error("Please specify the tipe_project");
+  }
+  if (project.tipe_project !== "external" && project.tipe_project !== "internal") {
+    throw new Error('tipe_project harus "external" atau "internal" saja');
+  }
+
   let new_folder = null;
   try {
     const no_sampling = await projectsUtils.generateSamplingID();

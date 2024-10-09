@@ -335,7 +335,7 @@ exports.generateSamplingID = async function () {
   return addLeadingZeros(nomorProject, 3);
 };
 
-exports.generateProjectID = async function (nomorProject) {
+exports.generateProjectID = async function (nomorProject, tipe_project) {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
   const romanNumerals = [
@@ -353,9 +353,9 @@ exports.generateProjectID = async function (nomorProject) {
     "XII",
   ];
   const monthRomanNumeral = romanNumerals[currentMonth - 1];
-
+  const projectType = tipe_project === 'external'? 'Dirut' : "Internal";
   // Create the project ID in the desired format
-  const projectID = `${nomorProject}/Dirut/LabKBL/${monthRomanNumeral}/${currentYear}`;
+  const projectID = `${nomorProject}/${projectType}/LabKBL/${monthRomanNumeral}/${currentYear}`;
 
   return projectID;
 };
@@ -805,6 +805,39 @@ exports.fillSuratPenawaran = async function (
     sheetName,
     cellAddress
   );
+
+  const auth = getAuth("https://www.googleapis.com/auth/drive");
+
+  const drive = google.drive({ version: "v3", auth });
+
+  const copiedFile = await drive.files.copy({
+    fileId: file_id,
+    requestBody: {
+      name: "Surat Penawaran Copy",
+    },
+  });
+
+  const copiedFileId = copiedFile.data.id;
+
+  const requests = [
+    {
+      deleteDimension: {
+        range: {
+          sheetId: 0,
+          dimension: "COLUMNS",
+          startIndex: 7,
+          endIndex: 9,
+        },
+      },
+    },
+  ];
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: copiedFileId,
+    requestBody: {
+      requests: requests,
+    },
+  });
 
   return result;
 };

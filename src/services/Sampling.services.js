@@ -6,6 +6,7 @@ const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
 const { Param } = require("../models/Param.models");
 const projectsUtils = require("../utils/Projects.utils");
+const { LD } = require("../models/LembarData.models");
 
 exports.getSampling = async function (params) {
   const sample = await getSample(params);
@@ -429,10 +430,13 @@ exports.getParameterRev = async function (body) {
     for (const paramName of parameterList) {
       const tempResult = await Param.findOne({ param: paramName }).exec();
       if (tempResult) {
+        const ldObject = await LD.findOne({ ld_name: tempResult.paramName });
         const mapTempResult = {
-          param: tempResult.param,
-          unit: tempResult.unit,
-          method: tempResult.method,
+            param: tempResult.param,
+            unit: tempResult.unit,
+            method: tempResult.method,
+            ld_file_id: ldObject.base_ld_file_id,
+          ld_name: ldObject.ld_name,
         };
         result.push(mapTempResult);
       }
