@@ -1,9 +1,11 @@
 const { Sampling } = require("../models/Sampling.models");
 const { Project } = require("../models/Project.models");
 const { User } = require("../models/User.models");
+const { LD } = require("../models/LembarData.models");
 const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
 const { Param } = require("../models/Param.models");
+const projectsUtils = require("../utils/Projects.utils");
 const { LD } = require("../models/LembarData.models");
 
 exports.getSampling = async function (params) {
@@ -124,7 +126,7 @@ exports.changeSampleStatus = async function (body) {
 
   await projectObj.save();
 
-  return { message: "Success update status", projectObj };
+  return { message: "Success update status", result: projectObj };
 };
 
 async function getSample(params) {
@@ -360,17 +362,6 @@ exports.getDetailsPPLHP = async function (body) {
 
 exports.getInputSamplingForLab = async function (body) {
   const { sampleId } = body;
-  // const project = await Project.findById(projectId);
-  // if (!project) {
-  //   return { error: "Project not found" };
-  // }
-
-  // const sampling = project.sampling_list.find(
-  //   (sample) => sample._id == sampleId
-  // );
-  // if (!sampling) {
-  //   return { error: "Sample not found" };
-  // }
 
   const project = await Project.findOne({
     "sampling_list._id": sampleId,
@@ -409,6 +400,8 @@ exports.getInputSamplingForLab = async function (body) {
 exports.getParameterRev = async function (body) {
   try {
     const { sampleId } = body;
+
+    // Fetch the project object
     const projectObj = await Project.findOne({
       "sampling_list._id": sampleId,
     }).exec();
@@ -416,6 +409,7 @@ exports.getParameterRev = async function (body) {
       return { error: "Project not found" };
     }
 
+    // Find the sample object
     const sampleObj = projectObj.sampling_list.find(
       (sample) => sample._id == sampleId
     );
@@ -423,6 +417,7 @@ exports.getParameterRev = async function (body) {
       return { error: "Sample not found" };
     }
 
+    // Create a list of unique parameters
     let parameterList = [];
     for (const param of sampleObj.param) {
       if (!parameterList.includes(param.param)) {
@@ -430,23 +425,274 @@ exports.getParameterRev = async function (body) {
       }
     }
 
+    // Fetch parameter details and store the result
     let result = [];
-
     for (const paramName of parameterList) {
       const tempResult = await Param.findOne({ param: paramName }).exec();
-      const ldObject = await LD.findOne({ ld_name: tempResult.paramName });
-      const mapTempResult = {
-        param: tempResult.param,
-        unit: tempResult.unit,
-        method: tempResult.method,
-        ld_file_id: ldObject.base_ld_file_id,
-        ld_name: ldObject.ld_name,
-      };
-      result.push(mapTempResult);
+      if (tempResult) {
+        const ldObject = await LD.findOne({ ld_name: tempResult.paramName });
+        const mapTempResult = {
+            param: tempResult.param,
+            unit: tempResult.unit,
+            method: tempResult.method,
+            ld_file_id: ldObject.base_ld_file_id,
+          ld_name: ldObject.ld_name,
+        };
+        result.push(mapTempResult);
+      }
     }
 
-    return { message: "success", result: result };
+    // Fetch all LD entries from the database
+    const ldList = await LD.find().exec();
+
+    // Return the final result along with LD entries
+    return { message: "success", result: result, ldData: ldList };
   } catch (error) {
     throw new Error("Failed to get parameter: " + error.message);
   }
+};
+
+exports.getReceiveDashboard = async function (body) {
+  try {
+    const runningProjects = await Project.find({ status: "RUNNING" });
+
+    if (!runningProjects || runningProjects.length === 0) {
+      return { message: "No RUNNING projects found" };
+    }
+
+    let submittedSamples = [];
+
+    for (const project of runningProjects) {
+      for (const sample of project.sampling_list) {
+        if (sample.status === "SUBMIT") {
+          submittedSamples.push({
+            project_id: project.id,
+            project_name: project.project_name,
+            sample_id: sample.id,
+            sample_name: sample.sample_name,
+            project_type: project.project_type ?? null,
+            sample_number: sample.sample_number ?? "",
+            location: project.alamat_sampling,
+            project_contact_person: project.contact_person, // Assuming this field exists in the project schema
+          });
+        }
+      }
+    }
+
+    return { message: "success", result: submittedSamples };
+  } catch (error) {
+    throw new Error("Failed to get receive dashboard: " + error.message);
+  }
+};
+
+exports.getProjectSampleDetails = async function (body) {
+  try {
+    const { projectId, samplingId } = body;
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    // Find the specific sample in the sampling_list by its ID
+    const sampleObj = projectObj.sampling_list.find(
+      (sample) => sample._id == samplingId
+    );
+    if (!sampleObj) {
+      return { error: "Sample not found" };
+    }
+
+    // Get the logbook details from environment variables
+    const baseUrl = "https://docs.google.com/spreadsheets/d/";
+    const logbook_internal = baseUrl + process.env.LOGBOOK_INTERNAL;
+    const logbook_external = baseUrl + process.env.LOGBOOK_EXTERNAL;
+
+    // Return the required details including all parameters (paramSchema)
+    return {
+      message: "success",
+      result: {
+        project_name: projectObj.project_name,
+        sampling: sampleObj,
+        files: [
+          {
+            judul: "Surat Penawaran",
+            url: baseUrl + projectObj.surat_penawaran,
+          },
+        ],
+        project_type: projectObj.project_type || null,
+        logbook_internal,
+        logbook_external,
+      },
+    };
+  } catch (error) {
+    throw new Error("Failed to get project sample details: " + error.message);
+  }
+};
+
+exports.updateSampleStatusAndDate = async function (body) {
+  try {
+    const { projectId, samplingId, sampling } = body;
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+    const fixedSampling = sampling.sampling;
+
+    // Update all samples with the same samplingId in the sampling_list
+    projectObj.sampling_list = projectObj.sampling_list.map((sample) => {
+      if (sample._id == samplingId) {
+        // Replace the entire sample with the new data
+        return { ...sample, ...fixedSampling };
+      }
+      return sample;
+    });
+
+    // check all of the sampling_list, if all of the status is LAB_RECEIVE
+    // change the projectObj.current_divion to LAB
+    let allLabReceive = true;
+    for (const sample of projectObj.sampling_list) {
+      if (sample.status !== "LAB_RECEIVE") {
+        allLabReceive = false;
+        break;
+      }
+    }
+    if (allLabReceive) {
+      projectObj.current_division = "LAB";
+    }
+
+    // Save the project with the updated sample data
+    await projectObj.save();
+
+    return {
+      message: "Sample(s) updated successfully",
+      sampling_list: projectObj.sampling_list,
+    };
+  } catch (error) {
+    throw new Error("Failed to update sample(s): " + error.message);
+  }
+};
+
+exports.updateProjectTtdType = async function (body) {
+  try {
+    const { projectId, ttd_type } = body;
+
+    // Validate ttd_type input
+    const validTypes = ["DIRECTOR", "TM"];
+    if (!validTypes.includes(ttd_type)) {
+      return { error: "Invalid ttd_type value" };
+    }
+
+    // Find the project by its ID
+    const projectObj = await Project.findById(projectId).exec();
+    if (!projectObj) {
+      return { error: "Project not found" };
+    }
+
+    // Update the ttd_type in the project
+    projectObj.ttd_type = ttd_type;
+
+    // Save the project with updated ttd_type
+    await projectObj.save();
+
+    return {
+      message: "ttd_type updated successfully",
+      project: projectObj,
+    };
+  } catch (error) {
+    throw new Error("Failed to update ttd_type: " + error.message);
+  }
+};
+
+// update sample with like above function but with params project id and sample id as params, and body as new sample data
+exports.updateSampleWithId = async function (params, body) {
+  const { project_id, sample_id } = params;
+
+  if (!body || Object.keys(body).length === 0) {
+    throw new Error("Request body is empty");
+  }
+
+  let result = await Project.findOne({ _id: project_id });
+  if (!result) {
+    throw new Error("Project not found");
+  }
+
+  let sample = result.sampling_list.find((sample) => sample._id == sample_id);
+  if (!sample) {
+    throw new Error("Sample not found");
+  }
+
+  let new_sampling_list = [];
+  let new_regulation_list = [];
+  let new_param_list = [];
+  let sampling_object_list = [];
+
+  if (sample.sample_name === body.sample_name) {
+    if (sample.regulation_name[0].regulation_name === body.regulation_name) {
+      if (sample.param.toString() === body.param.toString()) {
+        sampling_object_list.push(sample);
+      } else {
+        new_sampling_list.push(body.sample_name);
+        new_regulation_list.push(body.regulation_name);
+        new_param_list.push(body.param);
+      }
+    } else {
+      new_sampling_list.push(body.sample_name);
+      new_regulation_list.push(body.regulation_name);
+      new_param_list.push(body.param);
+    }
+  } else {
+    new_sampling_list.push(body.sample_name);
+    new_regulation_list.push(body.regulation_name);
+    new_param_list.push(body.param);
+  }
+
+  if (
+    new_sampling_list.length ||
+    new_regulation_list.length ||
+    new_param_list.length
+  ) {
+    const folder_sample_id = await projectsUtils.getFolderIdByName(
+      "Folder Sampel",
+      result.folder_id
+    );
+
+    const new_sampling_obj = await projectsUtils.copySampleTemplate(
+      false,
+      folder_sample_id,
+      new_sampling_list,
+      result.project_name,
+      new_regulation_list,
+      new_param_list
+    );
+
+    // edit status = "SUBMIT" and lab_assigned_to = [] and deadline = null
+    new_sampling_obj[0].status = "SUBMIT";
+    new_sampling_obj[0].lab_assigned_to = sample.lab_assigned_to || [];
+    new_sampling_obj[0].deadline = sample.deadline || null;
+
+    sampling_object_list = sampling_object_list.concat(new_sampling_obj);
+  }
+
+  // merge the sampling_object_list with the existing sampling_list
+  // and replace the same sample_id with the new data of sampling_object_list id
+  result.sampling_list = result.sampling_list.map((sample) => {
+    if (sample._id == sample_id) {
+      return sampling_object_list[0];
+    }
+    return sample;
+  });
+
+  result = await Project.findOneAndUpdate(
+    { _id: project_id },
+    { sampling_list: result.sampling_list },
+    { new: true }
+  );
+
+  return {
+    message: "Successfully updated sample",
+    result: sampling_object_list[0]._id,
+  };
 };

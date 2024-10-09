@@ -440,21 +440,19 @@ exports.getProjectByDivision = async function (body) {
       projects = await Project.find({
         current_division: division.toUpperCase(),
       });
-
     } else {
       projects = await Project.find({
         current_division: division.toUpperCase(),
         status: status,
       });
     }
-    if(!(division.toUpperCase() === "MARKETING")){
+    if (!(division.toUpperCase() === "MARKETING")) {
       projects = projects.filter((project) => {
         if (project.valuasi_proyek == 0 || project.valuasi_proyek == null)
           return false;
         else return true;
       });
     }
-    
 
     return { message: "Success", projects };
   } catch (error) {
@@ -844,7 +842,6 @@ exports.setDeadlineLHP = async function (body) {
 
 exports.getAllPPLHPDetail = async function () {
   try {
-
     /*
     TODO:
     1. Cek di FE pake ini atau tidak
@@ -891,6 +888,7 @@ exports.getPPLHPDetail = async function (params) {
       lab_files: projectObj.lab_file,
       deadline_lhp: projectObj.deadline_lhp,
       lhp: null,
+      ttd_type: projectObj.ttd_type === null ? "TM" : projectObj.ttd_type
     };
 
     mapProjectObj.lhp = {
@@ -980,7 +978,7 @@ exports.deal = async function (body) {
   try {
     projectObj.current_division = "SAMPLING";
     projectObj.save();
-    return { message: "success", success : true};
+    return { message: "success", success: true };
   } catch (error) {
     throw new Error(error.message);
   }
@@ -1002,7 +1000,6 @@ exports.testLHP = async function (body) {
 
 exports.changeTMStatus = async function (body) {
   const { project_id, status, notes } = body;
-  console.log(status)
   if (!status) throw new Error("Please specify the status");
   if (!project_id) throw new Error("Please specify the project id");
 
@@ -1013,44 +1010,49 @@ exports.changeTMStatus = async function (body) {
   if (!validStatuses.includes(status)) throw new Error("Invalid status");
 
   try {
-    console.log(projectObj)
     projectObj.TM_status = status;
-    projectObj.TM_note = notes || '';
+    projectObj.TM_note = notes || "";
 
     await projectObj.save();
 
-    return { message: "Status Successfully Changed", success : true};
+    return { message: "Status Successfully Changed", success: true };
   } catch (err) {
-    console.log(err)
-    throw {message: err.message };
+    throw { message: err.message };
   }
 };
 
 exports.getAllPPLHP = async function () {
   try {
-    const sampleList = await Sampling.find({ status: "ACCEPTED", current_division: "SAMPLING", pplhp_status: "RECEIVE" }).exec();
+    const sampleList = await Sampling.find({
+      status: "ACCEPTED",
+      current_division: "SAMPLING",
+      pplhp_status: "RECEIVE",
+    }).exec();
     if (sampleList === null) throw new Error("No sample found");
 
     let projectList = [];
     for (let i = 0; i < sampleList.length; i++) {
       const project = await Project.findById(sampleList[i].project_id).exec();
       projectList.push(project);
-  }
+    }
 
     return { message: "success", projectList };
   } catch (err) {
     throw new Error(err.message);
   }
-}
+};
 
 exports.submitSample = async function (body) {
-  try  {
+  try {
     const { sampleId, projectId, receive_date } = body;
-    if(!sampleId || !projectId || !receive_date) throw new Error("Please specify the sampleId, projectId, and receive_date");
+    if (!sampleId || !projectId || !receive_date)
+      throw new Error(
+        "Please specify the sampleId, projectId, and receive_date"
+      );
     const projectObj = await Project.findById(projectId).exec();
     if (!projectObj) throw new Error("Project not found");
 
-    const sample = projectObj.sampling_list.find(s => s._id == sampleId);
+    const sample = projectObj.sampling_list.find((s) => s._id == sampleId);
     if (!sample) throw new Error("Sample not found");
 
     sample.receive_date = new Date(receive_date);
@@ -1066,4 +1068,4 @@ exports.submitSample = async function (body) {
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
