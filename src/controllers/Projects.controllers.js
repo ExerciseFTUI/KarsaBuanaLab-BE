@@ -348,3 +348,12 @@ exports.submitSample = async function (req, res) {
     res.status(400).json({ message: err.message });
   }
 }
+
+exports.acceptTMProject = async function (req, res) {
+  try {
+    const result = await projectsServices.acceptTMProject(req.body);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}

@@ -399,6 +399,10 @@ exports.createProjectJSON = async function (body) {
       project.alamat_sampling
     );
 
+    const id_surat_penawaran_censored = await projectsUtils.copySuratPenawaranCensored(create_project.folder_id,surat_penawaran_id)
+
+    create_project.surat_penawaran_censored = id_surat_penawaran_censored
+
     await create_project.save();
 
     await notifyEmail(
