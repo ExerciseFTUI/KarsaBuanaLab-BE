@@ -6,7 +6,6 @@ const { BaseSample } = require("../models/BaseSample.models");
 const mongoose = require("mongoose");
 const { Param } = require("../models/Param.models");
 const projectsUtils = require("../utils/Projects.utils");
-const { LD } = require("../models/LembarData.models");
 
 exports.getSampling = async function (params) {
   const sample = await getSample(params);
