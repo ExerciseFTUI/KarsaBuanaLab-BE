@@ -518,7 +518,7 @@ exports.getLinkFiles = async function (params) {
 
   const suratPenawaran = {
     name: "Surat Penawaran",
-    url: "https://drive.google.com/file/d/" + resultProject.surat_penawaran,
+    url: "https://docs.google.com/spreadsheets/d/" + resultProject.surat_penawaran,
     type: "Preparation",
   };
   result.file.push(suratPenawaran);
@@ -553,7 +553,7 @@ exports.getLinkFiles = async function (params) {
 
   const log_penerimaan = {
     name: "Log Penerimaan",
-    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    url: "https://docs.google.com/spreadsheets/d/" + resultProject.surat_fpp,
     type: "Result",
   };
   result.file.push(log_penerimaan);
@@ -570,7 +570,7 @@ exports.getLinkFiles = async function (params) {
 
   result.lhp = {
     name: "LHP",
-    url: "https://drive.google.com/file/d/" + resultProject.surat_fpp,
+    url: "https://docs.google.com/spreadsheets/d/" + "1sqCwcDybexzN74HqYUEtVwdoO0OdC1Pp",
     type: "Result",
   };
 
