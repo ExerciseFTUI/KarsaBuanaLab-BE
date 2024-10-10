@@ -204,17 +204,23 @@ exports.createProject = async function (files, body) {
   if (!project.param_list) {
     throw new Error("Please specify the param_list or pass an empty array");
   }
-  if(!project.tipe_project) {
+  if (!project.tipe_project) {
     throw new Error("Please specify the tipe_project");
   }
-  if (project.tipe_project !== "external" && project.tipe_project !== "internal") {
+  if (
+    project.tipe_project !== "external" &&
+    project.tipe_project !== "internal"
+  ) {
     throw new Error('tipe_project harus "external" atau "internal" saja');
   }
 
   let new_folder = null;
   try {
     const no_sampling = await projectsUtils.generateSamplingID();
-    const no_penawaran = await projectsUtils.generateProjectID(no_sampling, tipe_project);
+    const no_penawaran = await projectsUtils.generateProjectID(
+      no_sampling,
+      project.tipe_project
+    );
     new_folder = await drivesServices.createFolder({
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
@@ -309,17 +315,24 @@ exports.createProjectJSON = async function (body) {
   if (!project.sampling_list) {
     throw new Error("Please specify the sampling_list");
   }
-  if(!project.tipe_project) {
+  if (!project.tipe_project) {
     throw new Error("Please specify the tipe_project");
   }
-  if (project.tipe_project !== "external" && project.tipe_project !== "internal") {
+  if (
+    project.tipe_project !== "external" &&
+    project.tipe_project !== "internal"
+  ) {
     throw new Error('tipe_project harus "external" atau "internal" saja');
   }
+  console.log("Field udah aman");
 
   let new_folder = null;
   try {
     const no_sampling = await projectsUtils.generateSamplingID();
-    const no_penawaran = await projectsUtils.generateProjectID(no_sampling, tipe_project);
+    const no_penawaran = await projectsUtils.generateProjectID(
+      no_sampling,
+      project.tipe_project
+    );
     new_folder = await drivesServices.createFolder({
       folder_name: project.project_name,
       root_folder_id: process.env.FOLDER_ID_PROJECT,
@@ -370,52 +383,57 @@ exports.createProjectJSON = async function (body) {
       (file) => file.file_name === "Surat Penawaran"
     ).file_id;
 
-    const fillFPP = await projectsUtils.fillFPPFile(
-      fpp_id,
-      no_penawaran,
-      project.client_name,
-      project.contact_person,
-      project.alamat_kantor,
-      project.surel,
-      project.project_name,
-      project.alamat_sampling
-    );
+    // const fillFPP = await projectsUtils.fillFPPFile(
+    //   fpp_id,
+    //   no_penawaran,
+    //   project.client_name,
+    //   project.contact_person,
+    //   project.alamat_kantor,
+    //   project.surel,
+    //   project.project_name,
+    //   project.alamat_sampling
+    // );
 
-    const fillFPPSample = await projectsUtils.fillSample(
-      fpp_id,
-      create_project.alamat_sampling,
-      create_project.sampling_list
-    );
+    // const fillFPPSample = await projectsUtils.fillSample(
+    //   fpp_id,
+    //   create_project.alamat_sampling,
+    //   create_project.sampling_list
+    // );
 
-    const fillSuratPenawaran = await projectsUtils.fillSuratPenawaran(
-      surat_penawaran_id,
-      no_penawaran,
-      Date.now(),
-      project.client_name,
-      project.alamat_kantor,
-      project.contact_person,
-      project.surel,
-      project.project_name,
-      project.alamat_sampling
-    );
+    // const fillSuratPenawaran = await projectsUtils.fillSuratPenawaran(
+    //   surat_penawaran_id,
+    //   no_penawaran,
+    //   Date.now(),
+    //   project.client_name,
+    //   project.alamat_kantor,
+    //   project.contact_person,
+    //   project.surel,
+    //   project.project_name,
+    //   project.alamat_sampling
+    // );
 
-    const id_surat_penawaran_censored = await projectsUtils.copySuratPenawaranCensored(create_project.folder_id,surat_penawaran_id)
+    // const id_surat_penawaran_censored =
+    //   await projectsUtils.copySuratPenawaranCensored(
+    //     create_project.folder_id,
+    //     surat_penawaran_id
+    //   );
 
-    create_project.surat_penawaran_censored = id_surat_penawaran_censored
+    // create_project.surat_penawaran_censored = id_surat_penawaran_censored;
 
     await create_project.save();
 
-    await notifyEmail(
-      create_project.surel,
-      "Project Created",
-      `Your project ${create_project.project_name} has been created.
-      \nProject ID: ${create_project.id}
-      \nPassword: ${create_project.password}
-      \nYou can access your project using this information in our <a href=${process.env.DOMAIN_NAME}>website</a>.
+    // await notifyEmail(
+    //   create_project.surel,
+    //   "Project Created",
+    //   `Your project ${create_project.project_name} has been created.
+    //   \nProject ID: ${create_project.id}
+    //   \nPassword: ${create_project.password}
+    //   \nYou can access your project using this information in our <a href=${process.env.DOMAIN_NAME}>website</a>.
 
-      \n\nPlease keep this information safe.
-      \nThank you.`
-    );
+    //   \n\nPlease keep this information safe.
+    //   \nThank you.`
+    // );
+
     return {
       message: "Successfull",
       result: {
@@ -425,6 +443,7 @@ exports.createProjectJSON = async function (body) {
       },
     };
   } catch (error) {
+    console.log(error);
     throw { message: error.message, new_folder_id: new_folder.result.id };
   }
 };
@@ -906,7 +925,7 @@ exports.getPPLHPDetail = async function (params) {
       lab_files: projectObj.lab_file,
       deadline_lhp: projectObj.deadline_lhp,
       lhp: null,
-      ttd_type: projectObj.ttd_type === null ? "TM" : projectObj.ttd_type
+      ttd_type: projectObj.ttd_type === null ? "TM" : projectObj.ttd_type,
     };
 
     mapProjectObj.lhp = {
