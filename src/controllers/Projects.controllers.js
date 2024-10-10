@@ -77,6 +77,7 @@ exports.createProject = async function (req, res) {
 exports.createProjectJSON = async function (req, res) {
   try {
     const result = await projectsServices.createProjectJSON(req.body);
+    console.log("Success");
     res.status(200).json(result);
   } catch (errorObj) {
     if (errorObj.new_folder_id == null) {
@@ -305,7 +306,6 @@ exports.deal = async function (req, res) {
   }
 };
 
-
 exports.testLHP = async function (req, res) {
   try {
     const result = await projectsServices.testLHP(req.body);
@@ -338,7 +338,7 @@ exports.getAllPPLHP = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.submitSample = async function (req, res) {
   try {
@@ -347,7 +347,7 @@ exports.submitSample = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
 
 exports.acceptTMProject = async function (req, res) {
   try {
@@ -356,4 +356,4 @@ exports.acceptTMProject = async function (req, res) {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
-}
+};
