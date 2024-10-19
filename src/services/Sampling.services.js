@@ -429,13 +429,10 @@ exports.getParameterRev = async function (body) {
     for (const paramName of parameterList) {
       const tempResult = await Param.findOne({ param: paramName }).exec();
       if (tempResult) {
-        const ldObject = await LD.findOne({ ld_name: tempResult.paramName });
         const mapTempResult = {
             param: tempResult.param,
             unit: tempResult.unit,
-            method: tempResult.method,
-            ld_file_id: ldObject.base_ld_file_id,
-          ld_name: ldObject.ld_name,
+            method: tempResult.method
         };
         result.push(mapTempResult);
       }
